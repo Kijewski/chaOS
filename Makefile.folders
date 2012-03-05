@@ -1,0 +1,44 @@
+# INCLUDED
+
+TARGET := build
+GCCFLAGS := -m64 -march=core2 -g3 -ggdb \
+            -ffreestanding -mno-red-zone -nostdlib -fno-builtin -nostartfiles -nodefaultlibs \
+            -I../include -I..
+
+CC := gcc
+CFLAGS := $(GCCFLAGS) -Os -std=gnu99 -Wall -Wextra -fno-stack-protector
+AR := ar
+
+C_BIN := $(C_SRC:%.c=$(TARGET)/%.o)
+BIN := $(S_BIN) $(C_BIN)
+
+all:: $(TARGET)/build.a
+
+clean::
+	rm -rf $(TARGET)
+
+depend: $(TARGET)/.depend
+
+$(TARGET)/build.a: $(BIN)
+	rm -f $@
+	$(AR) rs $@ $^
+	ranlib $@
+
+$(TARGET)/.depend: $(C_SRC)
+	mkdir -p $(TARGET)
+	rm -rf $@
+	touch $@
+ifdef S_SRC
+	$(CC) $(SFLAGS) -MM -MP $(S_SRC) >> $@
+endif
+ifdef C_SRC
+	$(CC) $(CFLAGS) -MM -MP $(C_SRC) >> $@
+endif
+
+$(S_BIN): $(TARGET)/%.o: %.s
+	$(CC) $(SFLAGS) -c -o $@ $<
+
+$(C_BIN): $(TARGET)/%.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+-include $(TARGET)/.depend

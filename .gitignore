@@ -1,0 +1,9 @@
+build
+
+.*
+!.gitignore
+*~
+*.~*
+
+*.swp*
+*.nfs*
