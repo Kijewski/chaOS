@@ -67,7 +67,7 @@ struct freemap_48
   struct freemap_42 submaps[0];
 };
 
-static struct freemap_48 *freemap;
+static struct freemap_48 *const freemap = &_kernel_memory_end;
 
 static uint64_t
 get_memory_range_size (const struct e820_entry *entry)
@@ -89,8 +89,6 @@ get_memory_range_size (const struct e820_entry *entry)
 bool
 paging_init (void)
 {
-  freemap = (void *) _kernel_memory_end;
-
   size_t total_memory = 0;
   for (const struct e820_ref *ref = E820_BASE; ref; ref = e820_next (ref))
     total_memory += get_memory_range_size (&ref->entry);

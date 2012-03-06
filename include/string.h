@@ -123,8 +123,9 @@ char *strerror_r (int, char *, size_t); // TODO
 char *strtok_r (char *s, const char *delim, char **save_ptr); // TODO
 
 // UNIMPLEMENTED!
-char *strstr(const char *, const char *) DEPRECATED;
-char *strtok(char *restrict, const char *restrict) DEPRECATED;
+
+char *strstr (const char *, const char *) DEPRECATED;
+char *strtok (char *restrict, const char *restrict) DEPRECATED;
 size_t strxfrm (char *restrict, const char *restrict, size_t) DEPRECATED;
 
 #endif
