@@ -25,15 +25,9 @@ $(TARGET)/build.a: $(BIN)
 	ranlib $@
 
 $(TARGET)/.depend: $(C_SRC)
-	mkdir -p $(TARGET)
-	rm -rf $@
-	touch $@
-ifdef S_SRC
-	$(CC) $(SFLAGS) -MM -MP $(S_SRC) >> $@
-endif
-ifdef C_SRC
-	$(CC) $(CFLAGS) -MM -MP $(C_SRC) >> $@
-endif
+	@mkdir -p $(TARGET)
+	@rm -rf $@
+	$(CC) $(CFLAGS) -MM -MP $^ > $@
 
 $(S_BIN): $(TARGET)/%.o: %.s
 	$(CC) $(SFLAGS) -c -o $@ $<

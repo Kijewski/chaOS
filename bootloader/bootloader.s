@@ -234,10 +234,7 @@ _halt:
 
 [BITS 64]
 startLongMode:
-    push rbp
-    mov rbp, rsp
-    add rsp, 0x10 ; red zone (mandated by the System V AMD64 ABI#
-
+    ; rdi, rsi and rdx are set
     mov rax, [kernel_base + elf64_entry_point]
     call rax
 

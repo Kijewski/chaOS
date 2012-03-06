@@ -1,6 +1,12 @@
 #ifndef ATTRIBUTES_H__
 #define ATTRIBUTES_H__
 
+#define volatile __volatile__
+#define asm __asm__
+#define inline __inline__
+#define typeof __typeof__
+#define restrict __restrict__
+
 #define NO_RETURN __attribute__ ((noreturn))
 #define PACKED __attribute__ ((packed))
 
