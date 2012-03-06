@@ -6,15 +6,12 @@
 ;     by http://wiki.osdev.org/User:Jhawthorn
 
 [ORG 0x00007C00]
-kernel_base equ 1024*1024
-elf64_entry_point equ 3*8
+KERNEL_BASE equ 1024*1024
+ELF64_ENTRY_POINT equ 3*8
 
-partition equ 1
+PARTITION equ 1
+MAX_SECTORS_AT_ONCE equ 32
 [BITS 16]
-
-%macro halt 0
-    jmp _halt
-%endmacro
 
 boot_loader:
     ;Parameter from BIOS: dl = boot drive
@@ -25,12 +22,9 @@ boot_loader:
     xor eax,eax
     mov ds,ax
     mov es,ax
-    mov fs,ax
-    mov gs,ax
     mov ss,ax
 
     mov esp,0x7C00
-    mov ebp,esp
 
     push eax
     popfd
@@ -38,16 +32,40 @@ boot_loader:
     jmp 0:.clear_cs
 .clear_cs:
 
-.enabled_a20:
+enabled_a20:
     ;Enable A20 via port 92h
     in al,92h
     or al,02h
     out 92h,al
 
-.enter_unreal_mode:
-    push ds
+    push dx ; preserve current boot device
 
+read_e820:
+    xor ebx, ebx
+    mov di, 0x4504
+.loop:
+    mov eax, 0xe820
+    mov ecx, 20
+    mov edx, 0x534D4150
+
+    int 0x15
+    jc fail
+    cmp eax, 'PAMS'
+    jne fail
+
+    mov word [di-4], cx
+    add di, cx
+    add di, 4
+
+    test ebx, ebx
+    jnz .loop
+.end:
+    mov word [di-2], 0
+
+enter_unreal_mode:
     lgdt [gdt.pointer]
+
+    push ds
 
     mov eax, cr0
     or al, 1
@@ -61,28 +79,28 @@ boot_loader:
     
     pop ds
 
-    ; dx was left unchanged, still contains device number
-    push edx
-
 load_image:
+    pop dx
+    push dx
+
     xor ax, ax
     int 0x13
-    jc .load_image_failed
+    jc fail
 
     mov si, dap
     mov ah, 0x42
     int 0x13
-    jc .load_image_failed
+    jc fail
 
     cmp word [0x0500 + 510], 0xaa55
-    jne .load_image_failed
+    jne fail
 
-    mov edi, kernel_base
+    mov edi, KERNEL_BASE
 
-    mov ebx, dword [0x0500 + 446+16*(partition-1) + 8]
+    mov ebx, dword [0x0500 + 446+16*(PARTITION-1) + 8]
     mov [dap.start], ebx
     push ebx
-    mov ecx, dword [0x0500 + 446+16*(partition-1) + 12]
+    mov ecx, dword [0x0500 + 446+16*(PARTITION-1) + 12]
     push ecx
 
     cmp ecx, 1024*1024/512
@@ -91,7 +109,7 @@ load_image:
 .not_too_big:
 
 .read_sector:
-    mov ebx, 32
+    mov ebx, MAX_SECTORS_AT_ONCE
     cmp ecx, ebx
     jae .not_too_much
     mov bx, cx
@@ -101,7 +119,7 @@ load_image:
     mov si, dap
     mov ah, 0x42
     int 0x13
-    jc .load_image_failed
+    jc fail
     
     mov bx, [dap.count]
     movzx ebx, bx
@@ -125,7 +143,7 @@ load_image:
     jecxz build_temp_pagetable
     jmp .read_sector
 
-.load_image_failed:
+fail:
     int 0x18
 
 dap:
@@ -207,10 +225,6 @@ build_temp_pagetable:
     sub word [gdt.pointer], 8 ; delete unreal descriptor
     lgdt [gdt.pointer]        ;load 80-bit gdt.pointer below
 
-    pop esi
-    pop edi
-    pop edx
-
     jmp gdt.code:startLongMode      ;Load CS with 64 bit segment and flush the instruction cache
 
     ;Global Descriptor Table
@@ -228,18 +242,9 @@ gdt:
                       ;Changed from "dd gdt"
                       ;Ref: Intel System Programming Manual V1 - 2.1.1.1
 
-_halt:
-    hlt
-    jmp _halt
-
 [BITS 64]
 startLongMode:
-    ; rdi, rsi and rdx are set
-    mov rax, [kernel_base + elf64_entry_point]
-    call rax
-
-    halt
+    jmp [KERNEL_BASE + ELF64_ENTRY_POINT]
 
 .signature:
     times 446-($-$$) db 0				;Fill boot sector
-    

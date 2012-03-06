@@ -1,5 +1,6 @@
 #include "videoram.h"
 
+#include <attributes.h>
 #include <ports.h>
 
 #define VR_BASE ((volatile char *) 0xb8000)
@@ -54,7 +55,7 @@ videoram_puts (const char *s, char attributes)
 }
 
 void
-videoram_put_int (int v, char attributes)
+videoram_put_int (int64_t v, char attributes)
 {
   char s[(sizeof (v) * 35 + 9) / 10 + 2];
   char *c = &s[sizeof (s) - 1];
@@ -63,9 +64,34 @@ videoram_put_int (int v, char attributes)
     for (;;)
       {
         static const char H[] = "9876543210123456789";
-        int r = v % 10;
+        typeof (v) r = v % 10;
         v /= 10;
-        *--c = H[r + 9];
+        *--c = H[r + 10 - 1];
+        if (v == 0)
+          {
+            if (r < 0)
+              *--c = '-';
+            break;
+          }
+      }
+  else
+    *--c = '0';
+  videoram_puts (c, attributes);
+}
+
+void
+videoram_put_hex (int64_t v, char attributes)
+{
+  char s[sizeof (v)*2 + 2];
+  char *c = &s[sizeof (s) - 1];
+  *c = 0;
+  if (v != 0)
+    for (;;)
+      {
+        static const char H[] = "FEDCBA9876543210123456789ABCDEF";
+        typeof (v) r = v % 16;
+        v /= 16;
+        *--c = H[r + 16 - 1];
         if (v == 0)
           {
             if (r < 0)

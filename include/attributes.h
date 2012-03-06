@@ -13,6 +13,7 @@
 #define USED __attribute__ ((used))
 #define UNUSED __attribute__ ((unused))
 #define DEPRECATED __attribute__ ((deprecated))
+#define FUNCTION __attribute__ ((warn_unused_result))
 
 #define NO_INLINE __attribute__ ((noinline))
 #define ALWAYS_INLINE __attribute__ ((always_inline))

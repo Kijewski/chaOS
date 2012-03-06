@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-void _start (uint64_t lba_start, uint64_t lba_count, uint8_t  lba_disk);
+void _start (void);
         
 #endif

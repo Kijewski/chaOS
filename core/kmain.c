@@ -7,13 +7,14 @@
 
 #include "interrupts.h"
 #include "paging.h"
+#include "e820.h"
 
 #define BG_NORMAL (VR_GREEN|VR_BRIGHT)
 #define BG_INFO (VR_BLACK|VR_BRIGHT)
-#define BG_ERROR (VR_RED|VR_BRIGHT)
+#define BG_ERROR BG_INFO
 #define FG_NORMAL BG_INFO
 #define FG_INFO BG_NORMAL
-#define FG_ERROR VR_BLACK
+#define FG_ERROR (VR_RED|VR_BRIGHT)
 
 #define COLOR_NORMAL (VR_COLOR (BG_NORMAL, FG_NORMAL))
 #define COLOR_INFO (VR_COLOR (BG_INFO, FG_INFO))
@@ -47,19 +48,49 @@ init_subsystem (const char *desc, bool (*init) (void), bool (*cleanup) (void))
 }
 
 void
-_start (uint64_t lba_start UNUSED,
-        uint64_t lba_count UNUSED,
-        uint8_t  lba_disk UNUSED)
+_start (void)
 {
-  // No need to switch the stack.
-  // It is 0x7C00 down to 0x0500, i.e. almost 30kb!
-
   cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
 
   videoram_cls (COLOR_NORMAL);
 
   videoram_puts ("\n  Welcome to ", COLOR_NORMAL);
-  videoram_puts (" chaOS! \n\n", VR_COLOR (FG_NORMAL, BG_ERROR));
+  videoram_puts (" chaOS! \n\n", COLOR_ERROR);
+
+  uint64_t total_memory = 0;
+  videoram_puts ("Memory map:\n", COLOR_NORMAL);
+  for (const struct e820_ref *ref = E820_BASE;
+       ref->size > 0;
+       ref = (void *) ((uintptr_t) ref + ref->size + 4))
+    {
+      videoram_puts ("  * ", COLOR_NORMAL);
+      videoram_puts ("0x", COLOR_NORMAL);
+      videoram_put_hex (ref->entry.base_addr, COLOR_NORMAL);
+      videoram_puts (" to 0x", COLOR_NORMAL);
+      videoram_put_hex (ref->entry.base_addr + ref->entry.length -1,
+                        COLOR_NORMAL);
+      videoram_puts (" is ", COLOR_NORMAL);
+      switch (ref->entry.type)
+        {
+        case E820_MEMORY:
+          videoram_puts (" usable ", COLOR_INFO);
+          if (ref->entry.base_addr >= 1024*1024)
+            total_memory += ref->entry.length;
+          else
+            videoram_puts (" (won't be used!)", COLOR_NORMAL);
+          break;
+        case E820_RESERVED:
+          videoram_puts ("reserved", COLOR_NORMAL);
+          break;
+        default:
+          videoram_puts (" UNKNOWN ", COLOR_ERROR);
+          break;
+        }
+      videoram_put_ln ();
+    }
+  videoram_puts ("Totalling up ", COLOR_NORMAL);
+  videoram_put_int (total_memory/(1024*1024), COLOR_NORMAL);
+  videoram_puts (" MB.\n\n", COLOR_NORMAL);
 
   init_subsystem ("paging", &paging_init, NULL);
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
