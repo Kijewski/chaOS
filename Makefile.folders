@@ -3,7 +3,7 @@
 TARGET := build
 GCCFLAGS := -m64 -march=core2 -g3 -ggdb \
             -ffreestanding -mno-red-zone -nostdlib -fno-builtin -nostartfiles -nodefaultlibs \
-            -I../include -I..
+            -I../include -I../common -I..
 
 CC := gcc
 CFLAGS := $(GCCFLAGS) -Os -std=gnu99 -Wall -Wextra -fno-stack-protector

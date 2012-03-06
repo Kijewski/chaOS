@@ -59,9 +59,7 @@ _start (void)
 
   uint64_t total_memory = 0;
   videoram_puts ("Memory map:\n", COLOR_NORMAL);
-  for (const struct e820_ref *ref = E820_BASE;
-       ref->size > 0;
-       ref = (void *) ((uintptr_t) ref + ref->size + 4))
+  for (const struct e820_ref *ref = E820_BASE; ref; ref = e820_next (ref))
     {
       videoram_puts ("  * ", COLOR_NORMAL);
       videoram_puts ("0x", COLOR_NORMAL);
@@ -77,10 +75,19 @@ _start (void)
           if (ref->entry.base_addr >= 1024*1024)
             total_memory += ref->entry.length;
           else
-            videoram_puts (" (won't be used!)", COLOR_NORMAL);
+            videoram_puts (" (space cowardly ignored)", COLOR_NORMAL);
           break;
         case E820_RESERVED:
           videoram_puts ("reserved", COLOR_NORMAL);
+          break;
+        case E820_ACPI_RECLAIMABLE:
+          videoram_puts ("ACPI (reclaimable, won't be used)", COLOR_NORMAL);
+          break;
+        case E820_ACPI_NVS:
+          videoram_puts ("ACPI (non-volatile)", COLOR_NORMAL);
+          break;
+        case E820_BAD:
+          videoram_puts (" defect! ", COLOR_ERROR);
           break;
         default:
           videoram_puts (" UNKNOWN ", COLOR_ERROR);

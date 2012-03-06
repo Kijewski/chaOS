@@ -5,7 +5,7 @@
 #include <attributes.h>
 #include <assert.h>
 
-typedef struct
+typedef volatile struct
 {
   uint8_t value;
 } ALIGNED (0x10) spinlock;
@@ -23,5 +23,7 @@ spinlock_release (spinlock *lock)
   uint8_t old_value UNUSED = __sync_lock_test_and_set (&lock->value, 0);
   ASSERT (old_value != 0);
 }
+
+#define SPINLOCK_INITIALIZER { 0 }
 
 #endif

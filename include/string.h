@@ -4,17 +4,7 @@
 #include <stdlib.h>
 #include <attributes.h>
 
-INLINE_ONLY (void *)
-memccpy (void *restrict dest, const void *restrict src, int c, size_t n)
-{
-  uint8_t *d = dest;
-  const uint8_t *s = src;
-  uint8_t t = (uint8_t) c;
-  while (n-- > 0)
-    if ((*d++ = *s++) == t)
-      return d;
-  return NULL;
-}
+// IMPLEMENTED BY GCC
 
 INLINE_ONLY (void *)
 memchr (const void *s, int c, size_t n)
@@ -72,18 +62,69 @@ strcspn (char *restrict s, const char *restrict reject)
   return __builtin_strcspn (s, reject);
 }
 
-char    *strdup(const char *);
-char    *strerror(int);
-int     *strerror_r(int, char *, size_t);
-char    *strncat(char *restrict, const char *restrict, size_t);
-int      strncmp(const char *, const char *, size_t);
-char    *strncpy(char *restrict, const char *restrict, size_t);
-char    *strpbrk(const char *, const char *);
-char    *strrchr(const char *, int);
-size_t   strspn(const char *, const char *);
-char    *strstr(const char *, const char *);
-char    *strtok(char *restrict, const char *restrict);
-char    *strtok_r(char *, const char *, char **);
-size_t   strxfrm(char *restrict, const char *restrict, size_t);
+INLINE_ONLY (char *)
+strdup (const char *s)
+{
+  return __builtin_strdup (s);
+}
+
+INLINE_ONLY (char *)
+strncat (char *restrict dest, const char *restrict src, size_t n)
+{
+  return __builtin_strncat (dest, src, n);
+}
+
+INLINE_ONLY (int)
+strncmp (char *restrict dest, const char *restrict src, size_t n)
+{
+  return __builtin_strncmp (dest, src, n);
+}
+
+INLINE_ONLY (char *)
+strncpy (char *restrict dest, const char *restrict src, size_t n)
+{
+  return __builtin_strncpy (dest, src, n);
+}
+
+INLINE_ONLY (char *)
+strpbrk (const char *s, const char *accept)
+{
+  return __builtin_strpbrk (s, accept);
+}
+
+INLINE_ONLY (char *)
+strrchr (const char *s, int c)
+{
+  return __builtin_strrchr (s, c);
+}
+
+INLINE_ONLY (size_t)
+strspn (const char *s, const char *accept)
+{
+  return __builtin_strspn (s, accept);
+}
+
+// MANUALLY IMPLEMENTED
+
+static inline void *
+memccpy (void *restrict dest, const void *restrict src, int c, size_t n)
+{
+  uint8_t *d = dest;
+  const uint8_t *s = src;
+  uint8_t t = (uint8_t) c;
+  while (n-- > 0)
+    if ((*d++ = *s++) == t)
+      return d;
+  return NULL;
+}
+
+char *strerror (int); // TODO
+char *strerror_r (int, char *, size_t); // TODO
+char *strtok_r (char *s, const char *delim, char **save_ptr); // TODO
+
+// UNIMPLEMENTED!
+char *strstr(const char *, const char *) DEPRECATED;
+char *strtok(char *restrict, const char *restrict) DEPRECATED;
+size_t strxfrm (char *restrict, const char *restrict, size_t) DEPRECATED;
 
 #endif

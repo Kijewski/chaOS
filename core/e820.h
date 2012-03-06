@@ -2,14 +2,24 @@
 #define E820_H__
 
 #include <attributes.h>
+#include <stdlib.h>
 #include <stdint.h>
 
-#define E820_BASE ((const struct e820_ref *) 0x4500)
+#define E820_BASE                                                             \
+    ({                                                                        \
+      const struct e820_ref *result = (void *) 0x4500;                        \
+      if (result->size == 0)                                                  \
+        result = NULL;                                                        \
+      result;                                                                 \
+    })
 
 enum
 {
   E820_MEMORY = 1,
   E820_RESERVED = 2,
+  E820_ACPI_RECLAIMABLE = 3,
+  E820_ACPI_NVS = 4,
+  E820_BAD = 5,
 };
 
 struct e820_entry
@@ -25,5 +35,13 @@ struct e820_ref
   uint32_t size;
   struct e820_entry entry;
 } PACKED;
+
+INLINE_ONLY (const struct e820_ref *)
+e820_next (const struct e820_ref *cur)
+{
+  const struct e820_ref *result = (void *) ((uintptr_t) cur + cur->size +
+                                            sizeof (cur->size));
+  return result->size ? result : NULL;
+}
 
 #endif

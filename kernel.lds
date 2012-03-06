@@ -44,4 +44,6 @@ SECTIONS
     . = ALIGN(0x1000);
     _section_bss_end = .;
   }
+
+  _kernel_memory_end = .;
 }
