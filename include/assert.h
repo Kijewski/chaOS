@@ -23,7 +23,7 @@ void assert_failure (const char *expr, const char *file, int line);
 #define ENSURE(X)                                                             \
     do                                                                        \
       {                                                                       \
-        if (UNLIKELY (X))                                                     \
+        if (UNLIKELY (!(X)))                                                  \
           assert_failure (#X, __FILE__, __LINE__);                            \
       }                                                                       \
     while (0)
