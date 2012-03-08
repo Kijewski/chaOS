@@ -47,17 +47,9 @@ init_subsystem (const char *desc, bool (*init) (void), bool (*cleanup) (void))
     }
 }
 
-void
-_start (void)
+static void
+put_memory_map (void)
 {
-  cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
-  msr_set_reset (MSR_EFER, EFER_NXE, 0);
-
-  videoram_cls (COLOR_NORMAL);
-
-  videoram_puts ("\n  Welcome to ", COLOR_NORMAL);
-  videoram_puts (" chaOS! \n\n", COLOR_ERROR);
-
   uint64_t total_memory = 0;
   videoram_puts ("Memory map:\n", COLOR_NORMAL);
   for (const struct e820_ref *ref = E820_BASE; ref; ref = e820_next (ref))
@@ -98,7 +90,21 @@ _start (void)
     }
   videoram_puts ("Totalling up ", COLOR_NORMAL);
   videoram_put_int (total_memory/(1024*1024), COLOR_NORMAL);
-  videoram_puts (" MB.\n\n", COLOR_NORMAL);
+  videoram_puts (" MB.\n", COLOR_NORMAL);
+}
+
+void
+_start (void)
+{
+  cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
+  msr_set_reset (MSR_EFER, EFER_NXE, 0);
+
+  videoram_cls (COLOR_NORMAL);
+
+  put_memory_map ();
+
+  videoram_puts ("\n  Welcome to ", COLOR_NORMAL);
+  videoram_puts (" chaOS! \n\n", COLOR_ERROR);
 
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
   asm volatile ("sti");
