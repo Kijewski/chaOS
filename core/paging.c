@@ -1,109 +1,115 @@
 #include "paging.h"
 #include "e820.h"
+#include "kmain.h"
+
 #include <spinlock.h>
 #include <bitmap.h>
 #include <stdint.h>
 #include <string.h>
 #include <spinlock.h>
 #include <kernel.h>
-#include <devices/videoram.h>
+#include <round.h>
 
 static spinlock freemap_lock = SPINLOCK_INITIALIZER;
 
-INLINE_ONLY (uint64_t)
-div_round_up (uint64_t n, uint64_t d)
-{
-  return (n+d-1) / d;
-}
-
-INLINE_ONLY (uint64_t)
-round_down_18 (uint64_t ptr)
-{
-  return (uintptr_t) ptr & ~((1<<18) - 1);
-}
-
-INLINE_ONLY (uint64_t)
-round_up_12 (uint64_t ptr)
-{
-  if (ptr & ~((1<<12) - 1))
-    return (ptr | ((1<<12) - 1)) + 1;
-  else
-    return ptr;
-}
-
-struct freemap_18
+struct freemap
 {
   uint64_t map;
   void *base;
+  struct freemap *submap;
 };
 
-struct freemap_24
+static struct freemap *freemap;
+
+static void
+freemap_add_layer (struct freemap *layer_base, size_t layer_item_count)
 {
-  uint64_t map;
-  struct freemap_18 submaps[0];
-};
+  struct freemap *layer = layer_base + layer_item_count;
+  while (layer_item_count > 0)
+    {
+      size_t layer_len = MIN (layer_item_count, 64u);
+      layer_item_count -= layer_len;
+      layer_base += layer_len;
 
-struct freemap_30
+      layer->map = ~(int64_t) (((int128_t) 1 << layer_item_count) - 1);
+      layer->base = NULL;
+      layer->submap = layer_base;
+
+      ++layer;
+    }
+}
+
+static void
+create_freemap (void)
 {
-  uint64_t map;
-  struct freemap_24 submaps[0];
-};
+  struct freemap *layer = (void *) &_kernel_memory_end;
+  struct freemap *layer_base = layer;
+  size_t layer_item_count = 0;
 
-struct freemap_36
+  for (const struct e820_ref *ref = E820_BASE; ref; ref = e820_next (ref))
+    {
+      if (ref->entry.type != E820_MEMORY || ref->entry.base_addr < 1024*1024)
+        continue;
+
+      uint64_t base = ref->entry.base_addr;
+      uint64_t length = ref->entry.length;
+      if (base % 4096 != 0)
+        {
+          length -= base % 4096;
+          base += 4096 - base % 4096;
+        }
+
+      length /= 4096;
+      layer_item_count += length;
+
+      while (length--)
+        {
+          layer->map = 0xCCCCCCCCCCCCCCCC;
+          layer->base = (void *) base;
+          layer->submap = NULL;
+          ++layer;
+
+          base += 4096;
+        }
+    }
+    
+  while (layer_item_count > 1)
+    {
+      freemap_add_layer (layer_base, layer_item_count);
+      layer_item_count = (layer_item_count+63) / 64;
+      layer_base = layer_base + layer_item_count;
+    }
+  freemap = layer_base;
+}
+
+static void
+mark_used_items_in_freemap (void)
 {
-  uint64_t map;
-  struct freemap_30 submaps[0];
-};
-
-struct freemap_42
-{
-  uint64_t map;
-  struct freemap_36 submaps[0];
-};
-
-struct freemap_48
-{
-  uint64_t map;
-  struct freemap_42 submaps[0];
-};
-
-static struct freemap_48 *const freemap = &_kernel_memory_end;
-
-static uint64_t
-get_memory_range_size (const struct e820_entry *entry)
-{
-  uint64_t base = entry->base_addr;
-  uint64_t length = entry->length;
-
-  if (entry->type != E820_MEMORY || base < 1024*1024)
-    return 0;
-
-  uint64_t size = round_down_18 (base + length) - round_up_12 (base);
-
-  if (size >= (1<<18))
-    return size;
-  else
-    return 0;
+  // TODO
 }
 
 bool
 paging_init (void)
 {
-  size_t total_memory = 0;
-  for (const struct e820_ref *ref = E820_BASE; ref; ref = e820_next (ref))
-    total_memory += get_memory_range_size (&ref->entry);
+  // FIXME: there is a bug in create_freemap() or freemap_add_layer() that
+  //        crashes the system, if more than 200±$RANDOM MB of RAM are present!
 
-  uint64_t freemap_size =
-      div_round_up (total_memory, 1ull<<18) * sizeof (struct freemap_18) +
-      div_round_up (total_memory, 1ull<<24) * sizeof (struct freemap_24) +
-      div_round_up (total_memory, 1ull<<30) * sizeof (struct freemap_30) +
-      div_round_up (total_memory, 1ull<<36) * sizeof (struct freemap_36) +
-      div_round_up (total_memory, 1ull<<42) * sizeof (struct freemap_42) +
-      div_round_up (total_memory, 1ull<<48) * sizeof (struct freemap_48);
-  freemap_size = round_up_12 (freemap_size);
+  //create_freemap ();
+  //mark_used_items_in_freemap ();
 
-  memset (freemap, -1u, freemap_size);
+  return true;
+}
 
-  // TODO: set up mapping, set available bits (recursively) to false
-  //       Mind space claimed by the kernel and the freemap itself!
+void
+paging_enable (void)
+{
+  // TODO
+
+  // With enabling paging the current stack becomes inaccessible
+  static uintptr_t stack[0x1000];
+  asm volatile ("mov %0, %%rax;"
+                "mov %%rax, %%rsp;"
+                "xor %%rbp, %%rbp;"
+                "call kstart;"
+                "call khalt;" :: "i"(&stack[0x1000]) : "memory");
 }

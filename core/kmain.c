@@ -20,8 +20,10 @@
 #define COLOR_INFO (VR_COLOR (BG_INFO, FG_INFO))
 #define COLOR_ERROR (VR_COLOR (BG_ERROR, FG_ERROR))
 
-static void NO_RETURN
-halt (void)
+static void start (void);
+
+void NO_RETURN
+khalt (void)
 {
   videoram_puts ("\n Halting the system! ", COLOR_ERROR);
   asm volatile ("cli");
@@ -43,7 +45,7 @@ init_subsystem (const char *desc, bool (*init) (void), bool (*cleanup) (void))
       videoram_puts (" FAIL \n", COLOR_ERROR);
       if (cleanup)
         cleanup ();
-      halt ();
+      khalt ();
     }
 }
 
@@ -99,12 +101,24 @@ _start (void)
   videoram_put_int (total_memory/(1024*1024), COLOR_NORMAL);
   videoram_puts (" MB.\n\n", COLOR_NORMAL);
 
-  init_subsystem ("paging", &paging_init, NULL);
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
-  // TODO: more subsystems
   asm volatile ("sti");
+
+  init_subsystem ("paging", &paging_init, NULL);
+  // TODO: more subsystems
 
   // TODO: start the system
 
-  halt ();
+  paging_enable ();
+}
+
+void
+kstart (void)
+{
+  register volatile void *rsp asm ("rsp");
+  videoram_puts ("\nRSP = 0x", COLOR_NORMAL);
+  videoram_put_hex (rsp, COLOR_NORMAL);
+  videoram_put_ln ();
+  
+  khalt ();
 }
