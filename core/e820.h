@@ -32,7 +32,7 @@ struct e820_entry
 
 struct e820_ref
 {
-  uint32_t size;
+  uint16_t size;
   struct e820_entry entry;
 } PACKED;
 

@@ -10,25 +10,32 @@ KERNEL_BASE equ 1024*1024
 ELF64_ENTRY_POINT equ 3*8
 
 PARTITION equ 1
+
 MAX_SECTORS_AT_ONCE equ 32
+E820_MAP_BASE equ 0x0500 + 0x200*MAX_SECTORS_AT_ONCE ; 0x4500
+
 [BITS 16]
 
 boot_loader:
     ;Parameter from BIOS: dl = boot drive
 
-    ;Set default state
+    ; sane default state
     cli
 
-    xor eax,eax
+    xor ax,ax
     mov ds,ax
     mov es,ax
     mov ss,ax
 
+    push ax
+    popf
+
     mov esp,0x7C00
 
-    push eax
-    popfd
+    push dx ; preserve current boot device
 
+    ; BIOSes are reportedly allowed to start at 7C00:0000
+    ; instead of the assumed 0000:7C000
     jmp 0:.clear_cs
 .clear_cs:
 
@@ -38,29 +45,27 @@ enabled_a20:
     or al,02h
     out 92h,al
 
-    push dx ; preserve current boot device
-
 read_e820:
     xor ebx, ebx
-    mov di, 0x4504
+    mov di, E820_MAP_BASE+2
 .loop:
     mov eax, 0xe820
     mov ecx, 20
-    mov edx, 0x534D4150
+    mov edx, 'PAMS'
 
     int 0x15
     jc fail
     cmp eax, 'PAMS'
     jne fail
 
-    mov word [di-4], cx
+    mov word [di-2], cx
     add di, cx
-    add di, 4
+    add di, 2
 
     test ebx, ebx
     jnz .loop
 .end:
-    mov word [di-2], 0
+    mov word [di-2], bx ; bx is zero
 
 enter_unreal_mode:
     lgdt [gdt.pointer]
@@ -81,39 +86,31 @@ enter_unreal_mode:
 
 load_image:
     pop dx
-    push dx
 
+    ; TODO: is this even needed?
+    ; reset disk controller
     xor ax, ax
     int 0x13
     jc fail
 
+    ; read MBR using LBA
     mov si, dap
     mov ah, 0x42
     int 0x13
     jc fail
 
-    cmp word [0x0500 + 510], 0xaa55
-    jne fail
-
+    ; copy kernel image
     mov edi, KERNEL_BASE
 
-    mov ebx, dword [0x0500 + 446+16*(PARTITION-1) + 8]
+    mov ebx, dword [0x0500 + 446+16*(PARTITION-1) + 8] ; start LBA sector
     mov [dap.start], ebx
-    push ebx
-    mov ecx, dword [0x0500 + 446+16*(PARTITION-1) + 12]
-    push ecx
-
-    cmp ecx, 1024*1024/512
-    jbe .not_too_big
-    mov ecx, 1024*1024/512
-.not_too_big:
+    mov ecx, dword [0x0500 + 446+16*(PARTITION-1) + 12] ; sectors count
 
 .read_sector:
     mov ebx, MAX_SECTORS_AT_ONCE
-    cmp ecx, ebx
-    jae .not_too_much
-    mov bx, cx
-.not_too_much:
+    cmp ebx, ecx
+    cmova ebx, ecx
+
     mov [dap.count], bx
 
     mov si, dap
@@ -127,16 +124,15 @@ load_image:
     sub ecx, ebx
 
     mov si, 0x0500
-    xor eax, eax
     shl ebx, 7 ; ld (512/4)
 .copy:
     sub ebx, 1
     js .cont
 
-    mov eax, [si]
-    mov [ds:edi], eax
-    add si, 4
+    lodsd
+    mov [ds:edi], eax ; movsd/stosd seem to ignore the "unreal mode"
     add edi, 4
+
     jmp .copy
 
 .cont:
@@ -204,32 +200,36 @@ build_temp_pagetable:
     rep stosw
 
 .enter_long_mode:
-    ;Enter long mode
-
-    mov eax,10100000b       ;Set PAE and PGE
+    ; Set PAE and PGE
+    mov eax,10100000b
     mov cr4,eax
 
-    mov edx, 0x0000a000       ;Point CR3 at PML4
+    ; Point CR3 at PML4
+    mov edx, 0x0000a000
     mov cr3,edx
 
-    mov ecx,0xC0000080        ;Specify EFER MSR
+    ; Specify EFER MSR
+    mov ecx,0xC0000080
 
-    rdmsr           ;Enable Long Mode
-    or eax,0x00000100
+    ; Enable Long Mode
+    rdmsr
+    or ah, 1
     wrmsr
 
-    mov ebx,cr0         ;Activate long mode
-    or ebx,0x80000001       ;by enabling paging and protection simultaneously
-    mov cr0,ebx         ;skipping protected mode entirely
+    mov ebx,cr0       ; Activate long mode
+    or ebx,0x80000001 ; by enabling paging and protection simultaneously
+    mov cr0,ebx       ; skipping protected mode entirely
 
     sub word [gdt.pointer], 8 ; delete unreal descriptor
-    lgdt [gdt.pointer]        ;load 80-bit gdt.pointer below
+    lgdt [gdt.pointer]        ; load 80-bit gdt.pointer below
 
-    jmp gdt.code:startLongMode      ;Load CS with 64 bit segment and flush the instruction cache
+     ; Load CS with 64 bit segment and flush the instruction cache
+    jmp gdt.code:startLongMode
 
     ;Global Descriptor Table
 gdt:
-    dq 0x0000000000000000       ;Null Descriptor
+.null equ $ - gdt
+    dq 0x0000000000000000
 .code equ $ - gdt
     dq 0x0020980000000000
 .data equ $ - gdt
@@ -246,5 +246,6 @@ gdt:
 startLongMode:
     jmp [KERNEL_BASE + ELF64_ENTRY_POINT]
 
-.signature:
-    times 446-($-$$) db 0				;Fill boot sector
+
+; fail if bootloader becomes to big
+    times 446-($-$$) db 0x90				;Fill boot sector
