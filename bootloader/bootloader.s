@@ -73,13 +73,13 @@ enter_unreal_mode:
     push ds
 
     mov eax, cr0
-    or al, 1
+    or al, 1 ; protected mode enabled
     mov cr0, eax
 
     mov bx, gdt.unreal
     mov ds, bx
 
-    and al, 0xFE
+    and al, ~1
     mov cr0, eax
     
     pop ds
@@ -164,15 +164,15 @@ build_temp_pagetable:
     ;dq 0x000000000000c00f = 00000000 00000000 00000000 00000000 00000000 00000000 10100000 00001111
     ;times 511 dq 0x0000000000000000
 
-    ;PD:
+    ;                              56       48       40       32       24       16        8        0
+    ;PD:                                                                     rrrrr rrrr---G S0ADWURP
     ;dq 0x000000000000018f = 00000000 00000000 00000000 00000000 00000000 00000000 00000001 10001111
-    ;times 511 dq 0x0000000000000000
+    ;dq 0x000000000000018f = 00000000 00000000 00000000 00000000 00000000 00100000 00000001 10001111
+    ;...
 
-    ;This defines one 2MB page at the start of memory, so we can access the first 2MBs as if paging was disabled
+    ;This defines one 512*2MB pages at the start of memory, so we can access the first 1GB as if paging was disabled
 
     ; build the necessary tables
-    xor bx,bx
-    mov es,bx
     mov di,0xa000
     
     ;PML4:
@@ -191,13 +191,16 @@ build_temp_pagetable:
     mov cx,0x07ff
     rep stosw
 
-    ;PD:
-    mov ax,0x018f
+    mov ebx, 0b00000000000000000000000110001111
+    mov cx, 512
+.build_pd:
+    mov eax, ebx
+    stosd
+    add ebx, 1<<21
+    xor ax, ax
     stosw
-
-    xor ax,ax
-    mov cx,0x07ff
-    rep stosw
+    stosw
+    loop .build_pd
 
 .enter_long_mode:
     ; Set PAE and PGE
