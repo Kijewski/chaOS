@@ -2,7 +2,7 @@
 
 TARGET := build
 GCCFLAGS := -m64 -march=core2 -g3 -ggdb \
-            -ffreestanding -mno-red-zone -nostdlib -fno-builtin -nostartfiles -nodefaultlibs \
+            -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs \
             -I../include -I../common -I..
 
 CC := gcc

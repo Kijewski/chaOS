@@ -24,7 +24,7 @@ bootloader/$(TARGET)/bootloader.bin: bootloader .PHONY
 
 $(TARGET)/kernel.bin: kernel.lds $(ARCHIVES)
 	@mkdir -p $(TARGET)
-	$(LD) $(LDFLAGS) -T kernel.lds -o $@ --whole-archive $(ARCHIVES)
+	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ --whole-archive $(ARCHIVES)
 
 $(TARGET)/disk.img: $(TARGET)/kernel.bin bootloader/$(TARGET)/bootloader.bin
 	dd if=/dev/zero of=$@ bs=4k count=1k
