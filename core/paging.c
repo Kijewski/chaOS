@@ -110,6 +110,6 @@ paging_enable (void)
   asm volatile ("mov %0, %%rax;"
                 "mov %%rax, %%rsp;"
                 "xor %%rbp, %%rbp;"
-                "call kstart;"
-                "call khalt;" :: "i"(&stack[0x1000]) : "memory");
+                "call kstart;" :: "i"(&stack[0x1000]) : "memory");
+  khalt ();
 }

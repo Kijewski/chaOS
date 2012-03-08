@@ -20,8 +20,6 @@
 #define COLOR_INFO (VR_COLOR (BG_INFO, FG_INFO))
 #define COLOR_ERROR (VR_COLOR (BG_ERROR, FG_ERROR))
 
-static void start (void);
-
 void NO_RETURN
 khalt (void)
 {
@@ -53,6 +51,7 @@ void
 _start (void)
 {
   cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
+  msr_set_reset (MSR_EFER, EFER_NXE, 0);
 
   videoram_cls (COLOR_NORMAL);
 
@@ -115,7 +114,7 @@ _start (void)
 void
 kstart (void)
 {
-  register volatile void *rsp asm ("rsp");
+  register volatile uintptr_t rsp asm ("rsp");
   videoram_puts ("\nRSP = 0x", COLOR_NORMAL);
   videoram_put_hex (rsp, COLOR_NORMAL);
   videoram_put_ln ();
