@@ -87,24 +87,12 @@ enter_unreal_mode:
 load_image:
     pop dx
 
-    ; TODO: is this even needed?
-    ; reset disk controller
-    xor ax, ax
-    int 0x13
-    jc fail
-
-    ; read MBR using LBA
-    mov si, dap
-    mov ah, 0x42
-    int 0x13
-    jc fail
-
     ; copy kernel image
     mov edi, KERNEL_BASE
 
-    mov ebx, dword [0x0500 + 446+16*(PARTITION-1) + 8] ; start LBA sector
+    mov ebx, dword [0x7C00 + 446+16*(PARTITION-1) + 8] ; start LBA sector
     mov [dap.start], ebx
-    mov ecx, dword [0x0500 + 446+16*(PARTITION-1) + 12] ; sectors count
+    mov ecx, dword [0x7C00 + 446+16*(PARTITION-1) + 12] ; sectors count
 
 .read_sector:
     mov ebx, MAX_SECTORS_AT_ONCE
@@ -116,8 +104,8 @@ load_image:
     mov si, dap
     mov ah, 0x42
     int 0x13
-    jc fail
-    
+    jc .read_sector_again
+
     mov bx, [dap.count]
     movzx ebx, bx
     add [dap.start], ebx
@@ -138,6 +126,12 @@ load_image:
 .cont:
     jecxz build_temp_pagetable
     jmp .read_sector
+
+.read_sector_again:
+    ; reset disk controller
+    xor ax, ax
+    int 0x13
+    jnc .read_sector
 
 fail:
     int 0x18
