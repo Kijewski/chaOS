@@ -12,11 +12,12 @@
     CASSERT_CONCAT (__cassert_, __COUNTER__) (void)                           \
     {                                                                         \
       return sizeof (struct {                                                 \
-        int a_statical_assertion_was_not_matched : -1 + 2*!!(X);              \
+        int CASSERT_CONCAT (a_statical_assertion_was_not_matched_in_line_,    \
+                            __LINE__) : -1 + 2*!!(X);                         \
       });                                                                     \
     }
-#define LOCAL_CASSERT(X) CASSERT_ (X, , )
-#define GLOBAL_CASSERT(X) CASSERT_ (X, extern, GNU_INLINE)
+#define LOCAL_CASSERT(X) CASSERT_ (X, auto, )
+#define GLOBAL_CASSERT(X) CASSERT_ (X, static, )
 
 void assert_failure (const char *expr, const char *file, int line);
 

@@ -2,8 +2,6 @@
 
 #include <stdint.h>
 
-GLOBAL_CASSERT (sizeof (intptr_t) == sizeof (void *))
-
 void
 assert_failure (const char *expr, const char *file, int line)
 {

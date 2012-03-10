@@ -13,25 +13,25 @@ GLOBAL_CASSERT (__WORDSIZE == 64)
 
 #define BITMAP_SIZE(N) (((N) + 63) / 64)
 
-INLINE_ONLY (bool)
+static inline bool
 bitmap_get (uint64_t *map, size_t index)
 {
   return map[index/64] & (1 << (index%64));
 }
 
-INLINE_ONLY (void)
+static inline void
 bitmap_mark (uint64_t *map, size_t index)
 {
   map[index/64] |= 1 << (index%64);
 }
 
-INLINE_ONLY (void)
+static inline void
 bitmap_reset (uint64_t *map, size_t index)
 {
   map[index/64] &= ~(1 << (index%64));
 }
 
-INLINE_ONLY (bool)
+static inline bool
 bitmap_bts (uint64_t *map, size_t index)
 {
   register int64_t result = index % 64;
@@ -39,7 +39,7 @@ bitmap_bts (uint64_t *map, size_t index)
   return result;
 }
 
-INLINE_ONLY (bool)
+static inline bool
 bitmap_btr (uint64_t *map, size_t index)
 {
   register int64_t result = index % 64;
@@ -47,7 +47,7 @@ bitmap_btr (uint64_t *map, size_t index)
   return result;
 }
 
-INLINE_ONLY (size_t)
+static inline size_t
 bitmap64_reset_least (uint64_t *map)
 {
   uint64_t result;

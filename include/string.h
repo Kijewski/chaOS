@@ -6,43 +6,43 @@
 
 // IMPLEMENTED BY GCC
 
-INLINE_ONLY (void *)
+static inline void *
 memchr (const void *s, int c, size_t n)
 {
   return __builtin_memchr (s, c, n);
 }
 
-INLINE_ONLY (int)
+static inline int
 memcmp (const void *dest, const void *src, size_t size)
 {
   return __builtin_memcmp (dest, src, size);
 }
 
-INLINE_ONLY (void *)
+static inline void *
 memmove (void *dest, const void *src, size_t size)
 {
   return __builtin_memmove (dest, src, size);
 }
 
-INLINE_ONLY (void *)
+static inline void *
 memset (void *s, int c, size_t n)
 {
   return __builtin_memset (s, c, n);
 }
 
-INLINE_ONLY (char *)
+static inline char *
 strcat (char *restrict dest, const char *restrict src)
 {
   return __builtin_strcat (dest, src);
 }
 
-INLINE_ONLY (char *)
+static inline char *
 strchr (const char *s, int c)
 {
   return __builtin_strchr (s, c);
 }
 
-INLINE_ONLY (int)
+static inline int
 strcmp (const char *s1, const char *s2)
 {
   return __builtin_strcmp (s1, s2);
@@ -50,55 +50,55 @@ strcmp (const char *s1, const char *s2)
 
 int strcoll (const char *, const char *);
 
-INLINE_ONLY (char *)
+static inline char *
 strcpy (char *restrict dest, const char *restrict src)
 {
   return __builtin_strcpy (dest, src);
 }
 
-INLINE_ONLY (size_t)
+static inline size_t
 strcspn (char *restrict s, const char *restrict reject)
 {
   return __builtin_strcspn (s, reject);
 }
 
-INLINE_ONLY (char *)
+static inline char *
 strdup (const char *s)
 {
   return __builtin_strdup (s);
 }
 
-INLINE_ONLY (char *)
+static inline char *
 strncat (char *restrict dest, const char *restrict src, size_t n)
 {
   return __builtin_strncat (dest, src, n);
 }
 
-INLINE_ONLY (int)
+static inline int
 strncmp (char *restrict dest, const char *restrict src, size_t n)
 {
   return __builtin_strncmp (dest, src, n);
 }
 
-INLINE_ONLY (char *)
+static inline char *
 strncpy (char *restrict dest, const char *restrict src, size_t n)
 {
   return __builtin_strncpy (dest, src, n);
 }
 
-INLINE_ONLY (char *)
+static inline char *
 strpbrk (const char *s, const char *accept)
 {
   return __builtin_strpbrk (s, accept);
 }
 
-INLINE_ONLY (char *)
+static inline char *
 strrchr (const char *s, int c)
 {
   return __builtin_strrchr (s, c);
 }
 
-INLINE_ONLY (size_t)
+static inline size_t
 strspn (const char *s, const char *accept)
 {
   return __builtin_strspn (s, accept);

@@ -8,7 +8,7 @@
 // Copy of Pintos' threads/io.h
 
 /* Reads and returns a byte from PORT. */
-INLINE_ONLY (uint8_t)
+static inline uint8_t
 inb (uint16_t port)
 {
   /* See [IA32-v2a] "IN". */
@@ -19,7 +19,7 @@ inb (uint16_t port)
 
 /* Reads CNT bytes from PORT, one after another, and stores them
    into the buffer starting at ADDR. */
-INLINE_ONLY (void)
+static inline void
 insb (uint16_t port, void *addr, size_t cnt)
 {
   /* See [IA32-v2a] "INS". */
@@ -27,7 +27,7 @@ insb (uint16_t port, void *addr, size_t cnt)
 }
 
 /* Reads and returns 16 bits from PORT. */
-INLINE_ONLY (uint16_t)
+static inline uint16_t
 inw (uint16_t port)
 {
   uint16_t data;
@@ -38,7 +38,7 @@ inw (uint16_t port)
 
 /* Reads CNT 16-bit (halfword) units from PORT, one after
    another, and stores them into the buffer starting at ADDR. */
-INLINE_ONLY (void)
+static inline void
 insw (uint16_t port, void *addr, size_t cnt)
 {
   /* See [IA32-v2a] "INS". */
@@ -46,7 +46,7 @@ insw (uint16_t port, void *addr, size_t cnt)
 }
 
 /* Reads and returns 32 bits from PORT. */
-INLINE_ONLY (uint32_t)
+static inline uint32_t
 inl (uint16_t port)
 {
   /* See [IA32-v2a] "IN". */
@@ -57,7 +57,7 @@ inl (uint16_t port)
 
 /* Reads CNT 32-bit (word) units from PORT, one after another,
    and stores them into the buffer starting at ADDR. */
-INLINE_ONLY (void)
+static inline void
 insl (uint16_t port, void *addr, size_t cnt)
 {
   /* See [IA32-v2a] "INS". */
@@ -65,7 +65,7 @@ insl (uint16_t port, void *addr, size_t cnt)
 }
 
 /* Writes byte DATA to PORT. */
-INLINE_ONLY (void)
+static inline void
 outb (uint16_t port, uint8_t data)
 {
   /* See [IA32-v2b] "OUT". */
@@ -74,7 +74,7 @@ outb (uint16_t port, uint8_t data)
 
 /* Writes to PORT each byte of data in the CNT-byte buffer
    starting at ADDR. */
-INLINE_ONLY (void)
+static inline void
 outsb (uint16_t port, const void *addr, size_t cnt)
 {
   /* See [IA32-v2b] "OUTS". */
@@ -82,7 +82,7 @@ outsb (uint16_t port, const void *addr, size_t cnt)
 }
 
 /* Writes the 16-bit DATA to PORT. */
-INLINE_ONLY (void)
+static inline void
 outw (uint16_t port, uint16_t data)
 {
   /* See [IA32-v2b] "OUT". */
@@ -91,7 +91,7 @@ outw (uint16_t port, uint16_t data)
 
 /* Writes to PORT each 16-bit unit (halfword) of data in the
    CNT-halfword buffer starting at ADDR. */
-INLINE_ONLY (void)
+static inline void
 outsw (uint16_t port, const void *addr, size_t cnt)
 {
   /* See [IA32-v2b] "OUTS". */
@@ -99,7 +99,7 @@ outsw (uint16_t port, const void *addr, size_t cnt)
 }
 
 /* Writes the 32-bit DATA to PORT. */
-INLINE_ONLY (void)
+static inline void
 outl (uint16_t port, uint32_t data)
 {
   /* See [IA32-v2b] "OUT". */
@@ -108,7 +108,7 @@ outl (uint16_t port, uint32_t data)
 
 /* Writes to PORT each 32-bit unit (word) of data in the CNT-word
    buffer starting at ADDR. */
-INLINE_ONLY (void)
+static inline void
 outsl (uint16_t port, const void *addr, size_t cnt)
 {
   /* See [IA32-v2b] "OUTS". */

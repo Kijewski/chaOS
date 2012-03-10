@@ -17,8 +17,6 @@
 
 #define NO_INLINE __attribute__ ((noinline))
 #define ALWAYS_INLINE __attribute__ ((always_inline))
-#define GNU_INLINE __attribute__ ((gnu_inline))
-#define INLINE_ONLY(...) extern inline __VA_ARGS__ GNU_INLINE ALWAYS_INLINE
 
 #define PURE __attribute__ ((pure))
 #define CONST __attribute__ ((const))

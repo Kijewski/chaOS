@@ -120,7 +120,7 @@ _start (void)
 void
 kstart (void)
 {
-  register volatile uintptr_t rsp asm ("rsp");
+  register uintptr_t rsp asm ("rsp");
   videoram_puts ("\nRSP = 0x", COLOR_NORMAL);
   videoram_put_hex (rsp, COLOR_NORMAL);
   videoram_put_ln ();

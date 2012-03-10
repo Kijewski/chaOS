@@ -4,13 +4,13 @@
 #include <stdint.h>
 #include <attributes.h>
 
-INLINE_ONLY (uint64_t)
+static inline uint64_t
 round_down_pow2 (uint64_t val, uint8_t exp)
 {
   return val & ~((1 << exp) - 1);
 }
 
-INLINE_ONLY (uint64_t)
+static inline uint64_t
 round_up_pow2 (uint64_t val, uint8_t exp)
 {
   uint64_t mask = (1 << exp) - 1;

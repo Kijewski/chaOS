@@ -36,7 +36,7 @@ struct e820_ref
   struct e820_entry entry;
 } PACKED;
 
-INLINE_ONLY (const struct e820_ref *)
+static inline const struct e820_ref *
 e820_next (const struct e820_ref *cur)
 {
   const struct e820_ref *result = (void *) ((uintptr_t) cur + cur->size +

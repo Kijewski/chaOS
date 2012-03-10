@@ -53,14 +53,14 @@ enum
 
 // CR0
 
-INLINE_ONLY (uint64_t)
+static inline uint64_t
 cr0_set_to (int64_t value)
 {
   asm volatile ("mov %0, %%cr0" :: "a"(value));
   return value;
 }
 
-INLINE_ONLY (uint64_t)
+static inline uint64_t
 cr0_set_reset (int64_t set, int64_t reset)
 {
   register int64_t rax asm ("rax");
@@ -71,7 +71,7 @@ cr0_set_reset (int64_t set, int64_t reset)
   return rax;
 }
 
-INLINE_ONLY (int64_t)
+static inline int64_t
 cr0_set_bits (int64_t value)
 {
   register int64_t rax asm ("rax");
@@ -81,7 +81,7 @@ cr0_set_bits (int64_t value)
   return rax;
 }
 
-INLINE_ONLY (int64_t)
+static inline int64_t
 cr0_mask_bits (int64_t value)
 {
   register int64_t rax asm ("rax");
@@ -91,7 +91,7 @@ cr0_mask_bits (int64_t value)
   return rax;
 }
 
-INLINE_ONLY (int64_t)
+static inline int64_t
 cr0_reset_bits (int64_t value)
 {
   register int64_t rax asm ("rax");
@@ -103,7 +103,7 @@ cr0_reset_bits (int64_t value)
 
 // CR2
 
-INLINE_ONLY (intptr_t)
+static inline intptr_t
 cr2_read (void)
 {
   register int64_t rax asm ("rax");
@@ -113,7 +113,7 @@ cr2_read (void)
 
 // CR3
 
-INLINE_ONLY (int64_t)
+static inline int64_t
 cr3_read (void)
 {
   register int64_t rax asm ("rax");
@@ -121,7 +121,7 @@ cr3_read (void)
   return rax;
 }
 
-INLINE_ONLY (void)
+static inline void
 cr3_set_to (int64_t value)
 {
   asm volatile ("mov %0, %%cr3" :: "a"(value));
@@ -129,14 +129,14 @@ cr3_set_to (int64_t value)
 
 // CR4
 
-INLINE_ONLY (uint64_t)
+static inline uint64_t
 cr4_set_to (int64_t value)
 {
   asm volatile ("mov %0, %%cr4" :: "a"(value));
   return value;
 }
 
-INLINE_ONLY (uint64_t)
+static inline uint64_t
 cr4_set_reset (int64_t set, int64_t reset)
 {
   register int64_t rax asm ("rax");
@@ -147,7 +147,7 @@ cr4_set_reset (int64_t set, int64_t reset)
   return rax;
 }
 
-INLINE_ONLY (int64_t)
+static inline int64_t
 cr4_set_bits (int64_t value)
 {
   register int64_t rax asm ("rax");
@@ -157,7 +157,7 @@ cr4_set_bits (int64_t value)
   return rax;
 }
 
-INLINE_ONLY (int64_t)
+static inline int64_t
 cr4_mask_bits (int64_t value)
 {
   register int64_t rax asm ("rax");
@@ -167,7 +167,7 @@ cr4_mask_bits (int64_t value)
   return rax;
 }
 
-INLINE_ONLY (int64_t)
+static inline int64_t
 cr4_reset_bits (int64_t value)
 {
   register int64_t rax asm ("rax");
@@ -179,7 +179,7 @@ cr4_reset_bits (int64_t value)
 
 // MSRs
 
-INLINE_ONLY (uint64_t)
+static inline uint64_t
 msr_set_reset (uint32_t msr, int64_t set, int64_t reset)
 {
   register int32_t ecx asm ("rcx") = msr;
@@ -195,13 +195,13 @@ msr_set_reset (uint32_t msr, int64_t set, int64_t reset)
   return rax;
 }
 
-INLINE_ONLY (uint64_t)
+static inline uint64_t
 msr_read (uint32_t msr)
 {
   return msr_set_reset (msr, 0, 0);
 }
 
-INLINE_ONLY (uint64_t)
+static inline uint64_t
 msr_set_to (uint32_t msr, int64_t value)
 {
   return msr_set_reset (msr, value, ~value);

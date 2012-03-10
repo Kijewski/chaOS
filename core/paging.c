@@ -95,7 +95,9 @@ paging_init (void)
   //        crashes the system, if more than 200±$RANDOM MB of RAM are present!
 
   //create_freemap ();
-  //mark_used_items_in_freemap ();
+  mark_used_items_in_freemap ();
+
+  (void) create_freemap;
 
   return true;
 }

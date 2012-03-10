@@ -5,12 +5,19 @@ GCCFLAGS := -m64 -march=core2 -g3 -ggdb \
             -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs \
             -I../include -I../common -I..
 
+WFLAGS := -Wall -Wextra -Werror \
+					-Wmissing-include-dirs \
+					-Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wundef \
+					-Wformat-security -Wmissing-format-attribute \
+					-Winit-self -Wmissing-field-initializers -Warray-bounds -Woverride-init \
+					-Wlogical-op -Wstrict-overflow=4
+
 CC := gcc
-CFLAGS := $(GCCFLAGS) -Os -std=gnu99 -Wall -Wextra -fno-stack-protector
+CFLAGS := $(GCCFLAGS) -Os -std=gnu99 -fno-stack-protector $(WFLAGS)
 AR := ar
 
 C_BIN := $(C_SRC:%.c=$(TARGET)/%.o)
-BIN := $(S_BIN) $(C_BIN)
+BIN := $(C_BIN)
 
 all:: $(TARGET)/build.a
 
@@ -28,9 +35,6 @@ $(TARGET)/.depend: $(C_SRC)
 	@mkdir -p $(TARGET)
 	@rm -rf $@
 	$(CC) $(CFLAGS) -MM -MP $^ > $@
-
-$(S_BIN): $(TARGET)/%.o: %.s
-	$(CC) $(SFLAGS) -c -o $@ $<
 
 $(C_BIN): $(TARGET)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
