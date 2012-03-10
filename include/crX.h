@@ -183,13 +183,14 @@ INLINE_ONLY (uint64_t)
 msr_set_reset (uint32_t msr, int64_t set, int64_t reset)
 {
   register int32_t ecx asm ("rcx") = msr;
-  register int64_t rax asm ("rax");
-  asm volatile ("rdmsr" : "=a"(rax) : "r"(ecx));
+  register int64_t rax asm ("rax") = 0;
+  if (set != ~reset)
+    asm volatile ("rdmsr" : "=r"(rax) : "r"(ecx));
   if (set || reset)
     {
       rax |= set;
       rax &= ~reset;
-      asm volatile ("wrmsr" :: "a"(rax), "r"(ecx));
+      asm volatile ("wrmsr" :: "r"(rax), "r"(ecx));
     }
   return rax;
 }

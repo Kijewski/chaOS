@@ -5,7 +5,7 @@ TARGET := build
 LD := ld
 LDFLAGS := --omagic
 
-FOLDERS := core devices include
+FOLDERS := core devices include common
 ARCHIVES := $(FOLDERS:%=%/$(TARGET)/build.a)
 
 all:: $(TARGET)/disk.img
