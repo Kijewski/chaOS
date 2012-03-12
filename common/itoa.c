@@ -13,7 +13,7 @@ _i64_to_base (int64_t v, char *c, const char *H, int base)
       {
         typeof (v) r = v % base;
         v /= base;
-        *--c = H[r + base];
+        *--c = H[r];
         if (v == 0)
           {
             if (r < 0)

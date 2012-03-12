@@ -5,6 +5,7 @@
 #include <assert.h>
 #include <string.h>
 #include <attributes.h>
+#include <crX.h>
 
 enum {
   INT_DIV_ZERO                      =  0,
@@ -74,11 +75,43 @@ static intr_handler_fun *funs[32];
 #include "kmain.h"
 
 static void
-intr_default_handler (int num, struct interrupt_frame *f UNUSED)
+intr_default_handler (int num, struct interrupt_frame *f)
 {
   videoram_puts ("\n Got unhandled interrupt 0x", COLOR_ERROR);
   videoram_put_hex (num, COLOR_ERROR);
   videoram_puts ("! \n", COLOR_ERROR);
+  
+  videoram_puts ( "\n RAX: ", 7); videoram_put_all_hex (f->rax, 7);
+  videoram_puts ("    RBX: ", 7); videoram_put_all_hex (f->rbx, 7);
+  videoram_puts (" \n RCX: ", 7); videoram_put_all_hex (f->rcx, 7);
+  videoram_puts ("    RDX: ", 7); videoram_put_all_hex (f->rdx, 7);
+
+  videoram_puts (" \n RSI: ", 7); videoram_put_all_hex (f->rsi, 7);
+  videoram_puts ("    RDI: ", 7); videoram_put_all_hex (f->rdi, 7);
+  videoram_puts (" \n RBP: ", 7); videoram_put_all_hex (f->rbp, 7);
+  videoram_puts ("    RSP: ", 7); videoram_put_all_hex (f->rsp, 7);
+
+  videoram_puts (" \n R8 : ", 7); videoram_put_all_hex (f->r8 , 7);
+  videoram_puts ("    R9 : ", 7); videoram_put_all_hex (f->r9 , 7);
+  videoram_puts (" \n R10: ", 7); videoram_put_all_hex (f->r10, 7);
+  videoram_puts ("    R11: ", 7); videoram_put_all_hex (f->r11, 7);
+
+  videoram_puts (" \n R12: ", 7); videoram_put_all_hex (f->r12, 7);
+  videoram_puts ("    R13: ", 7); videoram_put_all_hex (f->r13, 7);
+  videoram_puts (" \n R14: ", 7); videoram_put_all_hex (f->r14, 7);
+  videoram_puts ("    R15: ", 7); videoram_put_all_hex (f->r15, 7);
+
+  videoram_puts (" \n\n", 7);
+  videoram_puts (   " CR2: ", 7); videoram_put_all_hex (cr2_read (), 7);
+  videoram_puts ("    RIP: ", 7); videoram_put_all_hex (*(uintptr_t *)f->rsp,7);
+  videoram_puts (" \n\n", 7);
+
+  videoram_puts (   " CR0: ", 7); videoram_put_all_hex (cr0_read (), 7);
+  videoram_puts ("    CR3: ", 7); videoram_put_all_hex (cr3_read (), 7);
+  videoram_puts (" \n CR4: ", 7); videoram_put_all_hex (cr4_read (), 7);
+  videoram_puts ("   EFER: ", 7); videoram_put_all_hex (msr_read (MSR_EFER), 7);
+
+  videoram_puts (" \n", 7);
   khalt ();
 }
 

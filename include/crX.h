@@ -101,6 +101,14 @@ cr0_reset_bits (int64_t value)
   return rax;
 }
 
+static inline int64_t
+cr0_read (void)
+{
+  register int64_t rax;
+  asm volatile ("mov %%cr0, %0" : "=r"(rax));
+  return rax;
+}
+
 // CR2
 
 static inline intptr_t
@@ -174,6 +182,14 @@ cr4_reset_bits (int64_t value)
   asm volatile ("mov %%cr4, %0" : "=r"(rax));
   rax &= ~value;
   asm volatile ("mov %0, %%cr4" :: "r"(rax));
+  return rax;
+}
+
+static inline int64_t
+cr4_read (void)
+{
+  register int64_t rax;
+  asm volatile ("mov %%cr4, %0" : "=r"(rax));
   return rax;
 }
 

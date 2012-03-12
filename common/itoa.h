@@ -33,7 +33,7 @@ i64_to_dec (int64_t v, char *buf)
 static inline char *
 i64_to_hex (int64_t v, char *buf)
 {
-  return _i64_to_base (v, &buf[I64_TO_HEX_BUF_SIZE-1], &ITOA_ALPHABET[19], 16);
+  return _i64_to_base (v, &buf[I64_TO_HEX_BUF_SIZE-1], &ITOA_ALPHABET[35], 16);
 }
 
 static inline char *
@@ -47,5 +47,9 @@ i64_to_b36 (int64_t v, char *buf)
 {
   return _i64_to_base (v, &buf[I64_TO_B36_BUF_SIZE-1], &ITOA_ALPHABET[0], 36);
 }
+
+// TODO: implement
+#define U64_TO_HEX_BUF_SIZE I64_TO_HEX_BUF_SIZE
+#define u64_to_hex i64_to_hex
 
 #endif

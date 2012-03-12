@@ -40,7 +40,7 @@ $(TARGET)/disk.img: $(TARGET)/kernel.bin bootloader/$(TARGET)/bootloader.bin
 			1s  $(shell dc -e "$(shell stat -c%s $(TARGET)/kernel.bin) 4095+4096/8*p")s
 	parted -s -a minimal $@ -- mkpart primary fat16 \
 			$(shell dc -e "$(shell stat -c%s $(TARGET)/kernel.bin) 4095+4096/8*1+p")s 100%
-	#parted -s $@ -- set 1 boot on
+	parted -s $@ -- set 1 boot on
 	dd conv=notrunc if=bootloader/$(TARGET)/bootloader.bin of=$@ bs=446 count=1
 	dd conv=notrunc if=$(TARGET)/kernel.bin of=$@ bs=512 seek=1
 

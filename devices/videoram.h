@@ -43,4 +43,6 @@ videoram_put_ln (void)
   videoram_putc ('\n', 0);
 }
 
+void videoram_put_all_hex (uint64_t v, char attributes);
+
 #endif

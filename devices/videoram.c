@@ -1,6 +1,7 @@
 #include "videoram.h"
 
 #include <attributes.h>
+#include <string.h>
 #include <ports.h>
 
 #define VR_BASE ((char *) 0xb8000)
@@ -55,4 +56,13 @@ videoram_cls (char attributes)
     for (x = 0; x < VR_COLS; ++x)
       videoram_putc_at (' ', attributes, x, y);
   vr_xpos = vr_ypos = 0;
+}
+
+void
+videoram_put_all_hex (uint64_t v, char attributes)
+{
+  char s[I64_TO_HEX_BUF_SIZE];
+  memset (&s[2], '0', sizeof (s)-1);
+  u64_to_hex (v, s);
+  videoram_puts (&s[2], attributes);
 }
