@@ -7,8 +7,8 @@ SECTIONS
 
   .text :
   {
-    _section_text_start = .;
     . = ALIGN(0x1000);
+    _section_text_start = .;
     *(.text)
     *(.text.*)
     . = ALIGN(0x1000);
@@ -17,8 +17,8 @@ SECTIONS
 
   .rodata :
   {
-    _section_rodata_start = .;
     . = ALIGN(0x1000);
+    _section_rodata_start = .;
     *(.rodata)
     *(.rodata.*)
     . = ALIGN(0x1000);
@@ -27,8 +27,8 @@ SECTIONS
 
   .data :
   {
-    _section_data_start = .;
     . = ALIGN(0x1000);
+    _section_data_start = .;
     *(.data)
     *(.data.*)
     . = ALIGN(0x1000);
@@ -37,8 +37,8 @@ SECTIONS
 
   .bss :
   {
-    _section_bss_start = .;
     . = ALIGN(0x1000);
+    _section_bss_start = .;
     *(.bss)
     *(.bss.*)
     . = ALIGN(0x1000);

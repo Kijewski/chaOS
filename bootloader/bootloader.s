@@ -124,7 +124,7 @@ load_image:
     jmp .copy
 
 .cont:
-    jecxz build_temp_pagetable
+    jecxz set_console
     jmp .read_sector
 
 .read_sector_again:
@@ -146,6 +146,16 @@ dap:
     dw 0x0000
 .start:
     dq 0x0000000000000000
+
+set_console:
+    ; set 80x25 text mode so we're in a known state, and to set 8x16 font
+    mov ax,0083h
+    int 10h
+  
+    ; set 80x50 text mode and 8x8 font
+    mov ax,1112h
+    xor bl,bl
+    int 10h
 
 build_temp_pagetable:
     ;Build page tables
@@ -247,4 +257,4 @@ startLongMode:
 
 
 ; fail if bootloader becomes to big
-    times 446-($-$$) db 0x90				;Fill boot sector
+    times 446-($-$$) db 0x90        ;Fill boot sector

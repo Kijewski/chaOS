@@ -3,11 +3,12 @@
 #include <attributes.h>
 #include <ports.h>
 
-#define VR_BASE ((volatile char *) 0xb8000)
+#define VR_BASE ((char *) 0xb8000)
 #define VR_COLS (80)
-#define VR_ROWS (25)
+#define VR_ROWS (50)
 
 static unsigned vr_xpos, vr_ypos;
+static char cls_color = VR_COLOR (VR_BLACK, VR_GRAY);
 
 static inline void
 videoram_putc_at (char c, char attributes, unsigned x, unsigned y)
@@ -16,20 +17,7 @@ videoram_putc_at (char c, char attributes, unsigned x, unsigned y)
   VR_BASE[2*(x + y*VR_COLS) + 1] = attributes;
 }
 
-static void
-update_cursor (void)
-{
-  unsigned short position = vr_ypos*VR_COLS + vr_xpos;
-
-  // cursor LOW port to vga INDEX register
-  outb (0x3D4, 0x0F);
-  outb (0x3D5, (unsigned char) (position & 0xFF));
-  // cursor HIGH port to vga INDEX register
-  outb (0x3D4, 0x0E);
-  outb (0x3D5, (unsigned char ) ((position >> 8) & 0xFF));
-}
-
-static void
+void
 videoram_putc (char c, char attributes)
 {
   if (c != '\n')
@@ -39,10 +27,15 @@ videoram_putc (char c, char attributes)
     }
   if (c == '\n' || vr_xpos >= VR_COLS)
     {
+      for (int x = vr_xpos; x < VR_COLS; ++x)
+        videoram_putc_at (' ', cls_color, x, vr_ypos);
       vr_xpos = 0;
       ++vr_ypos;
       if (vr_ypos >= VR_ROWS)
-        vr_ypos = 0;
+        {
+          // TODO: scroll
+          vr_ypos = 0;
+        }
     }
 }
 
@@ -51,16 +44,15 @@ videoram_puts (const char *s, char attributes)
 {
   while (*s)
     videoram_putc (*s++, attributes);
-  update_cursor ();
 }
 
 void 
 videoram_cls (char attributes)
 {
+  cls_color = attributes;
   unsigned x, y;
   for (y = 0; y < VR_ROWS; ++y)
     for (x = 0; x < VR_COLS; ++x)
       videoram_putc_at (' ', attributes, x, y);
   vr_xpos = vr_ypos = 0;
-  update_cursor ();
 }

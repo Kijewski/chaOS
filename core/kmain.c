@@ -35,7 +35,7 @@ init_subsystem (const char *desc, bool (*init) (void), bool (*cleanup) (void))
     }
 }
 
-static void UNUSED
+static void
 put_memory_map (void)
 {
   uint64_t total_memory = 0;
@@ -92,10 +92,9 @@ _start (void)
   videoram_puts ("\n  Welcome to ", COLOR_NORMAL);
   videoram_puts (" chaOS! \n\n", COLOR_ERROR);
 
-  //put_memory_map ();
+  put_memory_map ();
 
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
-
   init_subsystem ("paging", &paging_init, NULL);
   paging_enable ();
 }
@@ -104,6 +103,7 @@ void
 kstart (void)
 {
   asm volatile ("sti");
+
   // TODO: initialize more subsystems
 
   // TODO: do something

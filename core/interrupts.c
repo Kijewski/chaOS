@@ -156,9 +156,6 @@ bool
 interrupts_init (void)
 {
   for (int i = 0; i < 32; ++i)
-    {
-    }
-  for (int i = 0; i < 32; ++i)
     funs[i] = &intr_default_handler;
 
 #define INTR_HANDLER_SET_ADDR(NUM)                                            \

@@ -19,6 +19,7 @@ enum
 
 #define VR_COLOR(B,F) ((F) | ((B) << 4))
 
+void videoram_putc (char c, char attributes);
 void videoram_puts (const char *s, char attributes);
 void videoram_cls (char attributes);
 
@@ -39,7 +40,7 @@ videoram_put_hex (int64_t v, char attributes)
 static inline void
 videoram_put_ln (void)
 {
-  videoram_puts ("\n", 0);
+  videoram_putc ('\n', 0);
 }
 
 #endif
