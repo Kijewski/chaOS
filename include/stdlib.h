@@ -6,7 +6,6 @@
 
 #define EXIT_FAILURE (1)
 #define EXIT_SUCCESS (0)
-#define NULL ((void *) 0)
 
 typedef struct div_t div_t;
 typedef struct nt nt;

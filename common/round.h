@@ -43,5 +43,6 @@ round_up_pow2 (uint64_t val, uint8_t exp)
       (void) 0;                                                               \
     })
 
+#define ARRAY_LEN(X) (sizeof (X) / sizeof ((X)[0]))
 
 #endif

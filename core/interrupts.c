@@ -167,6 +167,7 @@ CASSERT_CONCAT_ (intr_handler_, NUM) (void)                                   \
                 "iretq;"                                                      \
                 : "+m"(f), "+m"(stack[sizeof (stack)-8])                      \
                 : "m"(funs[0]), "i"(NUM));                                    \
+  UNREACHABLE ();                                                             \
 }
 
 INTR_HANDLER (0)  INTR_HANDLER (1)  INTR_HANDLER (2)  INTR_HANDLER (3) 
