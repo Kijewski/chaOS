@@ -3,22 +3,10 @@
 #include <attributes.h>
 #include <stdlib.h>
 #include <crX.h>
-#include <devices/videoram.h>
 
 #include "interrupts.h"
 #include "paging.h"
 #include "e820.h"
-
-#define BG_NORMAL (VR_GREEN|VR_BRIGHT)
-#define BG_INFO (VR_BLACK|VR_BRIGHT)
-#define BG_ERROR BG_INFO
-#define FG_NORMAL BG_INFO
-#define FG_INFO BG_NORMAL
-#define FG_ERROR (VR_RED|VR_BRIGHT)
-
-#define COLOR_NORMAL (VR_COLOR (BG_NORMAL, FG_NORMAL))
-#define COLOR_INFO (VR_COLOR (BG_INFO, FG_INFO))
-#define COLOR_ERROR (VR_COLOR (BG_ERROR, FG_ERROR))
 
 void NO_RETURN
 khalt (void)
@@ -47,7 +35,7 @@ init_subsystem (const char *desc, bool (*init) (void), bool (*cleanup) (void))
     }
 }
 
-static void
+static void UNUSED
 put_memory_map (void)
 {
   uint64_t total_memory = 0;
@@ -90,7 +78,7 @@ put_memory_map (void)
     }
   videoram_puts ("Totalling up ", COLOR_NORMAL);
   videoram_put_int (total_memory/(1024*1024), COLOR_NORMAL);
-  videoram_puts (" MB.\n", COLOR_NORMAL);
+  videoram_puts (" MB.\n\n", COLOR_NORMAL);
 }
 
 void
@@ -101,29 +89,24 @@ _start (void)
 
   videoram_cls (COLOR_NORMAL);
 
-  put_memory_map ();
-
   videoram_puts ("\n  Welcome to ", COLOR_NORMAL);
   videoram_puts (" chaOS! \n\n", COLOR_ERROR);
 
+  //put_memory_map ();
+
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
-  asm volatile ("sti");
 
   init_subsystem ("paging", &paging_init, NULL);
-  // TODO: more subsystems
-
-  // TODO: start the system
-
   paging_enable ();
 }
 
 void
 kstart (void)
 {
-  register uintptr_t rsp asm ("rsp");
-  videoram_puts ("\nRSP = 0x", COLOR_NORMAL);
-  videoram_put_hex (rsp, COLOR_NORMAL);
-  videoram_put_ln ();
+  asm volatile ("sti");
+  // TODO: initialize more subsystems
+
+  // TODO: do something
   
   khalt ();
 }
