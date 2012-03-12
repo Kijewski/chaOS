@@ -47,8 +47,8 @@ bswap128 (uint128_t value_)
     } PACKED;
     uint128_t v;
   } value = { .v = value_ };
-  value.l = bswap16 (value.l);
-  value.h = bswap16 (value.h);
+  value.l = bswap64 (value.l);
+  value.h = bswap64 (value.h);
   SWAP (value.l, value.h);
   return value.v;
 }
