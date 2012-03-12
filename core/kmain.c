@@ -12,7 +12,8 @@ void NO_RETURN
 khalt (void)
 {
   videoram_puts ("\n Halting the system! ", COLOR_ERROR);
-  asm volatile ("cli");
+
+  interrupts_finit ();
   for (;;)
     asm volatile ("hlt");
 }
@@ -44,10 +45,10 @@ put_memory_map (void)
     {
       videoram_puts ("  * ", COLOR_NORMAL);
       videoram_puts ("0x", COLOR_NORMAL);
-      videoram_put_hex (ref->entry.base_addr, COLOR_NORMAL);
+      videoram_put_all_hex (ref->entry.base_addr, COLOR_NORMAL);
       videoram_puts (" to 0x", COLOR_NORMAL);
-      videoram_put_hex (ref->entry.base_addr + ref->entry.length -1,
-                        COLOR_NORMAL);
+      videoram_put_all_hex (ref->entry.base_addr + ref->entry.length -1,
+                            COLOR_NORMAL);
       videoram_puts (" is ", COLOR_NORMAL);
       switch (ref->entry.type)
         {
@@ -56,13 +57,13 @@ put_memory_map (void)
           if (ref->entry.base_addr >= 1024*1024)
             total_memory += ref->entry.length;
           else
-            videoram_puts (" (space cowardly ignored)", COLOR_NORMAL);
+            videoram_puts (" (ignored)", COLOR_NORMAL);
           break;
         case E820_RESERVED:
           videoram_puts ("reserved", COLOR_NORMAL);
           break;
         case E820_ACPI_RECLAIMABLE:
-          videoram_puts ("ACPI (reclaimable, won't be used)", COLOR_NORMAL);
+          videoram_puts ("ACPI (reclaimable)", COLOR_NORMAL);
           break;
         case E820_ACPI_NVS:
           videoram_puts ("ACPI (non-volatile)", COLOR_NORMAL);
@@ -71,7 +72,9 @@ put_memory_map (void)
           videoram_puts (" defect! ", COLOR_ERROR);
           break;
         default:
-          videoram_puts (" UNKNOWN ", COLOR_ERROR);
+          videoram_puts (" UNKNOWN (", COLOR_ERROR);
+          videoram_put_int (ref->entry.type, COLOR_ERROR);
+          videoram_puts (") ", COLOR_ERROR);
           break;
         }
       videoram_put_ln ();

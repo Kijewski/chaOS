@@ -94,7 +94,7 @@ paging_init (void)
   // FIXME: there is a bug in create_freemap() or freemap_add_layer() that
   //        crashes the system, if more than 200±$RANDOM MB of RAM are present!
 
-  //create_freemap ();
+  create_freemap ();
   mark_used_items_in_freemap ();
 
   (void) create_freemap;
