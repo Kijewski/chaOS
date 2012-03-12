@@ -10,95 +10,66 @@
 #include <kernel.h>
 #include <round.h>
 
-static spinlock freemap_lock = SPINLOCK_INITIALIZER;
-
-struct freemap
+struct freemap_20
 {
-  uint64_t map;
-  void *base;
-  struct freemap *submap;
+  uint64_t full12;
+  uint64_t sub12[64];
 };
 
-static struct freemap *freemap;
+struct freemap_28
+{
+  uint64_t full20;
+  struct freemap_20 *sub20[64];
+};
+
+struct freemap_36
+{
+  uint64_t full28;
+  struct freemap_28 *sub28[64];
+};
+
+static spinlock flat_memory_freemap_lock;
+static struct freemap_36 flat_memory_freemap;
 
 static void
-freemap_add_layer (struct freemap *layer_base, size_t layer_item_count)
+init_flat_freemap (void)
 {
-  struct freemap *layer = layer_base + layer_item_count;
-  while (layer_item_count > 0)
+  static struct freemap_28 first_28[16];
+  static struct freemap_20 first_20[64 * ARRAY_LEN (first_28)];
+  flat_memory_freemap_lock = SPINLOCK_INITIALIZER;
+
+  memset (&flat_memory_freemap, 0, sizeof (flat_memory_freemap));
+  memset (&first_28[0], 0, sizeof (first_28));
+  memset (&first_20[0], 0, sizeof (first_20));
+
+  first_28[0].full20 = 1; // first MB is reserved
+
+  for (unsigned i = 0; i < ARRAY_LEN (first_28); ++i)
     {
-      size_t layer_len = MIN (layer_item_count, 64u);
-      layer_item_count -= layer_len;
-      layer_base += layer_len;
-
-      layer->map = ~(int64_t) (((int128_t) 1 << layer_item_count) - 1);
-      layer->base = NULL;
-      layer->submap = layer_base;
-
-      ++layer;
+      flat_memory_freemap.sub28[i+1] = &first_28[i];
+      for (unsigned j = 0; j < 64; ++j)
+        first_28[i].sub20[j] = &first_20[64*i + j];
     }
-}
 
-static void
-create_freemap (void)
-{
-  struct freemap *layer = (void *) &_kernel_memory_end;
-  struct freemap *layer_base = layer;
-  size_t layer_item_count = 0;
+  first_20[0].full12 = -1ull;
 
-  for (const struct e820_ref *ref = E820_BASE; ref; ref = e820_next (ref))
+  uintptr_t p = (uintptr_t) &_section_text_start;
+  while (p < (uintptr_t) &_kernel_memory_end)
     {
-      if (ref->entry.type != E820_MEMORY || ref->entry.base_addr < 1024*1024)
-        continue;
-
-      uint64_t base = ref->entry.base_addr;
-      uint64_t length = ref->entry.length;
-      if (base % 4096 != 0)
+      uint64_t b = 1;
+      while (p < (uintptr_t) &_kernel_memory_end && b != 0)
         {
-          length -= base % 4096;
-          base += 4096 - base % 4096;
-        }
-
-      length /= 4096;
-      layer_item_count += length;
-
-      while (length--)
-        {
-          layer->map = 0xCCCCCCCCCCCCCCCC;
-          layer->base = (void *) base;
-          layer->submap = NULL;
-          ++layer;
-
-          base += 4096;
+          first_20[p >> 20].full12 |= b;
+          b <<= 1;
+          p += 4096;
         }
     }
-    
-  while (layer_item_count > 1)
-    {
-      freemap_add_layer (layer_base, layer_item_count);
-      layer_item_count = (layer_item_count+63) / 64;
-      layer_base = layer_base + layer_item_count;
-    }
-  freemap = layer_base;
-}
-
-static void
-mark_used_items_in_freemap (void)
-{
-  // TODO
 }
 
 bool
 paging_init (void)
 {
-  // FIXME: there is a bug in create_freemap() or freemap_add_layer() that
-  //        crashes the system, if more than 200±$RANDOM MB of RAM are present!
-
-  create_freemap ();
-  mark_used_items_in_freemap ();
-
-  (void) create_freemap;
-
+  init_flat_freemap ();
   return true;
 }
 
@@ -112,6 +83,6 @@ paging_enable (void)
   asm volatile ("mov %0, %%rax;"
                 "mov %%rax, %%rsp;"
                 "xor %%rbp, %%rbp;"
-                "call kstart;" :: "i"(&stack[0x1000]) : "memory");
-  khalt ();
+                "jmp kstart;" :: "i"(&stack[0x1000]) : "memory");
+  UNREACHABLE ();
 }
