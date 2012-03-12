@@ -17,6 +17,7 @@ struct interrupt_frame
 typedef void intr_handler_fun (int num, struct interrupt_frame *f);
 
 bool interrupts_init (void);
+void interrupts_finit (void);
 
 void interrupts_set_handler (int num, intr_handler_fun *fun);
 

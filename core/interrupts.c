@@ -180,7 +180,7 @@ INTR_HANDLER (28) INTR_HANDLER (29) INTR_HANDLER (30) INTR_HANDLER (31)
 
 static struct idt_entry idt_entries[32] ALIGNED (0x10);
 
-static const struct idtr idtr ALIGNED (0x10) = {
+static const struct idtr idtr = {
   .limit = sizeof (idt_entries) - 1,
   .offset = (uintptr_t) &idt_entries[0]
 };
@@ -233,4 +233,11 @@ interrupts_set_handler (int num, intr_handler_fun *fun)
   ASSERT (num >= 0 && num <=32);
   funs[num] = fun;
   asm volatile ("lidtq %0" :: "m"(idtr));
+}
+
+void
+interrupts_finit (void)
+{
+  const struct idtr no_idtr = { .limit = 0, .offset = 0 };
+  asm volatile ("cli; lidtq %0" :: "m"(no_idtr));
 }
