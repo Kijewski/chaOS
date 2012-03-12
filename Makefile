@@ -13,6 +13,12 @@ all:: $(TARGET)/disk.img
 clean:: $(FOLDERS:%=.clean.%)
 	rm -rf $(TARGET)
 
+bochs:: $(TARGET)/disk.img
+	bochs -f execute.bxrc
+
+qemu:: $(TARGET)/disk.img
+	qemu-system-x86_64 -cpu qemu64 -monitor stdio -m 32 -hda $<
+
 $(FOLDERS:%=.clean.%) .clean.bootsector:
 	cd $(@:.clean.%=%) && $(MAKE) clean
 
@@ -27,7 +33,8 @@ $(TARGET)/kernel.bin: kernel.lds $(ARCHIVES)
 	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ --whole-archive $(ARCHIVES)
 
 $(TARGET)/disk.img: $(TARGET)/kernel.bin bootloader/$(TARGET)/bootloader.bin
-	dd if=/dev/zero of=$@ bs=4k count=1k
+	@rm -f $@
+	bximage -q -hd -mode=flat -size=4 $@
 	parted -s $@ -- mklabel msdos
 	parted -s -a minimal $@ -- mkpart primary ext2 \
 			1s  $(shell dc -e "$(shell stat -c%s $(TARGET)/kernel.bin) 4095+4096/8*p")s
