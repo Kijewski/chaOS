@@ -33,5 +33,15 @@ round_up_pow2 (uint64_t val, uint8_t exp)
       _a >= _b ? _a : _b;                                                     \
     })
 
+#define SWAP(A,B)                                                             \
+    ({                                                                        \
+      typeof (A) *_a = &(A);                                                  \
+      typeof (B) *_b = &(B);                                                  \
+      typeof (*_a) _t = *_b;                                                  \
+      *_b = *_a;                                                              \
+      *_a = _t;                                                               \
+      (void) 0;                                                               \
+    })
+
 
 #endif

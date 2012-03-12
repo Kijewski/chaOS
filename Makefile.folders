@@ -1,16 +1,16 @@
 # INCLUDED
 
 TARGET := build
-GCCFLAGS := -m64 -march=core2 -g3 -ggdb \
+GCCFLAGS := -m64 -g3 -ggdb \
             -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs \
             -I../include -I../common -I..
 
 WFLAGS := -Wall -Wextra -Werror \
-					-Wmissing-include-dirs \
-					-Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wundef \
-					-Wformat-security -Wmissing-format-attribute \
-					-Winit-self -Wmissing-field-initializers -Warray-bounds -Woverride-init \
-					-Wlogical-op -Wstrict-overflow=4
+          -Wmissing-include-dirs \
+          -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Wundef \
+          -Wformat-security -Wmissing-format-attribute \
+          -Winit-self -Wmissing-field-initializers -Warray-bounds -Woverride-init \
+          -Wlogical-op -Wstrict-overflow=4
 
 CC := gcc
 CFLAGS := $(GCCFLAGS) -Os -std=gnu99 -fno-stack-protector $(WFLAGS)

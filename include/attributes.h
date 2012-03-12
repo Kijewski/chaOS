@@ -39,7 +39,7 @@
 #define HOT __attribute__ ((hot))
 #define COLD __attribute__ ((cold))
 
-#define LIKELY(X) __builtin_expect((X),1)
-#define UNLIKELY(X) __builtin_expect((X),0)
+#define LIKELY(X) __builtin_expect ((X), 1)
+#define UNLIKELY(X) __builtin_expect ((X), 0)
 
 #endif
