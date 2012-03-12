@@ -63,41 +63,41 @@ cr0_set_to (int64_t value)
 static inline uint64_t
 cr0_set_reset (int64_t set, int64_t reset)
 {
-  register int64_t rax asm ("rax");
-  asm volatile ("mov %%cr0, %0" : "=a"(rax));
+  register int64_t rax;
+  asm volatile ("mov %%cr0, %0" : "=r"(rax));
   rax |= set;
   rax &= ~reset;
-  asm volatile ("mov %0, %%cr0" :: "a"(rax));
+  asm volatile ("mov %0, %%cr0" :: "r"(rax));
   return rax;
 }
 
 static inline int64_t
 cr0_set_bits (int64_t value)
 {
-  register int64_t rax asm ("rax");
-  asm volatile ("mov %%cr0, %0" : "=a"(rax));
+  register int64_t rax;
+  asm volatile ("mov %%cr0, %0" : "=r"(rax));
   rax |= value;
-  asm volatile ("mov %0, %%cr0" :: "a"(rax));
+  asm volatile ("mov %0, %%cr0" :: "r"(rax));
   return rax;
 }
 
 static inline int64_t
 cr0_mask_bits (int64_t value)
 {
-  register int64_t rax asm ("rax");
-  asm volatile ("mov %%cr0, %0" : "=a"(rax));
+  register int64_t rax;
+  asm volatile ("mov %%cr0, %0" : "=r"(rax));
   rax &= value;
-  asm volatile ("mov %0, %%cr0" :: "a"(rax));
+  asm volatile ("mov %0, %%cr0" :: "r"(rax));
   return rax;
 }
 
 static inline int64_t
 cr0_reset_bits (int64_t value)
 {
-  register int64_t rax asm ("rax");
-  asm volatile ("mov %%cr0, %0" : "=a"(rax));
+  register int64_t rax;
+  asm volatile ("mov %%cr0, %0" : "=r"(rax));
   rax &= ~value;
-  asm volatile ("mov %0, %%cr0" :: "a"(rax));
+  asm volatile ("mov %0, %%cr0" :: "r"(rax));
   return rax;
 }
 
@@ -106,8 +106,8 @@ cr0_reset_bits (int64_t value)
 static inline intptr_t
 cr2_read (void)
 {
-  register int64_t rax asm ("rax");
-  asm volatile ("mov %%cr2, %0" : "=a"(rax));
+  register int64_t rax;
+  asm volatile ("mov %%cr2, %0" : "=r"(rax));
   return rax;
 }
 
@@ -116,15 +116,15 @@ cr2_read (void)
 static inline int64_t
 cr3_read (void)
 {
-  register int64_t rax asm ("rax");
-  asm volatile ("mov %%cr3, %0" : "=a"(rax ));
+  register int64_t rax;
+  asm volatile ("mov %%cr3, %0" : "=r"(rax));
   return rax;
 }
 
 static inline void
 cr3_set_to (int64_t value)
 {
-  asm volatile ("mov %0, %%cr3" :: "a"(value));
+  asm volatile ("mov %0, %%cr3" :: "r"(value));
 }
 
 // CR4
@@ -132,48 +132,48 @@ cr3_set_to (int64_t value)
 static inline uint64_t
 cr4_set_to (int64_t value)
 {
-  asm volatile ("mov %0, %%cr4" :: "a"(value));
+  asm volatile ("mov %0, %%cr4" :: "r"(value));
   return value;
 }
 
 static inline uint64_t
 cr4_set_reset (int64_t set, int64_t reset)
 {
-  register int64_t rax asm ("rax");
-  asm volatile ("mov %%cr4, %0" : "=a"(rax));
+  register int64_t rax;
+  asm volatile ("mov %%cr4, %0" : "=r"(rax));
   rax |= set;
   rax &= ~reset;
-  asm volatile ("mov %0, %%cr4" :: "a"(rax));
+  asm volatile ("mov %0, %%cr4" :: "r"(rax));
   return rax;
 }
 
 static inline int64_t
 cr4_set_bits (int64_t value)
 {
-  register int64_t rax asm ("rax");
-  asm volatile ("mov %%cr4, %0" : "=a"(rax));
+  register int64_t rax;
+  asm volatile ("mov %%cr4, %0" : "=r"(rax));
   rax |= value;
-  asm volatile ("mov %0, %%cr4" :: "a"(rax));
+  asm volatile ("mov %0, %%cr4" :: "r"(rax));
   return rax;
 }
 
 static inline int64_t
 cr4_mask_bits (int64_t value)
 {
-  register int64_t rax asm ("rax");
-  asm volatile ("mov %%cr4, %0" : "=a"(rax));
+  register int64_t rax;
+  asm volatile ("mov %%cr4, %0" : "=r"(rax));
   rax &= value;
-  asm volatile ("mov %0, %%cr4" :: "a"(rax));
+  asm volatile ("mov %0, %%cr4" :: "r"(rax));
   return rax;
 }
 
 static inline int64_t
 cr4_reset_bits (int64_t value)
 {
-  register int64_t rax asm ("rax");
-  asm volatile ("mov %%cr4, %0" : "=a"(rax));
+  register int64_t rax;
+  asm volatile ("mov %%cr4, %0" : "=r"(rax));
   rax &= ~value;
-  asm volatile ("mov %0, %%cr4" :: "a"(rax));
+  asm volatile ("mov %0, %%cr4" :: "r"(rax));
   return rax;
 }
 
