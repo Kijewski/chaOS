@@ -42,7 +42,7 @@ system_reboot (void)
           outb (0x64, 0xFE);
         }
 
-      // Pulsing the CPU did not work.
+      // Pulsing the CPU reset line did not work.
       // Cause a tripple fault.
       asm volatile ("int3");
     }

@@ -24,6 +24,10 @@ spinlock_release (spinlock *lock)
   ASSERT (old_value != 0);
 }
 
-#define SPINLOCK_INITIALIZER ((spinlock) { 0u })
+static inline void
+spinlock_init (spinlock *lock)
+{
+  lock->value = 0;
+}
 
 #endif

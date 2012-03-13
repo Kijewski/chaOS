@@ -12,4 +12,7 @@ typedef typeof (sizeof (0)) size_t;
 
 #define offsetof(TYPE, MEMBER) (__builtin_offsetof (TYPE, MEMBER))
 
+#define container_of(ELEM, TYPE, MEMBER) \
+    ((TYPE) ((uintptr_t) (ELEM) - offsetof (TYPE, MEMBER)))
+
 #endif
