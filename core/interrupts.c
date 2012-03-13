@@ -1,7 +1,5 @@
 // TODO: translate whole file to (n)asm
 
-#pragma GCC optimize "omit-frame-pointer"
-
 #include "interrupts.h"
 #include "kmain.h"
 #include <assert.h>
@@ -392,7 +390,8 @@ interrupts_init (void)
   INTR_HANDLER_SET_ADDR (252); INTR_HANDLER_SET_ADDR (253);
   INTR_HANDLER_SET_ADDR (254); INTR_HANDLER_SET_ADDR (255);
 
-  asm volatile ("lidtq %0" :: "m"(idtr));
+  asm volatile ("lidtq %0;"
+                "sti" :: "m"(idtr));
   return true;
 }
 
@@ -400,13 +399,16 @@ void
 interrupts_set_handler (int num, intr_handler_fun *fun)
 {
   ASSERT (num >= 0 && num < 256);
+  asm volatile ("cli");
   funs[num] = fun;
-  asm volatile ("lidtq %0" :: "m"(idtr));
+  asm volatile ("lidtq %0;"
+                "sti" :: "m"(idtr));
 }
 
 void
 interrupts_finit (void)
 {
   static const struct idtr no_idtr = { .limit = 0, .offset = 0 };
-  asm volatile ("cli; lidtq %0" :: "m"(no_idtr));
+  asm volatile ("cli;"
+                "lidtq %0" :: "m"(no_idtr));
 }

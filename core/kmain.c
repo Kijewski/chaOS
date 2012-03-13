@@ -111,8 +111,6 @@ _start (void)
 void
 kstart (void)
 {
-  asm volatile ("sti");
-
   // TODO: initialize more subsystems
 
   // TODO: do something
