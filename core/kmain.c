@@ -1,12 +1,12 @@
 #include "kmain.h"
-
-#include <attributes.h>
-#include <stdlib.h>
-#include <crX.h>
-
 #include "interrupts.h"
 #include "paging.h"
 #include "e820.h"
+#include <attributes.h>
+#include <stdlib.h>
+#include <string.h>
+#include <kernel.h>
+#include <crX.h>
 
 void NO_RETURN
 khalt (void)
@@ -90,8 +90,15 @@ _start (void)
   cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
   msr_set_reset (MSR_EFER, EFER_NXE, 0);
 
-  videoram_cls (COLOR_NORMAL);
+  // debugging
+  volatile char xxx = 0;
+  while (xxx == 0)
+    asm volatile ("pause" ::: "memory");
 
+  // clear BSS
+  memset (&_section_bss_start[0], 0, &_section_bss_end[0] - &_section_bss_start[0]);
+
+  videoram_cls (COLOR_NORMAL);
   videoram_puts ("\n  Welcome to ", COLOR_NORMAL);
   videoram_puts (" chaOS! \n\n", COLOR_ERROR);
 

@@ -13,7 +13,7 @@ WFLAGS := -Wall -Wextra -Werror \
           -Wlogical-op -Wstrict-overflow=4
 
 CC := gcc
-CFLAGS := $(GCCFLAGS) -Os -std=gnu99 -fno-stack-protector $(WFLAGS)
+CFLAGS := $(GCCFLAGS) -O0 -std=gnu99 -fno-stack-protector $(WFLAGS)
 AR := ar
 
 C_BIN := $(C_SRC:%.c=$(TARGET)/%.o)

@@ -21,15 +21,13 @@ bswap16 (uint16_t value_)
 static inline uint32_t
 bswap32 (uint32_t value)
 {
-  asm ("bswap %0" : "+r"(value));
-  return value;
+  return __builtin_bswap32 (value);
 }
 
 static inline uint64_t
 bswap64 (uint64_t value)
 {
-  asm ("bswap %0" : "+r"(value));
-  return value;
+  return __builtin_bswap64 (value);
 }
 
 static inline uint64_t

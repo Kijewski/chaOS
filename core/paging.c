@@ -38,15 +38,11 @@ init_flat_freemap (void)
   static struct freemap_20 first_20[64 * ARRAY_LEN (first_28)];
   flat_memory_freemap_lock = SPINLOCK_INITIALIZER;
 
-  memset (&flat_memory_freemap, 0, sizeof (flat_memory_freemap));
-  memset (&first_28[0], 0, sizeof (first_28));
-  memset (&first_20[0], 0, sizeof (first_20));
-
   first_28[0].full20 = 1; // first MB is reserved
 
   for (unsigned i = 0; i < ARRAY_LEN (first_28); ++i)
     {
-      flat_memory_freemap.sub28[i+1] = &first_28[i];
+      flat_memory_freemap.sub28[i] = &first_28[i];
       for (unsigned j = 0; j < 64; ++j)
         first_28[i].sub20[j] = &first_20[64*i + j];
     }
@@ -79,10 +75,8 @@ paging_enable (void)
   // TODO
 
   // With enabling paging the current stack becomes inaccessible
-  static uintptr_t stack[0x1000];
-  asm volatile ("mov %0, %%rax;"
-                "mov %%rax, %%rsp;"
-                "xor %%rbp, %%rbp;"
-                "jmp kstart;" :: "i"(&stack[0x1000]) : "memory");
+  static uintptr_t stack[0x4000];
+  asm volatile ("mov %0, %%rsp;"
+                "jmp kstart;" :: "i"(&stack[ARRAY_LEN (stack)-8]) : "memory");
   UNREACHABLE ();
 }
