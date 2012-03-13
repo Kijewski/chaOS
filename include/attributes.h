@@ -39,8 +39,10 @@
 #define HOT __attribute__ ((hot))
 #define COLD __attribute__ ((cold))
 
-#define LIKELY(X) __builtin_expect ((X), 1)
-#define UNLIKELY(X) __builtin_expect ((X), 0)
+#define ARTIFICIAL __attribute__ ((artificial))
+
+#define LIKELY(X) (__builtin_expect ((X), 1))
+#define UNLIKELY(X) (__builtin_expect ((X), 0))
 
 #define UNREACHABLE() (__builtin_unreachable ())
 
