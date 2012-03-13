@@ -88,12 +88,11 @@ void
 _start (void)
 {
   cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
-  msr_set_reset (MSR_EFER, EFER_NXE, 0);
 
   // debugging
-  volatile char xxx = 0;
+  /*volatile char xxx = 0;
   while (xxx == 0)
-    asm volatile ("pause" ::: "memory");
+    asm volatile ("pause" ::: "memory");*/
 
   // clear BSS
   memset (&_section_bss_start[0], 0, &_section_bss_end[0] - &_section_bss_start[0]);

@@ -77,6 +77,6 @@ paging_enable (void)
   // With enabling paging the current stack becomes inaccessible
   static uintptr_t stack[0x4000];
   asm volatile ("mov %0, %%rsp;"
-                "jmp kstart;" :: "i"(&stack[ARRAY_LEN (stack)-8]) : "memory");
+                "call kstart;" :: "i"(&stack[ARRAY_LEN (stack)-1]) : "memory");
   UNREACHABLE ();
 }
