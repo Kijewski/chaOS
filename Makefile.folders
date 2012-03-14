@@ -1,7 +1,7 @@
 # INCLUDED
 
 TARGET := build
-GCCFLAGS := -m64 -g3 -ggdb \
+GCCFLAGS := -m64 -g3 -ggdb -mcmodel=small \
             -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs \
             -msoft-float -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-sse4.1 -mno-sse4.2 \
             -mno-avx -mno-aes -mno-pclmul -mno-fsgsbase -mno-rdrnd -mno-f16c -mno-sse4a \
@@ -20,7 +20,8 @@ CFLAGS := $(GCCFLAGS) -Os -fomit-frame-pointer -std=gnu99 -fno-stack-protector $
 AR := ar
 
 C_BIN := $(C_SRC:%.c=$(TARGET)/%.o)
-BIN := $(C_BIN)
+S_BIN := $(S_SRC:%.asm=$(TARGET)/%.o)
+BIN := $(C_BIN) $(S_BIN)
 
 all:: $(TARGET)/build.a
 
@@ -41,5 +42,8 @@ $(TARGET)/.depend: $(C_SRC)
 
 $(C_BIN): $(TARGET)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(S_BIN): $(TARGET)/%.o: %.asm
+	nasm -felf64 -gdwarf2 -Ox -o $@ $<
 
 -include $(TARGET)/.depend
