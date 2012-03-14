@@ -3,61 +3,74 @@
 #include "kmain.h"
 
 #include <spinlock.h>
-#include <bitmap.h>
 #include <stdint.h>
 #include <string.h>
-#include <spinlock.h>
 #include <kernel.h>
 #include <round.h>
 
-struct freemap_20
-{
-  uint64_t full12;
-  uint64_t sub12[64];
-};
+#include <spinlock.h>
+#include <list.h>
 
-struct freemap_28
-{
-  uint64_t full20;
-  struct freemap_20 *sub20[64];
-};
-
-struct freemap_36
-{
-  uint64_t full28;
-  struct freemap_28 *sub28[64];
-};
+typedef uint8_t block[4096];
 
 static spinlock flat_memory_freemap_lock;
-static struct freemap_36 flat_memory_freemap;
+static struct list flat_memory_free_pages;
+
+struct flat_memory_free_entry
+{
+  struct list_elem elem;
+  block *data;
+};
 
 static void
 init_flat_freemap (void)
 {
-  static struct freemap_28 first_28[16];
-  static struct freemap_20 first_20[64 * ARRAY_LEN (first_28)];
-  flat_memory_freemap_lock = SPINLOCK_INITIALIZER;
+  auto void use_block (block *data);
+  static block first_block;
 
-  first_28[0].full20 = 1; // first MB is reserved
+  spinlock_init (&flat_memory_freemap_lock);
+  list_init (&flat_memory_free_pages);
 
-  for (unsigned i = 0; i < ARRAY_LEN (first_28); ++i)
+  struct list free_refs;
+  list_init (&free_refs);
+
+  auto void use_block (block *data) {
+    for (unsigned pos = 0; pos < 4096;
+         pos += sizeof (struct flat_memory_free_entry))
+      {
+        struct flat_memory_free_entry *b = (void *) &data[0][pos];
+        list_push_back (&free_refs, &b->elem);
+      }
+  }
+  use_block (&first_block);
+
+  for (const struct e820_ref *mem = E820_BASE; mem; mem = e820_next (mem))
     {
-      flat_memory_freemap.sub28[i] = &first_28[i];
-      for (unsigned j = 0; j < 64; ++j)
-        first_28[i].sub20[j] = &first_20[64*i + j];
-    }
+      if (mem->entry.type != E820_MEMORY)
+        continue;
 
-  first_20[0].full12 = -1ull;
-
-  uintptr_t p = (uintptr_t) &_section_text_start;
-  while (p < (uintptr_t) &_kernel_memory_end)
-    {
-      uint64_t b = 1;
-      while (p < (uintptr_t) &_kernel_memory_end && b != 0)
+      block *start, *end;
+      start = (void *) round_up_pow2 (MAX (mem->entry.base_addr,
+                                           (uintptr_t) &_kernel_memory_end),
+                                      12);
+      end = (void *) round_down_pow2 (mem->entry.base_addr + mem->entry.length,
+                                      12);
+      for (block *i = start; i < end; ++i)
         {
-          first_20[p >> 20].full12 |= b;
-          b <<= 1;
-          p += 4096;
+          struct list_elem *e;
+          struct flat_memory_free_entry *ee;
+          if (!list_is_empty (&free_refs))
+            e = list_pop_front (&free_refs);
+          else
+            {
+              e = list_pop_front (&flat_memory_free_pages);
+              ee = list_entry (e, *ee, elem);
+              use_block (ee->data);
+              e = list_pop_front (&free_refs);
+            }
+          ee = list_entry (e, *ee, elem);
+          ee->data = i;
+          list_push_back (&flat_memory_free_pages, &ee->elem);
         }
     }
 }
