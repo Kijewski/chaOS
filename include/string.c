@@ -1,32 +1,9 @@
-// MUST NOT INCLUDE string.h!!
-#define STRING_H__
+#define NO_STRING_H_BUILTINS
+#include "string.h"
 
 #include <stdint.h>
 #include <stddef.h>
 #include <attributes.h>
-
-void  *memchr (const void *s, int c, size_t n);
-int    memcmp (const void *dest, const void *src, size_t size);
-void  *memcpy (void *dest, const void *src, size_t size);
-void  *memmove (void *dest, const void *src, size_t size);
-void  *memset (void *s, int c, size_t n);
-char  *strcat (char *restrict dest, const char *restrict src);
-char  *strchr (const char *s, int c);
-int    strcmp (const char *s1, const char *s2);
-int    strcoll (const char *, const char *);;
-char  *strcpy (char *restrict dest, const char *restrict src);
-size_t strcspn (char *restrict s, const char *restrict reject);
-char  *strdup (const char *s);
-char  *strncat (char *restrict dest, const char *restrict src, size_t n);
-int    strncmp (char *restrict dest, const char *restrict src, size_t n);
-char  *strncpy (char *restrict dest, const char *restrict src, size_t n);
-char  *strpbrk (const char *s, const char *accept);
-char  *strrchr (const char *s, int c);
-size_t strspn (const char *s, const char *accept);
-void  *memccpy (void *restrict dest, const void *restrict src, int c, size_t n);
-char *strerror (int);
-char *strerror_r (int, char *, size_t);
-char *strtok_r (char *s, const char *delim, char **save_ptr);
 
 void *
 memcpy (void *dest, const void *src, size_t size)

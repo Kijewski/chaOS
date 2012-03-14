@@ -25,24 +25,26 @@ char  *strpbrk (const char *s, const char *accept);
 char  *strrchr (const char *s, int c);
 size_t strspn (const char *s, const char *accept);
 
-#define memchr(...) (__builtin_memchr (__VA_ARGS__))
-#define memcmp(...) (__builtin_memcmp (__VA_ARGS__))
-#define memcpy(...) (__builtin_memcpy (__VA_ARGS__))
-#define memmove(...) (__builtin_memmove (__VA_ARGS__))
-#define memset(...) (__builtin_memset (__VA_ARGS__))
-#define strcat(...) (__builtin_strcat (__VA_ARGS__))
-#define strchr(...) (__builtin_strchr (__VA_ARGS__))
-#define strcmp(...) (__builtin_strcmp (__VA_ARGS__))
-#define strcoll(...) (__builtin_strcoll (__VA_ARGS__))
-#define strcpy(...) (__builtin_strcpy (__VA_ARGS__))
-#define strcspn(...) (__builtin_strcspn (__VA_ARGS__))
-#define strdup(...) (__builtin_strdup (__VA_ARGS__))
-#define strncat(...) (__builtin_strncat (__VA_ARGS__))
-#define strncmp(...) (__builtin_strncmp (__VA_ARGS__))
-#define strncpy(...) (__builtin_strncpy (__VA_ARGS__))
-#define strpbrk(...) (__builtin_strpbrk (__VA_ARGS__))
-#define strrchr(...) (__builtin_strrchr (__VA_ARGS__))
-#define strspn(...) (__builtin_strspn (__VA_ARGS__))
+#ifndef NO_STRING_H_BUILTINS
+# define memchr(...) (__builtin_memchr (__VA_ARGS__))
+# define memcmp(...) (__builtin_memcmp (__VA_ARGS__))
+# define memcpy(...) (__builtin_memcpy (__VA_ARGS__))
+# define memmove(...) (__builtin_memmove (__VA_ARGS__))
+# define memset(...) (__builtin_memset (__VA_ARGS__))
+# define strcat(...) (__builtin_strcat (__VA_ARGS__))
+# define strchr(...) (__builtin_strchr (__VA_ARGS__))
+# define strcmp(...) (__builtin_strcmp (__VA_ARGS__))
+# define strcoll(...) (__builtin_strcoll (__VA_ARGS__))
+# define strcpy(...) (__builtin_strcpy (__VA_ARGS__))
+# define strcspn(...) (__builtin_strcspn (__VA_ARGS__))
+# define strdup(...) (__builtin_strdup (__VA_ARGS__))
+# define strncat(...) (__builtin_strncat (__VA_ARGS__))
+# define strncmp(...) (__builtin_strncmp (__VA_ARGS__))
+# define strncpy(...) (__builtin_strncpy (__VA_ARGS__))
+# define strpbrk(...) (__builtin_strpbrk (__VA_ARGS__))
+# define strrchr(...) (__builtin_strrchr (__VA_ARGS__))
+# define strspn(...) (__builtin_strspn (__VA_ARGS__))
+#endif
 
 // MANUALLY IMPLEMENTED
 
