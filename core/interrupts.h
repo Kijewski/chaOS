@@ -6,6 +6,27 @@
 #include <stddef.h>
 #include <attributes.h>
 
+struct idt_entry
+{
+// 0x00
+  uint16_t offset_low;
+// 0x02
+  uint16_t selector;
+// 0x04
+  uint8_t  zero1;
+// 0x05
+  uint8_t  type;
+// 0x06
+  uint16_t offset_mid;
+// 0x08
+  uint32_t offset_high;
+// 0x0C
+  uint32_t zero2;
+// 0x10
+} PACKED;
+
+extern const struct idt_entry idt_entries[256];
+
 struct interrupt_frame
 {
   uint64_t rax, rbx, rcx, rdx;
