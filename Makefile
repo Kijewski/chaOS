@@ -17,7 +17,7 @@ bochs:: $(TARGET)/disk.img
 	bochs -f execute.bxrc
 
 qemu:: $(TARGET)/disk.img
-	qemu-system-x86_64 -cpu qemu64 -monitor stdio -m 32 -hda $<
+	qemu-system-x86_64 -cpu qemu64 -monitor stdio -m 32 -s -hda $<
 
 $(FOLDERS:%=.clean.%) .clean.bootsector:
 	cd $(@:.clean.%=%) && $(MAKE) clean
