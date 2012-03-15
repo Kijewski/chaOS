@@ -30,7 +30,7 @@ struct idtr
   uint64_t offset;
 } PACKED;
 
-static intr_handler_fun *funs[256];
+static intr_handler_fun *funs[32];
 
 static void
 intr_default_handler (int num, struct interrupt_frame *f)
@@ -136,6 +136,7 @@ INTR_HANDLER (16)  INTR_HANDLER (17)  INTR_HANDLER (18)  INTR_HANDLER (19)
 INTR_HANDLER (20)  INTR_HANDLER (21)  INTR_HANDLER (22)  INTR_HANDLER (23)
 INTR_HANDLER (24)  INTR_HANDLER (25)  INTR_HANDLER (26)  INTR_HANDLER (27)
 INTR_HANDLER (28)  INTR_HANDLER (29)  INTR_HANDLER (30)  INTR_HANDLER (31)
+/*
 INTR_HANDLER (32)  INTR_HANDLER (33)  INTR_HANDLER (34)  INTR_HANDLER (35)
 INTR_HANDLER (36)  INTR_HANDLER (37)  INTR_HANDLER (38)  INTR_HANDLER (39)
 INTR_HANDLER (40)  INTR_HANDLER (41)  INTR_HANDLER (42)  INTR_HANDLER (43)
@@ -192,6 +193,7 @@ INTR_HANDLER (240) INTR_HANDLER (241) INTR_HANDLER (242) INTR_HANDLER (243)
 INTR_HANDLER (244) INTR_HANDLER (245) INTR_HANDLER (246) INTR_HANDLER (247)
 INTR_HANDLER (248) INTR_HANDLER (249) INTR_HANDLER (250) INTR_HANDLER (251)
 INTR_HANDLER (252) INTR_HANDLER (253) INTR_HANDLER (254) INTR_HANDLER (255)
+*/
 
 static const struct idtr idtr = {
   .limit = sizeof (idt_entries) - 1,
@@ -203,8 +205,7 @@ interrupts_init (void)
 {
   for (unsigned i = 0; i < ARRAY_LEN (idt_entries); ++i)
     funs[i] = &intr_default_handler;
-  asm volatile ("lidtq %0;"
-                "sti" :: "m"(idtr));
+  asm volatile ("lidtq %0" :: "m"(idtr));
   return true;
 }
 
@@ -212,10 +213,8 @@ void
 interrupts_set_handler (int num, intr_handler_fun *fun)
 {
   ASSERT (num >= 0 && num < 256);
-  asm volatile ("cli");
   funs[num] = fun;
-  asm volatile ("lidtq %0;"
-                "sti" :: "m"(idtr));
+  asm volatile ("lidtq %0" :: "m"(idtr));
 }
 
 void

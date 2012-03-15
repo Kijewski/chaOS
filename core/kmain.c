@@ -109,14 +109,20 @@ _start (void)
   put_memory_map ();
 
   init_subsystem ("PIC", &pic_init, NULL);
-  init_subsystem ("interrupt handling", &interrupts_init, NULL); // sti!
+  init_subsystem ("interrupt handling", &interrupts_init, NULL);
   init_subsystem ("paging", &paging_init, NULL);
+  videoram_puts ("Enable paging: ", COLOR_NORMAL);
   paging_enable ();
 }
 
 void
 kstart (void)
 {
+  videoram_puts (" ok \n", COLOR_INFO);
+  videoram_puts ("Enable interrupts: ", COLOR_NORMAL);
+  asm volatile ("sti");
+  videoram_puts (" ok \n", COLOR_INFO);
+
   // TODO: initialize more subsystems
 
   // TODO: do something
