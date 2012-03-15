@@ -33,7 +33,7 @@ void assert_failure (const char *expr, const char *file, int line);
 
 #undef ASSERT
 
-#ifdef NDEBUG
+#ifndef NDEBUG
 # define ASSERT(X) ENSURE (X)
 #else
 # define ASSERT(X) do { break; } while (0)
