@@ -3,6 +3,7 @@
 #include <attributes.h>
 #include <string.h>
 #include <ports.h>
+#include <assert.h>
 
 #define VR_BASE ((char *) 0xb8000)
 #define VR_COLS (80)
@@ -14,6 +15,8 @@ static char cls_color = VR_COLOR (VR_BLACK, VR_GRAY);
 static inline void
 videoram_putc_at (char c, char attributes, unsigned x, unsigned y)
 {
+  ASSERT (x < VR_COLS);
+  ASSERT (y < VR_ROWS);
   VR_BASE[2*(x + y*VR_COLS) + 0] = c;
   VR_BASE[2*(x + y*VR_COLS) + 1] = attributes;
 }
@@ -62,7 +65,7 @@ void
 videoram_put_all_hex (uint64_t v, char attributes)
 {
   char s[I64_TO_HEX_BUF_SIZE];
-  memset (&s[2], '0', sizeof (s)-1);
+  memset (&s[2], '0', sizeof (s)-3);
   u64_to_hex (v, s);
   videoram_puts (&s[2], attributes);
 }
