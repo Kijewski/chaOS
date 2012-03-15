@@ -77,7 +77,30 @@ void intr_handler (int num, struct interrupt_frame *f);
 void
 intr_handler (int num, struct interrupt_frame *f)
 {
-  (funs[num] ? funs[num] : &intr_default_handler) (num, f);
+  if (funs[num])
+    funs[num] (num, f);
+  else
+    intr_default_handler (num, f);
+
+  asm volatile ("mov %0, %%rax;"
+                "mov 0x08(%%rax), %%rbx;"
+                "mov 0x10(%%rax), %%rcx;"
+                "mov 0x18(%%rax), %%rdx;"
+                "mov 0x20(%%rax), %%rdi;"
+                "mov 0x28(%%rax), %%rsi;"
+                "mov 0x30(%%rax), %%rsp;"
+                "mov 0x38(%%rax), %%rbp;"
+                "mov 0x40(%%rax), %%r8;"
+                "mov 0x48(%%rax), %%r9;"
+                "mov 0x50(%%rax), %%r10;"
+                "mov 0x58(%%rax), %%r11;"
+                "mov 0x60(%%rax), %%r12;"
+                "mov 0x68(%%rax), %%r13;"
+                "mov 0x70(%%rax), %%r14;"
+                "mov 0x78(%%rax), %%r15;"
+                "mov 0x00(%%rax), %%rax;"
+                "iretq;" :: "m"(f));
+  UNREACHABLE ();
 }
 
 #define INTR_HANDLER(NUM)                                                     \
@@ -111,26 +134,6 @@ void CASSERT_CONCAT_ (intr_handler_, NUM) (void)                              \
                 "mov %2, %%rdi;"                                              \
                 "mov %%rax, %%rsi;"                                           \
                 "call intr_handler;"                                          \
-                                                                              \
-                "lea %0, %%rax;"                                              \
-                "mov 0x08(%%rax), %%rbx;"                                     \
-                "mov 0x10(%%rax), %%rcx;"                                     \
-                "mov 0x18(%%rax), %%rdx;"                                     \
-                "mov 0x20(%%rax), %%rdi;"                                     \
-                "mov 0x28(%%rax), %%rsi;"                                     \
-                "mov 0x30(%%rax), %%rsp;"                                     \
-                "mov 0x38(%%rax), %%rbp;"                                     \
-                "mov 0x40(%%rax), %%r8;"                                      \
-                "mov 0x48(%%rax), %%r9;"                                      \
-                "mov 0x50(%%rax), %%r10;"                                     \
-                "mov 0x58(%%rax), %%r11;"                                     \
-                "mov 0x60(%%rax), %%r12;"                                     \
-                "mov 0x68(%%rax), %%r13;"                                     \
-                "mov 0x70(%%rax), %%r14;"                                     \
-                "mov 0x78(%%rax), %%r15;"                                     \
-                "mov 0x00(%%rax), %%rax;"                                     \
-                                                                              \
-                "iretq;"                                                      \
                 : "+m"(f), "=m"(stack[sizeof (stack)-8])                      \
                 : "i"(NUM));                                                  \
   UNREACHABLE ();                                                             \

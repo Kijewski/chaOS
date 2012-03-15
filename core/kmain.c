@@ -96,7 +96,7 @@ _start (void)
   msr_set_reset (MSR_EFER, EFER_NXE, 0);
 
   // debugging
-  //*
+  /*
   volatile char xxx = 0;
   while (xxx == 0)
     asm volatile ("pause" ::: "memory");
