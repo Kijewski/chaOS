@@ -8,6 +8,8 @@
 #include <string.h>
 #include <kernel.h>
 #include <crX.h>
+#include <devices/keyboard.h>
+#include <nop.h>
 
 void NO_RETURN
 khalt (void)
@@ -96,13 +98,14 @@ _start (void)
   msr_set_reset (MSR_EFER, EFER_NXE, 0);
 
   // debugging
-  /*
+  //*
   volatile char xxx = 0;
   while (xxx == 0)
     asm volatile ("pause" ::: "memory");
   //*/
 
   videoram_cls (COLOR_NORMAL);
+  expensive_nop ();
 
   videoram_puts ("\n  Welcome to ", COLOR_NORMAL);
   videoram_puts (" chaOS! \n\n", COLOR_ERROR);
@@ -120,6 +123,8 @@ _start (void)
   videoram_puts ("Enable interrupts: ", COLOR_NORMAL);
   asm volatile ("sti");
   videoram_puts (" ok \n", COLOR_INFO);
+
+  init_subsystem ("keyboard", &keyboard_init, NULL);
 
   // TODO: initialize more subsystems
 
