@@ -15,7 +15,7 @@ pic_remap (void)
   outb (PIC_MASTER_COMMAND, 0x11);
   outb (PIC_SLAVE_COMMAND, 0x11);
 
-  // which  ISR should be called if an IRQ occures
+  // which  ISR should be called if an IRQ occurs
   outb (PIC_MASTER_DATA, PIC_MASTER_INTERRUPT_BASE);
   outb (PIC_SLAVE_DATA, PIC_SLAVE_INTERRUPT_BASE);
 

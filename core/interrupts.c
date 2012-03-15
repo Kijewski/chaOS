@@ -8,28 +8,7 @@
 #include <crX.h>
 #include <round.h>
 
-enum {
-  INT_DIV_ZERO                      =  0,
-  INT_DEBUG                         =  1,
-  INT_NMI                           =  2,
-  INT_BREAKPOINT                    =  3,
-  INT_OVERFLOW                      =  4,
-  INT_BOUNDS                        =  5,
-  INT_INVALID_OPCODE                =  6,
-  INT_COPROCESSOR_NOT_AVAILABLE     =  7,
-  INT_DOUBLE_FAULT                  =  8,
-  INT_COPROCESSOR_SEGMENT_OVERRUN   =  9,
-  INT_INVALID_TASK_STATE_SEGEMENT   = 10,
-  INT_SEGMENT_NOT_PRESENT           = 11,
-  INT_STACK_FAULT                   = 12,
-  INT_GENERAL_PROTECTION_FAULT      = 13,
-  INT_PAGE_FAULT                    = 14,
-                                   // 15,
-  INT_MATH_FAULT                    = 16,
-  INT_ALIGNMENT_CHECK               = 17,
-  INT_MACHIENE_CHECK                = 18,
-  INT_SIMD_FLOATION_POINT_EXCEPTION = 19,
-};
+#pragma GCC optimize "omit-frame-pointer", "Os"
 
 enum
 {
