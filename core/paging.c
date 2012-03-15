@@ -3,18 +3,18 @@
 #include "kmain.h"
 
 #include <spinlock.h>
+#include <list.h>
 #include <stdint.h>
 #include <string.h>
 #include <kernel.h>
 #include <round.h>
-
-#include <spinlock.h>
-#include <list.h>
+#include <assert.h>
 
 typedef uint8_t block[4096];
 
 static spinlock flat_memory_freemap_lock;
 static struct list flat_memory_free_pages;
+static struct list flat_memory_free_refs;
 
 struct flat_memory_free_entry
 {
@@ -23,26 +23,82 @@ struct flat_memory_free_entry
 };
 
 static void
+flat_memory_free_refs_use_block (block *data)
+{
+  for (unsigned pos = 0; pos < 4096;
+       pos += sizeof (struct flat_memory_free_entry))
+    {
+      struct flat_memory_free_entry *b = (void *) &data[0][pos];
+      list_push_back (&flat_memory_free_refs, &b->elem);
+    }
+}
+
+// need external locking!
+static struct flat_memory_free_entry *
+get_flat_memory_ref (void)
+{
+  struct list_elem *e;
+  struct flat_memory_free_entry *ee;
+  if (!list_is_empty (&flat_memory_free_refs))
+    e = list_pop_front (&flat_memory_free_refs);
+  else if (!list_is_empty (&flat_memory_free_pages))
+    {
+      e = list_pop_front (&flat_memory_free_pages);
+      ee = list_entry (e, *ee, elem);
+      flat_memory_free_refs_use_block (ee->data);
+      e = list_pop_front (&flat_memory_free_refs);
+    }
+  else
+    return NULL;
+  ee = list_entry (e, *ee, elem);
+  return ee;
+}
+
+// need external locking!
+static bool
+static_paging_return_page (void *page)
+{
+  struct flat_memory_free_entry *ee = get_flat_memory_ref ();
+  if (!ee)
+    return false;
+  ee->data = page;
+  list_push_back (&flat_memory_free_pages, &ee->elem);
+  return true;
+}
+
+bool
+paging_return_page (void *page)
+{
+  ASSERT (((uintptr_t) page & 0x0FFF) == 0);
+  if (page == NULL)
+    return true;
+  spinlock_acquire (&flat_memory_freemap_lock);
+  bool result = static_paging_return_page (page);
+  spinlock_release (&flat_memory_freemap_lock);
+  return result;
+}
+
+void *
+paging_get_page (void)
+{
+  void *result = NULL;
+  spinlock_acquire (&flat_memory_freemap_lock);
+  if (!list_is_empty (&flat_memory_free_refs))
+    {
+      struct list_elem *e = list_pop_front (&flat_memory_free_pages);
+      list_push_front (&flat_memory_free_refs, e);
+      SWAP (result, list_entry (e, struct flat_memory_free_entry, elem)->data);
+    }
+  spinlock_release (&flat_memory_freemap_lock);
+  return result;
+}
+
+
+static void
 init_flat_freemap (void)
 {
-  auto void use_block (block *data);
   static block first_block;
-
-  spinlock_init (&flat_memory_freemap_lock);
-  list_init (&flat_memory_free_pages);
-
-  struct list free_refs;
-  list_init (&free_refs);
-
-  auto void use_block (block *data) {
-    for (unsigned pos = 0; pos < 4096;
-         pos += sizeof (struct flat_memory_free_entry))
-      {
-        struct flat_memory_free_entry *b = (void *) &data[0][pos];
-        list_push_back (&free_refs, &b->elem);
-      }
-  }
-  use_block (&first_block);
+  flat_memory_free_refs_use_block (&first_block);
 
   for (const struct e820_ref *mem = E820_BASE; mem; mem = e820_next (mem))
     {
@@ -57,20 +113,8 @@ init_flat_freemap (void)
                                       12);
       for (block *i = start; i < end; ++i)
         {
-          struct list_elem *e;
-          struct flat_memory_free_entry *ee;
-          if (!list_is_empty (&free_refs))
-            e = list_pop_front (&free_refs);
-          else
-            {
-              e = list_pop_front (&flat_memory_free_pages);
-              ee = list_entry (e, *ee, elem);
-              use_block (ee->data);
-              e = list_pop_front (&free_refs);
-            }
-          ee = list_entry (e, *ee, elem);
-          ee->data = i;
-          list_push_back (&flat_memory_free_pages, &ee->elem);
+          bool inserted UNUSED = static_paging_return_page (i);
+          ASSERT (inserted);
         }
     }
 }
@@ -78,6 +122,10 @@ init_flat_freemap (void)
 bool
 paging_init (void)
 {
+  spinlock_init (&flat_memory_freemap_lock);
+  list_init (&flat_memory_free_pages);
+  list_init (&flat_memory_free_refs);
+
   init_flat_freemap ();
   return true;
 }

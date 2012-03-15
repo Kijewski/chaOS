@@ -13,7 +13,7 @@ typedef volatile struct
 static inline void
 spinlock_acquire (spinlock *lock)
 {
-  while (__sync_lock_test_and_set (&lock->value, 1))
+  while (__sync_lock_test_and_set (&lock->value, 1) != 0)
     continue;
 }
 

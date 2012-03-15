@@ -7,4 +7,7 @@
 bool paging_init (void);
 void paging_enable (void) NO_RETURN;
 
+void *paging_get_page (void);
+bool paging_return_page (void *);
+
 #endif
