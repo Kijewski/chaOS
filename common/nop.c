@@ -9,15 +9,7 @@
         "xor %r8,  %r9;"  \
         "xor %r9,  %r10;" \
         "xor %r10, %r11;" \
-        "xor %r11, %r12;" \
-                          \
-        "xor %r12, %r13;" \
-        "xor %r13, %r14;" \
-        "xor %r14, %r15;" \
-        "xor %r15, %rdi;" \
-                          \
-        "xor %rdi, %rsi;" \
-        "xor %rsi, %rax;"
+        "xor %r11, %rax;" \
 
 #define ROL               \
         ROUND             \
@@ -30,21 +22,18 @@
         ROUND             \
         ROUND             \
                           \
-        ROUND             \
-        ROUND             \
-        ROUND             \
-        ROUND             \
-                          \
-        ROUND             \
-        ROUND             \
-                          \
-        "xor %rsi, %rax;"
+        "xor %r11, %rax;"
 
 void 
 expensive_nop (void)
 {
-  asm volatile (ROL ROL ROL ROL
-                ROL ROL ROL ROL
-                ROL ROL ROL ROL
-                ROL ROL);
+  asm volatile (ROL);
+  asm volatile (ROL);
+  asm volatile (ROL);
+  asm volatile (ROL);
+
+  asm volatile (ROL);
+  asm volatile (ROL);
+  asm volatile (ROL);
+  asm volatile (ROL);
 }
