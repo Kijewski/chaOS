@@ -29,7 +29,6 @@
         ROUND             \
         ROUND             \
         ROUND             \
-        ROUND             \
                           \
         ROUND             \
         ROUND             \
@@ -41,9 +40,11 @@
                           \
         "xor %rsi, %rax;"
 
-// 844 cache stalling operations!
 void 
 expensive_nop (void)
 {
-  asm volatile (ROL ROL ROL ROL);
+  asm volatile (ROL ROL ROL ROL
+                ROL ROL ROL ROL
+                ROL ROL ROL ROL
+                ROL ROL);
 }
