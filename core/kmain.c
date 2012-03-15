@@ -96,13 +96,14 @@ _start (void)
   msr_set_reset (MSR_EFER, EFER_NXE, 0);
 
   // debugging
-  /*
+  //*
   volatile char xxx = 0;
   while (xxx == 0)
     asm volatile ("pause" ::: "memory");
   //*/
 
   videoram_cls (COLOR_NORMAL);
+
   videoram_puts ("\n  Welcome to ", COLOR_NORMAL);
   videoram_puts (" chaOS! \n\n", COLOR_ERROR);
 
@@ -111,14 +112,11 @@ _start (void)
   init_subsystem ("PIC", &pic_init, NULL);
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
   init_subsystem ("paging", &paging_init, NULL);
+
   videoram_puts ("Enable paging: ", COLOR_NORMAL);
   paging_enable ();
-}
-
-void
-kstart (void)
-{
   videoram_puts (" ok \n", COLOR_INFO);
+
   videoram_puts ("Enable interrupts: ", COLOR_NORMAL);
   asm volatile ("sti");
   videoram_puts (" ok \n", COLOR_INFO);

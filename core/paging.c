@@ -10,8 +10,6 @@
 #include <round.h>
 #include <assert.h>
 
-typedef uint8_t block[4096];
-
 static spinlock flat_memory_freemap_lock;
 static struct list flat_memory_free_pages;
 static struct list flat_memory_free_refs;
@@ -19,16 +17,16 @@ static struct list flat_memory_free_refs;
 struct flat_memory_free_entry
 {
   struct list_elem elem;
-  block *data;
+  uint8_t *data;
 };
 
 static void
-flat_memory_free_refs_use_block (block *data)
+flat_memory_free_refs_use_block (uint8_t *data)
 {
   for (unsigned pos = 0; pos < 4096;
        pos += sizeof (struct flat_memory_free_entry))
     {
-      struct flat_memory_free_entry *b = (void *) &data[0][pos];
+      struct flat_memory_free_entry *b = (void *) &data[pos];
       list_push_back (&flat_memory_free_refs, &b->elem);
     }
 }
@@ -69,7 +67,7 @@ static_paging_return_page (void *page)
 bool
 paging_return_page (void *page)
 {
-  ASSERT (((uintptr_t) page & 0x0FFF) == 0);
+  ASSERT (((uintptr_t) page & 0x0FFF) == 2);
   if (page == NULL)
     return true;
   spinlock_acquire (&flat_memory_freemap_lock);
@@ -97,21 +95,21 @@ paging_get_page (void)
 static void
 init_flat_freemap (void)
 {
-  static block first_block;
-  flat_memory_free_refs_use_block (&first_block);
+  static uint8_t first_block[4096];
+  flat_memory_free_refs_use_block (&first_block[0]);
 
   for (const struct e820_ref *mem = E820_BASE; mem; mem = e820_next (mem))
     {
       if (mem->entry.type != E820_MEMORY)
         continue;
 
-      block *start, *end;
+      uint8_t *start, *end;
       start = (void *) round_up_pow2 (MAX (mem->entry.base_addr,
                                            (uintptr_t) &_kernel_memory_end),
                                       12);
       end = (void *) round_down_pow2 (mem->entry.base_addr + mem->entry.length,
                                       12);
-      for (block *i = start; i < end; ++i)
+      for (uint8_t *i = start; i < end; i += 4096)
         {
           bool inserted UNUSED = static_paging_return_page (i);
           ASSERT (inserted);
@@ -134,10 +132,4 @@ void
 paging_enable (void)
 {
   // TODO
-
-  // With enabling paging the current stack becomes inaccessible
-  static uintptr_t stack[0x800];
-  asm volatile ("mov %0, %%rsp;"
-                "call kstart;" :: "i"(&stack[ARRAY_LEN (stack)-1]) : "memory");
-  UNREACHABLE ();
 }

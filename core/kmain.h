@@ -19,6 +19,5 @@
 void _start (void) NO_RETURN;
 
 void khalt (void) NO_RETURN;
-void kstart (void) NO_RETURN;
 
 #endif
