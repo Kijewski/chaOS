@@ -2,6 +2,7 @@
 #define PIC_H__
 
 #include <stdbool.h>
+#include "interrupts.h"
 
 #define PIC_MASTER_INTERRUPT_BASE (0x20)
 #define PIC_SLAVE_INTERRUPT_BASE (PIC_MASTER_INTERRUPT_BASE + 8)
@@ -50,5 +51,6 @@ enum
 
 bool pic_init (void);
 void pic_mask (int mask);
+void pic_set_handler (int num, intr_handler_fun fun);
 
 #endif

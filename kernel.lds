@@ -56,7 +56,6 @@ SECTIONS
     SHORT(intr_handler_29)  SHORT(8) BYTE(0) BYTE(6|8|0|128)  SHORT(intr_handler_29>>16)  LONG(intr_handler_29>>32)  LONG(0)
     SHORT(intr_handler_30)  SHORT(8) BYTE(0) BYTE(6|8|0|128)  SHORT(intr_handler_30>>16)  LONG(intr_handler_30>>32)  LONG(0)
     SHORT(intr_handler_31)  SHORT(8) BYTE(0) BYTE(6|8|0|128)  SHORT(intr_handler_31>>16)  LONG(intr_handler_31>>32)  LONG(0)
-/*
     SHORT(intr_handler_32)  SHORT(8) BYTE(0) BYTE(6|8|0|128)  SHORT(intr_handler_32>>16)  LONG(intr_handler_32>>32)  LONG(0)
     SHORT(intr_handler_33)  SHORT(8) BYTE(0) BYTE(6|8|0|128)  SHORT(intr_handler_33>>16)  LONG(intr_handler_33>>32)  LONG(0)
     SHORT(intr_handler_34)  SHORT(8) BYTE(0) BYTE(6|8|0|128)  SHORT(intr_handler_34>>16)  LONG(intr_handler_34>>32)  LONG(0)
@@ -281,7 +280,6 @@ SECTIONS
     SHORT(intr_handler_253) SHORT(8) BYTE(0) BYTE(6|8|0|128)  SHORT(intr_handler_253>>16) LONG(intr_handler_253>>32) LONG(0)
     SHORT(intr_handler_254) SHORT(8) BYTE(0) BYTE(6|8|0|128)  SHORT(intr_handler_254>>16) LONG(intr_handler_254>>32) LONG(0)
     SHORT(intr_handler_255) SHORT(8) BYTE(0) BYTE(6|8|0|128)  SHORT(intr_handler_255>>16) LONG(intr_handler_255>>32) LONG(0)
-*/
 
     . = ALIGN(0x1000);
     _section_rodata_end = .;
