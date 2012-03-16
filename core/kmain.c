@@ -1,6 +1,6 @@
 #include "kmain.h"
 #include "interrupts.h"
-#include "paging.h"
+#include "frame_allocator.h"
 #include "pic.h"
 #include "e820.h"
 #include <attributes.h>
@@ -95,10 +95,9 @@ _start (void)
           &_section_bss_end[0] - &_section_bss_start[0]);
 
   cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
-  msr_set_reset (MSR_EFER, EFER_NXE, 0);
 
   // debugging
-  //*
+  /*
   volatile char xxx = 0;
   while (xxx == 0)
     asm volatile ("pause" ::: "memory");
@@ -112,17 +111,18 @@ _start (void)
 
   put_memory_map ();
 
-  init_subsystem ("PIC", &pic_init, NULL);
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
-  init_subsystem ("paging", &paging_init, NULL);
+  init_subsystem ("PIC", &pic_init, NULL);
 
-  videoram_puts ("Enable paging: ", COLOR_NORMAL);
-  paging_enable ();
-  videoram_puts (" ok \n", COLOR_INFO);
-
-  videoram_puts ("Enable interrupts: ", COLOR_NORMAL);
+  videoram_puts ("Enabling interrupts: ", COLOR_NORMAL);
   asm volatile ("sti");
   videoram_puts (" ok \n", COLOR_INFO);
+
+  videoram_put_ln ();
+  init_subsystem ("frame allocator", &frame_allocator_init, NULL);
+  videoram_puts ("Available pages: ", COLOR_NORMAL);
+  videoram_put_int (free_frames_count (), COLOR_NORMAL);
+  videoram_puts ("\n\n", COLOR_NORMAL);
 
   init_subsystem ("keyboard", &keyboard_init, NULL);
 

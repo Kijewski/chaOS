@@ -49,7 +49,7 @@ keyboard_init (void)
   pic_set_handler (PIC_NUM_KEYBOARD_CONTROLLER_1, &keyboard_handler);
 
   // Does the kbd controller think it is alright?
-  ENSURE ((inb (0x64) & KBD_STATUS_BIST_OK) != 0);
+  ENSURE (inb (0x64) & KBD_STATUS_BIST_OK);
 
   // clear input buffer
   while (inb (0x64) & KBD_STATUS_READABLE)
