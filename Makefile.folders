@@ -42,7 +42,7 @@ $(TARGET)/build.a: $(BIN)
 
 $(C_DEPS): $(TARGET)/%.d: %.c
 	@mkdir -p $(TARGET)
-	$(CC) $(CFLAGS) -M -MF $@ -MT $(<:.c=.o) $<
+	$(CC) $(CFLAGS) -M -MF $@ -MT $(@:.d=.o) $<
 
 $(S_DEPS): $(TARGET)/%.d: %.asm
 	@mkdir -p $(TARGET)
