@@ -9,7 +9,8 @@
 
 // MAX_KERNEL_SIZE_MB is so big b/c the ensure_toplevel_entry is not implemented
 // very well, yet.
-#define MAX_KERNEL_SIZE_MB (64)
+// Drawback: at least 4 MB of RAM are needed!
+#define MAX_KERNEL_SIZE_MB (1024)
 
 static uint64_t plm4[512] ALIGNED (0x1000);
 

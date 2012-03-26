@@ -123,15 +123,15 @@ _start (void)
   videoram_puts (" ok \n", COLOR_INFO);
 
   init_subsystem ("frame allocator", &frame_allocator_init, NULL);
-  
-  videoram_puts ("Available frames: ", COLOR_NORMAL);
-  videoram_put_int (free_frames_count (), COLOR_NORMAL);
-  videoram_put_ln ();
 
   init_subsystem ("PS/2 keyboard", &keyboard_init, NULL);
   init_subsystem ("PS/2 mouse", &mouse_init, NULL);
 
   // TODO: initialize more subsystems
+  
+  videoram_puts ("Available frames: ", COLOR_NORMAL);
+  videoram_put_int (free_frames_count (), COLOR_NORMAL);
+  videoram_put_ln ();
 
   // TODO: do something
   
