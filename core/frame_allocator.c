@@ -1,17 +1,17 @@
 #include "frame_allocator.h"
 #include "e820.h"
 #include "kmain.h"
+#include "paging.h"
 
-#include <spinlock.h>
 #include <list.h>
 #include <round.h>
 #include <assert.h>
 #include <kernel.h>
 
-static spinlock lock;
 static struct list free_frames;
 static struct list free_entry_refs;
 static uint64_t counter;
+static bool initialized;
 
 struct frame_ref
 {
@@ -23,8 +23,7 @@ static void
 use_block (uint8_t *block)
 {
   ASSERT (block != NULL);
-  for (unsigned pos = 0; pos < 4096;
-       pos += sizeof (struct frame_ref))
+  for (unsigned pos = 0; pos < 4096; pos += sizeof (struct frame_ref))
     {
       struct frame_ref *b = (void *) &block[pos];
       list_push_back (&free_entry_refs, &b->elem);
@@ -32,10 +31,10 @@ use_block (uint8_t *block)
 }
 
 static uint8_t *
-get_page (void)
+get_frame (void)
 {
   void *result = NULL;
-  if (list_is_empty (&free_entry_refs))
+  if (!list_is_empty (&free_frames))
     {
       struct list_elem *e = list_pop_front (&free_frames);
       list_push_front (&free_entry_refs, e);
@@ -50,9 +49,10 @@ get_ref (void)
 {
   if (list_is_empty (&free_entry_refs))
     {
-      uint8_t *block = get_page ();
+      uint8_t *block = get_frame ();
       if (!block)
         return NULL;
+      paging_identity_map (block, PT_P|PT_RW|PT_PWT|PT_NX);
       use_block (block);
     }
   struct list_elem *e = list_pop_front (&free_entry_refs);
@@ -60,8 +60,8 @@ get_ref (void)
   return ee;
 }
 
-static void
-return_page (void *page)
+static bool
+return_frame (void *page)
 {
   struct frame_ref *ee = get_ref ();
   if (ee)
@@ -70,28 +70,29 @@ return_page (void *page)
       list_push_back (&free_frames, &ee->elem);
       ++counter;
     }
+  else if (initialized)
+    return false;
   else
-    use_block (page);
+    {
+      paging_identity_map (page, PT_P|PT_RW|PT_PWT|PT_NX);
+      use_block (page);
+    }
+  return true;
 }
 
-void
+bool
 frame_allocator_return (void *page)
 {
   ASSERT (((uintptr_t) page & 0x0FFF) == 0);
   ASSERT (page != NULL);
 
-  spinlock_acquire (&lock);
-  return_page (page);
-  spinlock_release (&lock);
+  return return_frame (page);
 }
 
 void *
 frame_allocator_get (void)
 {
-  spinlock_acquire (&lock);
-  void *result = get_page ();
-  spinlock_release (&lock);
-  return result;
+  return get_frame ();
 }
 
 static void
@@ -100,7 +101,7 @@ init_freemap (void)
   static uint8_t first_block[4096];
   use_block (&first_block[0]);
 
-  for (const struct e820_ref *mem = E820_BASE; mem; mem = e820_next (mem))
+  for (const struct e820_ref *mem = e820_start (); mem; mem = e820_next (mem))
     {
       if (mem->entry.type != E820_MEMORY)
         continue;
@@ -112,18 +113,18 @@ init_freemap (void)
       end = (void *) round_down_pow2 (mem->entry.base_addr + mem->entry.length,
                                       12);
       for (uint8_t *i = start; i < end; i += 4096)
-        return_page (i);
+        return_frame (i);
     }
 }
 
 bool
 frame_allocator_init (void)
 {
-  spinlock_init (&lock);
   list_init (&free_frames);
   list_init (&free_entry_refs);
 
   init_freemap ();
+  initialized = true;
   return true;
 }
 

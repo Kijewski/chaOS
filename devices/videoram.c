@@ -5,10 +5,6 @@
 #include <ports.h>
 #include <assert.h>
 
-#define VR_BASE ((char *) 0xb8000)
-#define VR_COLS (80)
-#define VR_ROWS (50)
-
 static unsigned vr_xpos, vr_ypos;
 static char cls_color = VR_COLOR (VR_BLACK, VR_GRAY);
 

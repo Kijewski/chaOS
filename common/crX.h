@@ -40,10 +40,11 @@ enum
 
 enum
 {
-  EFER_SCE = 1 <<  0,
-  EFER_LME = 1 <<  8,
-  EFER_LMA = 1 << 10,
-  EFER_NXE = 1 << 11,
+  EFER_SCE   = 1 <<  0,
+  EFER_LME   = 1 <<  8,
+  EFER_LMA   = 1 << 10,
+  EFER_NXE   = 1 << 11,
+  EFER_FFXSR = 1 << 14,
 };
 
 enum

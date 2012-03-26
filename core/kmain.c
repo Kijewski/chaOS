@@ -2,6 +2,7 @@
 #include "interrupts.h"
 #include "frame_allocator.h"
 #include "pic.h"
+#include "paging.h"
 #include "e820.h"
 #include <attributes.h>
 #include <stdlib.h>
@@ -9,6 +10,7 @@
 #include <kernel.h>
 #include <crX.h>
 #include <devices/keyboard.h>
+#include <devices/mouse.h>
 #include <nop.h>
 
 void NO_RETURN
@@ -44,7 +46,7 @@ put_memory_map (void)
 {
   uint64_t total_memory = 0;
   videoram_puts ("Memory map:\n", COLOR_NORMAL);
-  for (const struct e820_ref *ref = E820_BASE; ref; ref = e820_next (ref))
+  for (const struct e820_ref *ref = e820_start (); ref; ref = e820_next (ref))
     {
       videoram_puts ("  * ", COLOR_NORMAL);
       videoram_puts ("0x", COLOR_NORMAL);
@@ -90,18 +92,19 @@ put_memory_map (void)
 void
 _start (void)
 {
-  // clear BSS
-  memset (&_section_bss_start[0], 0,
-          &_section_bss_end[0] - &_section_bss_start[0]);
-
-  cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
-
   // debugging
   /*
   volatile char xxx = 0;
   while (xxx == 0)
     asm volatile ("pause" ::: "memory");
   //*/
+
+  // clear BSS
+  memset (&_section_bss_start[0], 0,
+          &_section_bss_end[0] - &_section_bss_start[0]);
+
+  cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
+  msr_set_reset (MSR_EFER, EFER_NXE, 0);
 
   videoram_cls (COLOR_NORMAL);
   expensive_nop ();
@@ -113,18 +116,20 @@ _start (void)
 
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
   init_subsystem ("PIC", &pic_init, NULL);
+  init_subsystem ("paging", &paging_init, NULL);
 
   videoram_puts ("Enabling interrupts: ", COLOR_NORMAL);
   asm volatile ("sti");
   videoram_puts (" ok \n", COLOR_INFO);
 
-  videoram_put_ln ();
   init_subsystem ("frame allocator", &frame_allocator_init, NULL);
-  videoram_puts ("Available pages: ", COLOR_NORMAL);
+  
+  videoram_puts ("Available frames: ", COLOR_NORMAL);
   videoram_put_int (free_frames_count (), COLOR_NORMAL);
-  videoram_puts ("\n\n", COLOR_NORMAL);
+  videoram_put_ln ();
 
-  init_subsystem ("keyboard", &keyboard_init, NULL);
+  init_subsystem ("PS/2 keyboard", &keyboard_init, NULL);
+  init_subsystem ("PS/2 mouse", &mouse_init, NULL);
 
   // TODO: initialize more subsystems
 

@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <itoa.h>
 
+#define VR_BASE ((char *) 0xb8000)
+#define VR_COLS (80)
+#define VR_ROWS (50)
+
 enum
 {
   VR_BLACK,

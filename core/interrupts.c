@@ -109,8 +109,6 @@ void CASSERT_CONCAT_ (intr_handler_, NUM) (void);                             \
 void CASSERT_CONCAT_ (intr_handler_, NUM) (void)                              \
 {                                                                             \
   static struct interrupt_frame f;                                            \
-  static uint8_t stack[0x1000];                                               \
-                                                                              \
   asm volatile ("mov %%rax, %0;"                                              \
                 "lea %0, %%rax;"                                              \
                 "mov %%rbx, 0x08(%%rax);"                                     \
@@ -129,12 +127,10 @@ void CASSERT_CONCAT_ (intr_handler_, NUM) (void)                              \
                 "mov %%r14, 0x70(%%rax);"                                     \
                 "mov %%r15, 0x78(%%rax);"                                     \
                                                                               \
-                "lea %1, %%rsp;"                                              \
-                                                                              \
-                "mov %2, %%rdi;"                                              \
+                "mov %1, %%rdi;"                                              \
                 "mov %%rax, %%rsi;"                                           \
                 "call intr_handler;"                                          \
-                : "+m"(f), "=m"(stack[sizeof (stack)-8])                      \
+                : "+m"(f)                                                     \
                 : "i"(NUM));                                                  \
   UNREACHABLE ();                                                             \
 }

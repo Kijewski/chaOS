@@ -30,12 +30,7 @@ void *
 memmove (void *dest, const void *src, size_t size)
 {
   if ((uint64_t) dest < (uint64_t) src)
-    {
-      char *d = dest;
-      const char *s = src;
-      while (size-- > 0)
-        *d++ = *s++;
-    }
+    return memcpy (dest, src, size);
   else if ((uint64_t) dest > (uint64_t) src)
     {
       char *d = dest + size;

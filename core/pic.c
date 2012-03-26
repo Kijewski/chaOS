@@ -43,7 +43,7 @@ pic_mask (int mask)
   outb (PIC_SLAVE_IMR, (uint8_t) mask >> 8);
 }
 
-intr_handler_fun *funs[16];
+static intr_handler_fun *funs[16];
 
 static void
 irq_handler (int num, struct interrupt_frame *f)

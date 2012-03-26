@@ -10,5 +10,10 @@ clean::
 	rm -rf $(TARGET)
 
 $(TARGET)/bootloader.bin: bootloader.s
-	@mkdir -p $(TARGET)
 	$(NASM) $(NASMFLAGS) -o $@ $<
+
+$(TARGET)/bootloader.d: bootloader.s
+	@mkdir -p $(TARGET)
+	$(NASM) $(NASMFLAGS) -M -MD $@ -MT $(@:.d=.o) $<
+
+-include $(TARGET)/bootloader.d

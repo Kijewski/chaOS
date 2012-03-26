@@ -1,7 +1,8 @@
 # INCLUDED
 
 TARGET := build
-GCCFLAGS := -m64 -g3 -gdwarf-4 -mcmodel=small -fno-pic -mno-red-zone \
+GCCFLAGS := -m64 -g3 -ggdb -mcmodel=small -fno-pic -mno-red-zone -fno-stack-protector \
+            -fstrict-aliasing \
             -ffreestanding -nostdlib -fno-builtin -nostartfiles -nodefaultlibs \
             -msoft-float -mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-sse4.1 -mno-sse4.2 \
             -mno-avx -mno-aes -mno-pclmul -mno-fsgsbase -mno-rdrnd -mno-f16c -mno-sse4a \
@@ -16,34 +17,41 @@ WFLAGS := -Wall -Wextra -Werror \
           -Wlogical-op -Wstrict-overflow=4
 
 CC := gcc
-CFLAGS := $(GCCFLAGS) -O0 -std=gnu99 -fno-stack-protector $(WFLAGS)
+CFLAGS := $(GCCFLAGS) -O1 -std=gnu99 $(WFLAGS)
+NASM := nasm
+NASMFLAGS := -felf64 -gdwarf2 -Ox
 AR := ar
 
 C_BIN := $(C_SRC:%.c=$(TARGET)/%.o)
 S_BIN := $(S_SRC:%.asm=$(TARGET)/%.o)
 BIN := $(C_BIN) $(S_BIN)
 
+C_DEPS = $(C_SRC:%.c=$(TARGET)/%.d)
+S_DEPS = $(S_SRC:%.asm=$(TARGET)/%.d)
+DEPS := $(C_DEPS) $(S_DEPS)
+
 all:: $(TARGET)/build.a
 
 clean::
 	rm -rf $(TARGET)
 
-depend: $(TARGET)/.depend
-
 $(TARGET)/build.a: $(BIN)
 	rm -f $@
-	$(AR) rs $@ $^
+	$(AR) r $@ $^
 	ranlib $@
 
-$(TARGET)/.depend: $(C_SRC)
+$(C_DEPS): $(TARGET)/%.d: %.c
 	@mkdir -p $(TARGET)
-	@rm -rf $@
-	$(CC) $(CFLAGS) -MM -MP $^ > $@
+	$(CC) $(CFLAGS) -M -MF $@ -MT $(<:.c=.o) $<
+
+$(S_DEPS): $(TARGET)/%.d: %.asm
+	@mkdir -p $(TARGET)
+	$(NASM) $(NASMFLAGS) -M -MF $@ -MT $(@:.d=.o) $<
 
 $(C_BIN): $(TARGET)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(S_BIN): $(TARGET)/%.o: %.asm
-	nasm -felf64 -gdwarf2 -Ox -o $@ $<
+	$(NASM) $(NASMFLAGS) -o $@ $<
 
--include $(TARGET)/.depend
+-include $(DEPS)

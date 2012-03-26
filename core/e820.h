@@ -4,14 +4,7 @@
 #include <attributes.h>
 #include <stdlib.h>
 #include <stdint.h>
-
-#define E820_BASE                                                             \
-    ({                                                                        \
-      const struct e820_ref *result = (void *) 0x4500;                        \
-      if (result->size == 0)                                                  \
-        result = NULL;                                                        \
-      result;                                                                 \
-    })
+#include <assert.h>
 
 enum
 {
@@ -37,11 +30,19 @@ struct e820_ref
 } PACKED;
 
 static inline const struct e820_ref *
+e820_start (void)
+{
+  const struct e820_ref *result = (void *) 0x4500;
+  return result->size != 0 ? result : NULL;
+}
+
+static inline const struct e820_ref *
 e820_next (const struct e820_ref *cur)
 {
-  const struct e820_ref *result = (void *) ((uintptr_t) cur + cur->size +
-                                            sizeof (cur->size));
-  return result->size ? result : NULL;
+  ASSERT (cur->size != 0);
+  const struct e820_ref *result;
+  result = (void *) ((uintptr_t) cur + cur->size + sizeof (cur->size));
+  return result->size != 0 ? result : NULL;
 }
 
 #endif

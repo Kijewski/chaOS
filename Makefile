@@ -30,9 +30,9 @@ bootloader/$(TARGET)/bootloader.bin: bootloader .PHONY
 
 $(TARGET)/kernel.bin: kernel.lds $(ARCHIVES)
 	@mkdir -p $(TARGET)
-	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ --whole-archive $(ARCHIVES)
+	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ $(ARCHIVES)
 	objcopy --only-keep-debug $@ $@.dbg
-	strip -sx $@
+	#strip -sx $@
 
 $(TARGET)/disk.img: $(TARGET)/kernel.bin bootloader/$(TARGET)/bootloader.bin
 	@rm -f $@
