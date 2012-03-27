@@ -17,7 +17,7 @@ WFLAGS := -Wall -Wextra -Werror \
           -Wlogical-op -Wstrict-overflow=4
 
 CC := gcc
-CFLAGS := $(GCCFLAGS) -O1 -std=gnu99 $(WFLAGS)
+CFLAGS := $(GCCFLAGS) -O0 -std=gnu99 $(WFLAGS)
 NASM := nasm
 NASMFLAGS := -felf64 -gdwarf2 -Ox
 AR := ar

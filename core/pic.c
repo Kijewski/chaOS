@@ -31,7 +31,7 @@ pic_remap (void)
   outb (PIC_MASTER_DATA, 1 << PIC_NUM_SLAVE);
   outb (PIC_SLAVE_DATA, PIC_NUM_SLAVE);
 
-  // use 8086 mode (?)
+  // use PC mode
   outb (PIC_MASTER_DATA, 0x01);
   outb (PIC_SLAVE_DATA, 0x01);
 }
@@ -39,8 +39,8 @@ pic_remap (void)
 void
 pic_mask (int mask)
 {
-  outb (PIC_MASTER_IMR, (uint8_t) mask);
-  outb (PIC_SLAVE_IMR, (uint8_t) mask >> 8);
+  outb (PIC_MASTER_IMR, (uint8_t) ~mask);
+  outb (PIC_SLAVE_IMR, (uint8_t) ~mask >> 8);
 }
 
 static intr_handler_fun *funs[16];
@@ -50,11 +50,9 @@ irq_handler (int num, struct interrupt_frame *f)
 {
   num -= PIC_MASTER_INTERRUPT_BASE;
 
-/*
   videoram_puts ("IRQ: ", 7);
   videoram_put_int (num, 7);
   videoram_put_ln ();
-*/
 
   if (funs[num])
     funs[num] (num, f);

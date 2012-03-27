@@ -50,7 +50,8 @@ enum
 };
 
 bool pic_init (void);
-void pic_mask (int mask);
 void pic_set_handler (int num, intr_handler_fun fun);
+
+void pic_mask (int mask);
 
 #endif

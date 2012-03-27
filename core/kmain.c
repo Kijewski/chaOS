@@ -134,6 +134,8 @@ _start (void)
   videoram_put_ln ();
 
   // TODO: do something
+  for (;;)
+    asm volatile ("hlt");
   
   khalt ();
 }
