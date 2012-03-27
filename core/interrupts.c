@@ -103,33 +103,42 @@ intr_handler (int num, struct interrupt_frame *f)
   UNREACHABLE ();
 }
 
+void intr_handler_x (void);
+void
+intr_handler_x (void)
+{
+  asm volatile ("mov %rcx, 0x10(%rax);"
+                "mov %rdx, 0x18(%rax);"
+                "mov %rdi, 0x20(%rax);"
+                "mov %rsi, 0x28(%rax);"
+                "mov %rsp, 0x30(%rax);"
+                "mov %rbp, 0x38(%rax);"
+                "mov %r8,  0x40(%rax);"
+                "mov %r9,  0x48(%rax);"
+                "mov %r10, 0x50(%rax);"
+                "mov %r11, 0x58(%rax);"
+                "mov %r12, 0x60(%rax);"
+                "mov %r13, 0x68(%rax);"
+                "mov %r14, 0x70(%rax);"
+                "mov %r15, 0x78(%rax);"
+
+                "movzx %bl, %edi;"
+                "mov %rax, %rsi;"
+                "call intr_handler;");
+  UNREACHABLE ();
+}
+
 #define INTR_HANDLER(NUM)                                                     \
 GLOBAL_CASSERT (ARRAY_LEN (funs) >= NUM);                                     \
 void CASSERT_CONCAT_ (intr_handler_, NUM) (void);                             \
-void CASSERT_CONCAT_ (intr_handler_, NUM) (void)                              \
+void ALIGNED(0x10) CASSERT_CONCAT_ (intr_handler_, NUM) (void)                \
 {                                                                             \
   static struct interrupt_frame f;                                            \
   asm volatile ("mov %%rax, %0;"                                              \
                 "lea %0, %%rax;"                                              \
                 "mov %%rbx, 0x08(%%rax);"                                     \
-                "mov %%rcx, 0x10(%%rax);"                                     \
-                "mov %%rdx, 0x18(%%rax);"                                     \
-                "mov %%rdi, 0x20(%%rax);"                                     \
-                "mov %%rsi, 0x28(%%rax);"                                     \
-                "mov %%rsp, 0x30(%%rax);"                                     \
-                "mov %%rbp, 0x38(%%rax);"                                     \
-                "mov %%r8,  0x40(%%rax);"                                     \
-                "mov %%r9,  0x48(%%rax);"                                     \
-                "mov %%r10, 0x50(%%rax);"                                     \
-                "mov %%r11, 0x58(%%rax);"                                     \
-                "mov %%r12, 0x60(%%rax);"                                     \
-                "mov %%r13, 0x68(%%rax);"                                     \
-                "mov %%r14, 0x70(%%rax);"                                     \
-                "mov %%r15, 0x78(%%rax);"                                     \
-                                                                              \
-                "mov %1, %%rdi;"                                              \
-                "mov %%rax, %%rsi;"                                           \
-                "call intr_handler;"                                          \
+                "mov %1, %%rbx;"                                              \
+                "jmp intr_handler_x;"                                         \
                 : "+m"(f)                                                     \
                 : "i"(NUM));                                                  \
   UNREACHABLE ();                                                             \
