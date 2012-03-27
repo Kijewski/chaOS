@@ -6,6 +6,7 @@
 
 #include <core/pic.h>
 #include <attributes.h>
+#include <intr.h>
 
 enum
 {
@@ -65,9 +66,9 @@ mouse_init (void)
 {
   pic_set_handler (PIC_NUM_KEYBOARD_CONTROLLER_2, &mouse_handler);
 
-  asm volatile ("cli");
+  bool old_level = intr_get_and_set_off ();
   bool result = mouse_activate ();
-  asm volatile ("sti");
+  intr_set (old_level);
 
   return result;
 }
