@@ -47,6 +47,8 @@ enum
   INT_ALIGNMENT_CHECK               = 17,
   INT_MACHIENE_CHECK                = 18,
   INT_SIMD_FLOATION_POINT_EXCEPTION = 19,
+
+  INT_SPECIAL_DEBUG = 0xCC,
 };
 
 extern const struct idt_entry idt_entries[256];

@@ -16,12 +16,6 @@ static uint64_t plm4[512] ALIGNED (0x1000);
 
 #define TOPLEVEL_TYPE (PT_P | PT_RW | PT_US | PT_PWT)
 
-inline void
-paging_invalidate_pte (uint64_t *pte)
-{
-  asm volatile ("invlpg %0" :: "m"(*pte));
-}
-
 static bool
 ensure_toplevel_entry (uintptr_t *p)
 {
@@ -32,7 +26,6 @@ ensure_toplevel_entry (uintptr_t *p)
   if (!f)
     return false;
   *p = (uint64_t) f | TOPLEVEL_TYPE;
-  paging_invalidate_pte (p);
   return true;
 }
 
@@ -63,7 +56,7 @@ paging_map (void *page, void *frame, uint64_t type)
     return false;
 
   i[i_pt] = (uintptr_t) frame | type;
-  paging_invalidate_pte (&i[i_pt]);
+  paging_invalidate_pte (page);
   return true;
 }
 
@@ -102,7 +95,7 @@ paging_unmap (void *page)
   if (!(result & PT_P))
     return result;
   *pte &= ~PT_P;
-  paging_invalidate_pte (pte);
+  paging_invalidate_pte (page);
   return *pte;
 }
 
@@ -117,7 +110,7 @@ paging_remap (void *page)
   if (!result)
     return result;
   *pte |= PT_P;
-  paging_invalidate_pte (pte);
+  paging_invalidate_pte (page);
   return *pte;
 }
 

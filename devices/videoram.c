@@ -4,6 +4,8 @@
 #include <string.h>
 #include <ports.h>
 #include <assert.h>
+#include <printf.h>
+#include <stdbool.h>
 
 static unsigned vr_xpos, vr_ypos;
 static char cls_color = VR_COLOR (VR_BLACK, VR_GRAY);
@@ -64,4 +66,48 @@ videoram_put_all_hex (uint64_t v, char attributes)
   memset (&s[2], '0', sizeof (s)-3);
   u64_to_hex (v, s);
   videoram_puts (&s[2], attributes);
+}
+
+void
+videoram_printf (char attributes, const char *format, ...)
+{
+  va_list args;
+  va_start (args, format);
+  videoram_vprintf (attributes, format, args);
+  va_end (args);
+}
+
+struct videoram_vprintf_aux
+{
+  char attributes;
+  bool got_e;
+};
+
+static void
+videoram_vprintf_helper (char ch, void *aux_)
+{
+  struct videoram_vprintf_aux *aux = aux_;
+  if (!aux->got_e)
+    {
+      if (ch != '\e')
+        videoram_putc (ch, aux->attributes);
+      else
+        aux->got_e = true;
+    }
+  else
+    {
+      aux->attributes = ch;
+      aux->got_e = false;
+    }
+}
+
+void
+videoram_vprintf (char attributes, const char *format, va_list args)
+{
+  struct videoram_vprintf_aux aux = {
+    .attributes = attributes,
+    .got_e = false,
+  };
+
+  __vprintf (format, args, &videoram_vprintf_helper, &aux);
 }

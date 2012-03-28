@@ -34,7 +34,12 @@ uint64_t paging_unmap (void *page);
 uint64_t paging_remap (void *page);
 
 uint64_t *paging_get_pte (void *page);
-void paging_invalidate_pte (uint64_t *pte);
+
+static inline void
+paging_invalidate_pte (void *page)
+{
+  asm volatile ("invlpg %0" :: "m"(*(char *) page));
+}
 
 static inline bool
 paging_get (void *page, void **frame, uint64_t *type)

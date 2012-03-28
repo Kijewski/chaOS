@@ -61,3 +61,21 @@ memccpy (void *restrict dest, const void *restrict src, int c, size_t n)
       return d;
   return NULL;
 }
+
+size_t
+strlen (const char *s)
+{
+  size_t result = 0;
+  while (*s++)
+    ++result;
+  return result;
+}
+
+size_t
+strnlen (const char *s, size_t maxlen)
+{
+  size_t result = 0;
+  while (*s++ && ++result < maxlen)
+    continue;
+  return result;
+}

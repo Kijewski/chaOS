@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+#include <printf.h>
+
 struct __file;
 typedef struct __file FILE;
 

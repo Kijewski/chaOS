@@ -44,6 +44,8 @@ enum
   EFER_LME   = 1 <<  8,
   EFER_LMA   = 1 << 10,
   EFER_NXE   = 1 << 11,
+  EFER_SVME  = 1 << 12,
+  EFER_LMSLE = 1 << 12,
   EFER_FFXSR = 1 << 14,
 };
 

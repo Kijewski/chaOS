@@ -3,7 +3,7 @@
 
 #include <attributes.h>
 
-typedef __builtin_va_list va_list;
+typedef typeof (__builtin_va_list) va_list;
 
 #define va_start(V,N) (__builtin_va_start ((V), (N)))
 #define va_arg(V,T)   (__builtin_va_arg ((V), typeof (T)))

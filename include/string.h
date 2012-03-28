@@ -24,6 +24,7 @@ char  *strncpy (char *restrict dest, const char *restrict src, size_t n);
 char  *strpbrk (const char *s, const char *accept);
 char  *strrchr (const char *s, int c);
 size_t strspn (const char *s, const char *accept);
+size_t strlen (const char *s);
 
 #ifndef NO_STRING_H_BUILTINS
 # define memchr(...) (__builtin_memchr (__VA_ARGS__))
@@ -52,6 +53,7 @@ void  *memccpy (void *restrict dest, const void *restrict src, int c, size_t n);
 char *strerror (int);
 char *strerror_r (int, char *, size_t);
 char *strtok_r (char *s, const char *delim, char **save_ptr);
+size_t strnlen (const char *s, size_t maxlen);
 
 // UNIMPLEMENTED!
 

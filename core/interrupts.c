@@ -33,12 +33,12 @@ struct idtr
 static intr_handler_fun *funs[256];
 
 static void
-intr_default_handler (int num, struct interrupt_frame *f)
+intr_debug_frame (int num, struct interrupt_frame *f)
 {
-  videoram_puts ("\n Got unhandled interrupt 0x", COLOR_ERROR);
+  videoram_puts ("\n Got interrupt 0x", COLOR_ERROR);
   videoram_put_hex (num, COLOR_ERROR);
   videoram_puts ("! \n", COLOR_ERROR);
-  
+
   videoram_puts ( "\n RAX: ", 7); videoram_put_all_hex (f->rax, 7);
   videoram_puts ("    RBX: ", 7); videoram_put_all_hex (f->rbx, 7);
   videoram_puts (" \n RCX: ", 7); videoram_put_all_hex (f->rcx, 7);
@@ -70,6 +70,12 @@ intr_default_handler (int num, struct interrupt_frame *f)
   videoram_puts ("   EFER: ", 7); videoram_put_all_hex (msr_read (MSR_EFER), 7);
 
   videoram_puts (" \n", 7);
+}
+
+static void
+intr_default_handler (int num, struct interrupt_frame *f)
+{
+  intr_debug_frame (num, f);
   khalt ();
 }
 
@@ -218,6 +224,7 @@ bool
 interrupts_init (void)
 {
   asm volatile ("lidtq %0" :: "m"(idtr));
+  interrupts_set_handler (INT_SPECIAL_DEBUG, intr_debug_frame);
   return true;
 }
 

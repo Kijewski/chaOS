@@ -115,7 +115,10 @@ _start (void)
   put_memory_map ();
 
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
+
   init_subsystem ("PIC", &pic_init, NULL);
+  pic_mask (~PIC_MASK_PIT); // TODO: setup PIT
+
   init_subsystem ("paging", &paging_init, NULL);
 
   videoram_puts ("Enabling interrupts: ", COLOR_NORMAL);
