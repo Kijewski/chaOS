@@ -50,7 +50,7 @@ videoram_put_ln (void)
 
 void videoram_put_all_hex (uint64_t v, char attributes);
 
-void videoram_printf (char attributes, const char *format, ...);
-void videoram_vprintf (char attributes, const char *format, va_list args);
+void videoram_printf (const char *format, ...);
+void videoram_vprintf (const char *format, va_list args);
 
 #endif

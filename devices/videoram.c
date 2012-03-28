@@ -69,11 +69,11 @@ videoram_put_all_hex (uint64_t v, char attributes)
 }
 
 void
-videoram_printf (char attributes, const char *format, ...)
+videoram_printf (const char *format, ...)
 {
   va_list args;
   va_start (args, format);
-  videoram_vprintf (attributes, format, args);
+  videoram_vprintf (format, args);
   va_end (args);
 }
 
@@ -102,10 +102,10 @@ videoram_vprintf_helper (char ch, void *aux_)
 }
 
 void
-videoram_vprintf (char attributes, const char *format, va_list args)
+videoram_vprintf (const char *format, va_list args)
 {
   struct videoram_vprintf_aux aux = {
-    .attributes = attributes,
+    .attributes = 7,
     .got_e = false,
   };
 

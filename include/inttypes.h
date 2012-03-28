@@ -1,8 +1,6 @@
 #ifndef __LIB_INTTYPES_H
 #define __LIB_INTTYPES_H
 
-#include <stdint.h>
-
 #define PRId8 "hhd"
 #define PRIi8 "hhi"
 #define PRIo8 "hho"
