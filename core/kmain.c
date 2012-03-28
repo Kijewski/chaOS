@@ -4,6 +4,8 @@
 #include "pic.h"
 #include "paging.h"
 #include "e820.h"
+#include "kmalloc.h"
+
 #include <attributes.h>
 #include <stdlib.h>
 #include <string.h>
@@ -126,6 +128,7 @@ _start (void)
   videoram_puts (" ok \n", COLOR_INFO);
 
   init_subsystem ("frame allocator", &frame_allocator_init, NULL);
+  init_subsystem ("kernel memory allocator", &kmalloc_init, NULL);
 
   init_subsystem ("PS/2 keyboard", &keyboard_init, NULL);
   init_subsystem ("PS/2 mouse", &mouse_init, NULL);
