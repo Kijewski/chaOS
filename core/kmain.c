@@ -5,6 +5,7 @@
 #include "paging.h"
 #include "e820.h"
 #include "kmalloc.h"
+#include "quotes.h"
 
 #include <attributes.h>
 #include <stdlib.h>
@@ -14,7 +15,7 @@
 #include <crX.h>
 #include <devices/keyboard.h>
 #include <devices/mouse.h>
-#include <nop.h>
+#include <random.h>
 
 void NO_RETURN
 khalt (void)
@@ -49,7 +50,7 @@ put_memory_map (void)
   videoram_puts ("Memory map:\n", COLOR_NORMAL);
   for (const struct e820_ref *ref = e820_start (); ref; ref = e820_next (ref))
     {
-      videoram_printf ("\e%c  * 0x%016"PRIxPTR" to 0x%016"PRIxPTR" is ",
+      videoram_printf ("\e%c  * 0x%016" PRIxPTR " to 0x%016" PRIxPTR " is ",
                        COLOR_NORMAL, ref->entry.base_addr,
                        ref->entry.base_addr + ref->entry.length - 1);
 
@@ -85,6 +86,14 @@ put_memory_map (void)
   videoram_puts (" MB.\n\n", COLOR_NORMAL);
 }
 
+static void
+put_welcoming_message (void)
+{
+  uint64_t r = random_get () % chaos_quotes_count;
+  videoram_printf ("\e%c\n  ``%s''\n     %s\n\n", COLOR_NORMAL,
+                   chaos_quotes[r][0], chaos_quotes[r][1]);
+}
+
 void
 _start (void)
 {
@@ -103,7 +112,6 @@ _start (void)
   msr_set_reset (MSR_EFER, EFER_NXE, 0);
 
   videoram_cls (COLOR_NORMAL);
-  expensive_nop ();
 
   videoram_printf ("\n\e%c  Welcome to \e%c chaOS! \n\n",
                    COLOR_NORMAL, COLOR_ERROR);
@@ -111,7 +119,6 @@ _start (void)
   put_memory_map ();
 
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
-
   init_subsystem ("PIC", &pic_init, NULL);
   pic_mask (~PIC_MASK_PIT); // TODO: setup PIT
 
@@ -121,6 +128,7 @@ _start (void)
   asm volatile ("sti");
   videoram_puts (" ok \n", COLOR_INFO);
 
+  init_subsystem ("random number generator", &random_init, NULL);
   init_subsystem ("frame allocator", &frame_allocator_init, NULL);
   init_subsystem ("kernel memory allocator", &kmalloc_init, NULL);
 
@@ -131,6 +139,8 @@ _start (void)
 
   videoram_printf ("\e%cAvailable frames: %zu\n", COLOR_NORMAL,
                    free_frames_count ());
+
+  put_welcoming_message ();
 
   // TODO: do something
   for (;;)

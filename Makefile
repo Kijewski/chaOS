@@ -3,7 +3,7 @@
 TARGET := build
 
 LD := ld
-LDFLAGS := --nmagic --fatal-warnings -nostdlib -static --stats
+LDFLAGS := --nmagic --fatal-warnings -nostdlib -static --whole-archive
 
 FOLDERS := core devices include common
 ARCHIVES := $(FOLDERS:%=%/$(TARGET)/build.a)
