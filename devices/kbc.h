@@ -17,6 +17,9 @@ enum
   KBD_STATUS_PARITY_ERROR     = 1 << 7,
 };
 
+bool kbd_can_read (void);
+bool kbd_can_write (void);
+
 bool kbc_write_inbuf (uint8_t data);
 bool kbc_read_outbuf (uint8_t *data);
 bool kbc_send_cmd (uint8_t cmd);

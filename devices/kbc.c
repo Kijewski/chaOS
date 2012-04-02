@@ -5,11 +5,23 @@
 #include <ports.h>
 #include <nop.h>
 
+bool
+kbd_can_read (void)
+{
+  return inb (0x64) & KBD_STATUS_READABLE;
+}
+
+bool
+kbd_can_write (void)
+{
+  return !(inb (0x64) & KBD_STATUS_NOT_WRITEABLE);
+}
+
 static bool
 clear_write (void)
 {
   int64_t cnt = 0x1000;
-  while (inb (0x64) & KBD_STATUS_NOT_WRITEABLE)
+  while (!kbd_can_write ())
     {
       if (--cnt < 0)
         return false;
@@ -23,7 +35,7 @@ static bool
 clear_read (void)
 {
   int64_t cnt = 0x1000;
-  while (!(inb (0x64) & KBD_STATUS_READABLE))
+  while (!kbd_can_read ())
     {
       if (--cnt < 0)
         return false;
