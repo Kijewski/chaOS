@@ -16,6 +16,7 @@
 #include <devices/keyboard.h>
 #include <devices/mouse.h>
 #include <random.h>
+#include <cpuid.h>
 
 void NO_RETURN
 khalt (void)
@@ -94,6 +95,50 @@ put_welcoming_message (void)
                    chaos_quotes[r][0], chaos_quotes[r][1]);
 }
 
+static void
+put_cpu_info (void)
+{
+  videoram_printf ("\e%cCPU: %.12s (%.72s)\n", COLOR_NORMAL,
+                   cpuid_basic_info ().vendor_string,
+                   cpuid_processor_brand_string ().string);
+  uint64_t cpu_feats = cpuid_features ();
+# define FEAT_EDX(NAME) \
+    if (cpu_feats & CPUID_FEAT_EDX_##NAME) \
+      videoram_puts (#NAME " ", COLOR_NORMAL);
+# define FEAT_ECX(NAME) \
+    if (cpu_feats & CPUID_FEAT_ECX_##NAME) \
+      videoram_puts (#NAME " ", COLOR_NORMAL)
+
+  videoram_puts ("Features: ", COLOR_NORMAL);
+  FEAT_EDX (FPU); FEAT_EDX (VME); FEAT_EDX (DE); FEAT_EDX (PSE);
+  FEAT_EDX (TSC); FEAT_EDX (MSR); FEAT_EDX (PAE); FEAT_EDX (MCE);
+  FEAT_EDX (CX8); FEAT_EDX (APIC); FEAT_EDX (SEP); FEAT_EDX (MTRR);
+  FEAT_EDX (PGE); FEAT_EDX (MCA); FEAT_EDX (CMOV); FEAT_EDX (PAT);
+  FEAT_EDX (PSE36); FEAT_EDX (PSN); FEAT_EDX (CLF); FEAT_EDX (DTES);
+  FEAT_EDX (ACPI); FEAT_EDX (MMX); FEAT_EDX (FXSR); FEAT_EDX (SSE);
+  FEAT_EDX (SSE2); FEAT_EDX (SS); FEAT_EDX (HTT); FEAT_EDX (TM1);
+  FEAT_EDX (IA64); FEAT_EDX (PBE);
+  videoram_put_ln ();
+
+  videoram_puts ("More features: ", COLOR_NORMAL);
+  FEAT_ECX (SSE3); FEAT_ECX (PCLMUL); FEAT_ECX (DTES64); FEAT_ECX (MONITOR);
+  FEAT_ECX (DS_CPL); FEAT_ECX (VMX); FEAT_ECX (SMX); FEAT_ECX (EST);
+  FEAT_ECX (TM2); FEAT_ECX (SSSE3); FEAT_ECX (CID); FEAT_ECX (FMA);
+  FEAT_ECX (CX16); FEAT_ECX (ETPRD); FEAT_ECX (PDCM); FEAT_ECX (DCA);
+  FEAT_ECX (SSE4_1); FEAT_ECX (SSE4_2); FEAT_ECX (x2APIC); FEAT_ECX (MOVBE);
+  FEAT_ECX (POPCNT); FEAT_ECX (AES); FEAT_ECX (XSAVE); FEAT_ECX (OSXSAVE);
+  FEAT_ECX (AVX);
+  videoram_put_ln ();
+  
+  videoram_put_ln ();
+}
+
+static bool
+nx_bit_present (void)
+{
+  return true; // TODO
+}
+
 void
 _start (void)
 {
@@ -104,19 +149,26 @@ _start (void)
     asm volatile ("pause" ::: "memory");
   //*/
 
-  // clear BSS
+  // clear BSS:
   memset (&_section_bss_start[0], 0,
           &_section_bss_end[0] - &_section_bss_start[0]);
 
-  cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
-  msr_set_reset (MSR_EFER, EFER_NXE, 0);
-
   videoram_cls (COLOR_NORMAL);
 
+  // some welcoming information:
   videoram_printf ("\n\e%c  Welcome to \e%c chaOS! \n\n",
                    COLOR_NORMAL, COLOR_ERROR);
-
+  put_cpu_info ();
   put_memory_map ();
+
+  if (!nx_bit_present ())
+    {
+      videoram_puts (" Your CPU does not support the NX bit! \n", COLOR_ERROR);
+      khalt ();
+    }
+
+  cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
+  msr_set_reset (MSR_EFER, EFER_NXE, 0);
 
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
   init_subsystem ("PIC", &pic_init, NULL);
