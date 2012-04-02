@@ -43,7 +43,7 @@ pic_mask (int mask)
   outb (PIC_SLAVE_IMR, (uint8_t) ~mask >> 8);
 }
 
-static intr_handler_fun *funs[16];
+static intr_handler_fun *pic_funs[16];
 
 static void
 irq_handler (int num, struct interrupt_frame *f)
@@ -54,8 +54,8 @@ irq_handler (int num, struct interrupt_frame *f)
   videoram_put_int (num, 7);
   videoram_put_ln ();
 
-  if (funs[num])
-    funs[num] (num, f);
+  if (pic_funs[num])
+    pic_funs[num] (num, f);
 
   outb (PIC_MASTER_COMMAND, EOI);
   if (num > 7)
@@ -81,5 +81,5 @@ void
 pic_set_handler (int num, intr_handler_fun fun)
 {
   ASSERT (num >= 0 && num <= 15 && num != 9);
-  funs[num] = fun;
+  pic_funs[num] = fun;
 }

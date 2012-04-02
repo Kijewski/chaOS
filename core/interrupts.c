@@ -30,7 +30,7 @@ struct idtr
   uint64_t offset;
 } PACKED;
 
-static intr_handler_fun *funs[256];
+static intr_handler_fun *interrupt_funs[256];
 
 static void
 intr_debug_frame (int num, struct interrupt_frame *f)
@@ -83,8 +83,8 @@ void intr_handler (int num, struct interrupt_frame *f);
 void
 intr_handler (int num, struct interrupt_frame *f)
 {
-  if (funs[num])
-    funs[num] (num, f);
+  if (interrupt_funs[num])
+    interrupt_funs[num] (num, f);
   else
     intr_default_handler (num, f);
 
@@ -135,7 +135,7 @@ intr_handler_x (void)
 }
 
 #define INTR_HANDLER(NUM)                                                     \
-GLOBAL_CASSERT (ARRAY_LEN (funs) >= NUM);                                     \
+GLOBAL_CASSERT (ARRAY_LEN (interrupt_funs) >= NUM);                           \
 void CASSERT_CONCAT_ (intr_handler_, NUM) (void);                             \
 void ALIGNED(0x10) CASSERT_CONCAT_ (intr_handler_, NUM) (void)                \
 {                                                                             \
@@ -231,8 +231,8 @@ interrupts_init (void)
 void
 interrupts_set_handler (int num, intr_handler_fun *fun)
 {
-  ASSERT (num >= 0 && num < (int) ARRAY_LEN (funs));
-  funs[num] = fun;
+  ASSERT (num >= 0 && num < (int) ARRAY_LEN (interrupt_funs));
+  interrupt_funs[num] = fun;
 }
 
 void
