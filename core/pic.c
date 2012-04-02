@@ -2,6 +2,7 @@
 #include <ports.h>
 #include <attributes.h>
 #include <assert.h>
+#include <round.h>
 #include <devices/videoram.h>
 
 // assumed so in the code
@@ -37,7 +38,7 @@ pic_remap (void)
 }
 
 void
-pic_mask (int mask)
+pic_mask (uint16_t mask)
 {
   outb (PIC_MASTER_IMR, (uint8_t) ~mask);
   outb (PIC_SLAVE_IMR, (uint8_t) ~mask >> 8);
@@ -78,8 +79,8 @@ pic_init (void)
 }
 
 void
-pic_set_handler (int num, intr_handler_fun fun)
+pic_set_handler (unsigned num, intr_handler_fun fun)
 {
-  ASSERT (num >= 0 && num <= 15 && num != 9);
+  ASSERT (num < ARRAY_LEN (pic_funs));
   pic_funs[num] = fun;
 }
