@@ -7,6 +7,7 @@
 #include <core/pic.h>
 #include <attributes.h>
 #include <intr.h>
+#include <devices/videoram.h>
 
 enum
 {
@@ -16,6 +17,9 @@ enum
 static void
 mouse_handler (int num UNUSED, struct interrupt_frame *f UNUSED)
 {
+  uint8_t datum;
+  while (kbd_can_read () && kbc_read_outbuf (&datum))
+    videoram_printf ("Mouse: %02hhx\n", datum);
   kbc_clear_input (); // TODO
 }
 
