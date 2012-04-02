@@ -35,8 +35,10 @@ videoram_putc (char c, char attributes)
       ++vr_ypos;
       if (vr_ypos >= VR_ROWS)
         {
-          // TODO: scroll
-          vr_ypos = 0;
+          vr_ypos = VR_ROWS-1;
+          memmove (&VR_BASE[0], &VR_BASE[2*VR_COLS], 2*VR_COLS*(VR_ROWS-1));
+          for (int x = vr_xpos; x < VR_COLS; ++x)
+            videoram_putc_at (' ', cls_color, x, vr_ypos);
         }
     }
 }
