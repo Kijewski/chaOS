@@ -30,7 +30,7 @@ boot_loader:
     push ax
     popf
 
-    mov esp,0x7C00
+    mov sp,0x7C00
 
     push dx ; preserve current boot device
 
@@ -38,6 +38,36 @@ boot_loader:
     ; instead of the assumed 0000:7C000
     jmp 0:.clear_cs
 .clear_cs:
+
+detect_amd64:
+.detect_cpuid:
+    pushfd
+    mov ecx, [esp]
+    btc long [esp], 21
+    popfd
+
+    pushfd
+    pop eax
+
+    push ecx
+    popfd
+
+    xor eax, ecx
+    jz fail
+
+.detect_cpuid_gt_80000000:
+    mov eax, 0x80000000    ; Set the A-register to 0x80000000.
+    mov esi, eax
+    inc si
+    cpuid                  ; CPU identification.
+    cmp eax, esi    ; Compare the A-register with 0x80000001.
+    jb fail         ; It is less, there is no long mode.
+
+.detect_long_mode:
+    mov eax, esi    ; Set the A-register to 0x80000001.
+    cpuid                  ; CPU identification.
+    bt edx, 29      ; Test if the LM-bit, which is bit 29, is set in the D-register.
+    jnc fail         ; They aren't, there is no long mode.
 
 enabled_a20:
     ;Enable A20 via port 92h
@@ -76,7 +106,7 @@ enter_unreal_mode:
     or al, 1 ; protected mode enabled
     mov cr0, eax
 
-    mov bx, gdt.unreal
+    mov bx, gdt.data
     mov ds, bx
 
     and al, ~1
@@ -229,9 +259,6 @@ build_temp_pagetable:
     or ebx,0x80000001 ; by enabling paging and protection simultaneously
     mov cr0,ebx       ; skipping protected mode entirely
 
-    sub word [gdt.pointer], 8 ; delete unreal descriptor
-    lgdt [gdt.pointer]        ; load 80-bit gdt.pointer below
-
      ; Load CS with 64 bit segment and flush the instruction cache
     jmp gdt.code:startLongMode
 
@@ -242,8 +269,6 @@ gdt:
 .code equ $ - gdt
     dq 0x0020980000000000
 .data equ $ - gdt
-    dq 0x0000900000000000
-.unreal equ $ - gdt
     db 0xff, 0xff, 0, 0, 0, 10010010b, 11001111b, 0
 .pointer:
     dw $-gdt-1        ;16-bit Size (Limit)
