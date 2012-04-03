@@ -31,7 +31,7 @@ khalt (void)
 static void
 init_subsystem (const char *desc, bool (*init) (void), bool (*cleanup) (void))
 {
-  videoram_printf ("\e%cInitializing %s:", COLOR_NORMAL, desc);
+  videoram_printf ("Initializing %s:", desc);
 
   if (init ())
     videoram_puts (" ok \n", COLOR_INFO);
@@ -51,8 +51,8 @@ put_memory_map (void)
   videoram_puts ("Memory map:\n", COLOR_NORMAL);
   for (const struct e820_ref *ref = e820_start (); ref; ref = e820_next (ref))
     {
-      videoram_printf ("\e%c  * 0x%016" PRIxPTR " to 0x%016" PRIxPTR " is ",
-                       COLOR_NORMAL, ref->entry.base_addr,
+      videoram_printf ("  * 0x%016" PRIxPTR " to 0x%016" PRIxPTR " is ",
+                       ref->entry.base_addr,
                        ref->entry.base_addr + ref->entry.length - 1);
 
       switch (ref->entry.type)
@@ -77,7 +77,7 @@ put_memory_map (void)
           videoram_puts (" defect! ", COLOR_ERROR);
           break;
         default:
-          videoram_printf ("\e%c UNKNOWN (%d) ", COLOR_ERROR, ref->entry.type);
+          videoram_printf (" UNKNOWN (%d) ", ref->entry.type);
           break;
         }
       videoram_put_ln ();
@@ -91,14 +91,14 @@ static void
 put_welcoming_message (void)
 {
   uint64_t r = random_get () % chaos_quotes_count;
-  videoram_printf ("\e%c\n  ``%s''\n     %s\n\n", COLOR_NORMAL,
+  videoram_printf ("\n  ``%s''\n     %s\n\n",
                    chaos_quotes[r][0], chaos_quotes[r][1]);
 }
 
 static void
 put_cpu_info (void)
 {
-  videoram_printf ("\e%cCPU: %.12s (%.72s)\n", COLOR_NORMAL,
+  videoram_printf ("CPU: %.12s (%.72s)\n",
                    cpuid_basic_info ().vendor_string,
                    cpuid_processor_brand_string ().string);
   uint64_t cpu_feats = cpuid_features ();
@@ -156,8 +156,7 @@ _start (void)
   videoram_cls (COLOR_NORMAL);
 
   // some welcoming information:
-  videoram_printf ("\n\e%c  Welcome to \e%c chaOS! \n\n",
-                   COLOR_NORMAL, COLOR_ERROR);
+  videoram_printf ("\n  Welcome to \e%c chaOS! \n\n", COLOR_ERROR);
   put_cpu_info ();
   put_memory_map ();
 
@@ -189,8 +188,7 @@ _start (void)
 
   // TODO: initialize more subsystems
 
-  videoram_printf ("\e%cAvailable frames: %zu\n", COLOR_NORMAL,
-                   free_frames_count ());
+  videoram_printf ("Available frames: %zu\n", free_frames_count ());
 
   put_welcoming_message ();
 

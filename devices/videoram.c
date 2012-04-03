@@ -107,7 +107,7 @@ void
 videoram_vprintf (const char *format, va_list args)
 {
   struct videoram_vprintf_aux aux = {
-    .attributes = 7,
+    .attributes = cls_color,
     .got_e = false,
   };
 
