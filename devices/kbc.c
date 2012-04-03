@@ -20,7 +20,7 @@ kbd_can_write (void)
 static bool
 clear_write (void)
 {
-  int64_t cnt = 0x1000;
+  int64_t cnt = 0x100;
   while (!kbd_can_write ())
     {
       if (--cnt < 0)
@@ -34,12 +34,12 @@ clear_write (void)
 static bool
 clear_read (void)
 {
-  int64_t cnt = 0x1000;
+  int64_t cnt = 0x100;
   while (!kbd_can_read ())
     {
       if (--cnt < 0)
         return false;
-      for (int i = 0x1000; i > 0; --i)
+      for (int i = 0x10; i > 0; --i)
         expensive_nop (); // TODO: proper sleeping
     }
   return true;
