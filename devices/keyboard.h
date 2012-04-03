@@ -5,12 +5,6 @@
 
 enum
 {
-  KBD_PRESS, // make
-  KBD_RELEASE, // break
-};
-
-enum
-{
   KBD_UNKNOWN = 0,
 
   KBD_ESC, KBD_CARET, KBD_TAB, KBD_CAPS, KBD_LEFT_SHIFT, KBD_RIGHT_SHIFT,
@@ -77,8 +71,16 @@ enum
   _KBD_META_MAX = 0x0C,
 };
 
+enum
+{
+  KBD_STATEFUL_CAPS,
+  KBD_STATEFUL_SCROLL,
+  KBD_STATEFUL_NUM,
+};
+
 bool keyboard_init (void);
 
 bool keyboard_meta_state (unsigned meta);
+bool keyboard_stateful_state (unsigned stateful);
 
 #endif

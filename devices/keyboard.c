@@ -143,6 +143,17 @@ keyboard_meta_state (unsigned meta)
   return false;
 }
 
+static uint64_t keyboard_stateful = 0b100;
+
+bool
+keyboard_stateful_state (unsigned stateful)
+{
+  if (stateful < 64)
+    return keyboard_stateful & (1 << stateful);
+  else
+    return false;
+}
+
 static void
 keyboard_handle (int code, bool key_released)
 {
@@ -173,6 +184,21 @@ keyboard_handle (int code, bool key_released)
     case KBD_FAKE_LSHIFT:
     case KBD_FAKE_RSHIFT:
       return;
+    }
+
+// stateful:
+
+  switch (code)
+    {
+#define STATEFUL_KEY(KEY, STATEFUL)             \
+        case KEY:                               \
+          if (key_released)                     \
+            keyboard_stateful ^= 1 << STATEFUL; \
+          return
+
+    STATEFUL_KEY (KBD_CAPS,   KBD_STATEFUL_CAPS);
+    STATEFUL_KEY (KBD_SCROLL, KBD_STATEFUL_SCROLL);
+    STATEFUL_KEY (KBD_NUM,    KBD_STATEFUL_NUM);
     }
 
 // magic keycodes:
