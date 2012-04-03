@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "interrupts.h"
+#include <core/interrupts.h>
 
 #define PIC_MASTER_INTERRUPT_BASE (0x20)
 #define PIC_SLAVE_INTERRUPT_BASE (PIC_MASTER_INTERRUPT_BASE + 8)

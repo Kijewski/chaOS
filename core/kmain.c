@@ -1,7 +1,6 @@
 #include "kmain.h"
 #include "interrupts.h"
 #include "frame_allocator.h"
-#include "pic.h"
 #include "paging.h"
 #include "e820.h"
 #include "kmalloc.h"
@@ -13,6 +12,7 @@
 #include <inttypes.h>
 #include <kernel.h>
 #include <crX.h>
+#include <devices/pic.h>
 #include <devices/keyboard.h>
 #include <devices/mouse.h>
 #include <random.h>

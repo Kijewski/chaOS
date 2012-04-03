@@ -1,7 +1,7 @@
 #include "keyboard.h"
 #include "kbc.h"
+#include "pic.h"
 
-#include <core/pic.h>
 #include <attributes.h>
 #include <intr.h>
 #include <devices/videoram.h>
