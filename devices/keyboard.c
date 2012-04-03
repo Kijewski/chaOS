@@ -5,43 +5,42 @@
 #include <attributes.h>
 #include <intr.h>
 #include <devices/videoram.h>
+#include <core/shutdown.h>
+#include <core/kmain.h>
+#include <assert.h>
 
-static char ring_buffer[4096] UNUSED;
-static unsigned ring_buffer_start UNUSED;
-static unsigned ring_buffer_count UNUSED;
-
-static const uint8_t KEYMAP_NORMAL[0x60] =
+static const uint8_t KEYMAP_NORMAL[0x70] =
 {
 // 0x00
-  0,KBD_ESC,KBD_1,KBD_2,
+  0, KBD_ESC, KBD_1, KBD_2,
 // 0x04
-  KBD_3,KBD_4,KBD_5,KBD_6,
+  KBD_3, KBD_4, KBD_5, KBD_6,
 // 0x08
-  KBD_7,KBD_8,KBD_9,KBD_0,
+  KBD_7, KBD_8, KBD_9, KBD_0,
 // 0x0C
-  KBD_PUNCT_1_1,KBD_PUNCT_1_2,KBD_BACK,KBD_TAB,
+  KBD_PUNCT_1_1, KBD_PUNCT_1_2, KBD_BACK, KBD_TAB,
 // 0x10
-  KBD_Q,KBD_W,KBD_E,KBD_R,
+  KBD_Q, KBD_W, KBD_E, KBD_R,
 // 0x14
-  KBD_T,KBD_Z,KBD_U,KBD_I,
+  KBD_T, KBD_Z, KBD_U, KBD_I,
 // 0x18
-  KBD_O,KBD_P,KBD_PUNCT_2_1,KBD_PUNCT_1_2,
+  KBD_O, KBD_P, KBD_PUNCT_2_1, KBD_PUNCT_1_2,
 // 0x1C
-  KBD_ENTER,KBD_CTLR,KBD_A,KBD_S,
+  KBD_ENTER, KBD_LEFT_CTLR, KBD_A, KBD_S,
 // 0x20
-  KBD_D,KBD_F,KBD_G,KBD_H,
+  KBD_D, KBD_F, KBD_G, KBD_H,
 // 0x24
-  KBD_J,KBD_K,KBD_L,KBD_PUNCT_3_1,
+  KBD_J, KBD_K, KBD_L, KBD_PUNCT_3_1,
 // 0x28
-  KBD_PUNCT_3_2,KBD_CARET,KBD_LEFT_SHIFT,KBD_PUNCT_2_3,
+  KBD_PUNCT_3_2, KBD_CARET, KBD_LEFT_SHIFT, KBD_PUNCT_2_3,
 // 0x2C
-  KBD_Y,KBD_X,KBD_C,KBD_V,
+  KBD_Y, KBD_X, KBD_C, KBD_V,
 // 0x30
-  KBD_B,KBD_N,KBD_M,KBD_PUNCT_4_1,
+  KBD_B, KBD_N, KBD_M, KBD_PUNCT_4_1,
 // 0x34
-  KBD_PUNCT_4_2,KBD_PUNCT_4_3,KBD_RIGHT_SHIFT,KBD_NUM_TIMES,
+  KBD_PUNCT_4_2, KBD_PUNCT_4_3, KBD_RIGHT_SHIFT, KBD_NUM_TIMES,
 // 0x38
-  KBD_ALT,KBD_SPACE,KBD_CAPS,KBD_F1,
+  KBD_LEFT_ALT, KBD_SPACE, KBD_CAPS, KBD_F1,
 // 0x3C
   KBD_F2, KBD_F3, KBD_F4, KBD_F5,
 // 0x40
@@ -57,52 +56,216 @@ static const uint8_t KEYMAP_NORMAL[0x60] =
 // 0x54
   0, 0, KBD_LESS, KBD_F11,
 // 0x58
-  KBD_F12,0,0,0,
+  KBD_F12, 0, 0, 0,
 // 0x5C
-  0,0,0,0,
+  0, 0, 0, 0,
+// 0x60
+  0, 0, 0, 0,
+// 0x64
+  0, 0, 0, 0,
+// 0x68
+  0, 0, 0, 0,
+// 0x6C
+  0, 0, 0, 0,
 };
 
-static bool
-keyboard_handle (void)
+static const uint8_t KEYMAP_E0[0x70] =
 {
-  uint8_t datum;
-  if (!kbd_can_read () || !kbc_read_outbuf (&datum) || datum == 0)
-    return false;
+// 0x00
+  0, 0, 0, 0,
+// 0x04
+  0, 0, 0, 0,
+// 0x08
+  0, 0, 0, 0,
+// 0x0C
+  0, 0, 0, 0,
+// 0x10
+  KBD_MM_PREV, 0, 0, 0,
+// 0x14
+  0, 0, 0, 0,
+// 0x18
+  0, KBD_MM_NEXT, 0, 0,
+// 0x1C
+  KBD_NUM_ENTER, KBD_RIGHT_CTLR, 0, 0,
+// 0x20
+  KBD_MM_MUTE, 0, KBD_MM_PLAY, 0,
+// 0x24
+  KBD_MM_STOP, 0, 0, 0,
+// 0x28
+  0, 0, KBD_FAKE_LSHIFT, 0,
+// 0x2C
+  0, 0, KBD_MM_VOL_DOWN, 0,
+// 0x30
+  KBD_MM_VOL_UP, 0, KBD_WWW_HOME, 0,
+// 0x34
+  0, KBD_NUM_SLASH, KBD_FAKE_RSHIFT, KBD_NUM_SLASH,
+// 0x38
+  KBD_RIGHT_ALT, 0, 0, 0,
+// 0x3C
+  0, 0, 0, 0,
+// 0x40
+  0, 0, 0, 0,
+// 0x44
+  0, 0, 0, KBD_HOME,
+// 0x48
+  KBD_ARROW_UP, KBD_PAGE_UP, 0, KBD_ARROW_LEFT,
+// 0x4C
+  0, KBD_ARROW_RIGHT, 0, KBD_END,
+// 0x50
+  KBD_ARROW_DOWN, KBD_PAGE_DOWN, KBD_INS, KBD_DEL,
+// 0x54
+  0, 0, 0, 0,
+// 0x58
+  0, 0, 0, KBD_LOGO_LEFT,
+// 0x5C
+  KBD_LOGO_RIGHT, KBD_MENU, KBD_ACPI_POWER, KBD_ACPI_SLEEP,
+// 0x60
+  0, 0, 0, KBD_ACPI_WAKE,
+// 0x64
+  0, KBD_WWW_SEARCH, KBD_WWW_FAV, KBD_WWW_REFRESH,
+// 0x68
+  KBD_WWW_STOP, KBD_WWW_FORWARD, KBD_WWW_BACK, 0,
+// 0x6C
+  0, KBD_MM_SELECT, 0, 0,
+};
 
-  if ((datum & ~0x80) < 0x60)
+static bool keyboard_meta[0x0A];
+
+bool
+keyboard_meta_state (unsigned meta)
+{
+  if (meta < 0x0A)
+    return keyboard_meta[meta];
+  else if ((meta & 0x10) && (meta&~0x10) < 0x04)
+    return keyboard_meta[2*(meta&~0x10)] || keyboard_meta[2*(meta&~0x10) + 1];
+
+  return false;
+}
+
+static void
+keyboard_handle (int code, bool key_released)
+{
+// meta keys:
+  switch (code)
     {
-      videoram_printf ("Keyboard (%s): 0x%02hhx\n",
-                       datum&0x80 ? "release" : "press",
-                       KEYMAP_NORMAL[datum & ~0x80]);
-      // TODO
-      return true;
+#define META_KEY(KEY, META)                         \
+        case KEY:                                   \
+          if (keyboard_meta[META] == !key_released) \
+            return;                                 \
+          keyboard_meta[META] = !key_released;      \
+          break
+
+    META_KEY (KBD_LEFT_SHIFT,   KBD_META_LSHIFT);
+    META_KEY (KBD_RIGHT_SHIFT,  KBD_META_RSHIFT);
+    META_KEY (KBD_LEFT_CTLR,    KBD_META_LCTRL);
+    META_KEY (KBD_RIGHT_CTLR,   KBD_META_RCTRL);
+    META_KEY (KBD_LEFT_ALT,     KBD_META_LALT);
+    META_KEY (KBD_RIGHT_ALT,    KBD_META_RALT);
+    META_KEY (KBD_LOGO_LEFT,    KBD_META_LLOGO);
+    META_KEY (KBD_LOGO_RIGHT,   KBD_META_RLOGO);
+
+    META_KEY (KBD_ESC,          KBD_META_ESCAPE);
+    META_KEY (KBD_PRINT_SCREEN, KBD_META_PRINT);
+    META_KEY (KBD_SCROLL,       KBD_META_SCROLL);
+
+    case KBD_FAKE_LSHIFT:
+    case KBD_FAKE_RSHIFT:
+      return;
     }
-  else if (datum == 0xe0)
+
+// magic keycodes:
+  if (keyboard_meta_state (KBD_META_CTRL) &&
+      keyboard_meta_state (KBD_META_SHIFT) &&
+      keyboard_meta_state (KBD_META_ESCAPE))
     {
-    while (kbd_can_read () && kbc_read_outbuf (&datum))
-      videoram_printf ("Keyboard (e0): %02hhx\n", datum);
-      kbc_clear_input (); // TODO
-      return true;
+      if (key_released)
+        switch (code)
+          {
+          case KBD_H:
+            videoram_printf ("ctrl shift escape: "
+                             "(H)elp, "
+                             "(I)nterrupt test, "
+                             "(L)ock+hang, "
+                             "(R)eboot, "
+                             "(Q)uit.");
+            return;
+          case KBD_I:
+            asm volatile ("int $0xCC");
+            return;
+          case KBD_L:
+            khalt ();
+            return;
+          case KBD_Q:
+            system_shutdown ();
+            return;
+          case KBD_R:
+            system_reboot ();
+            return;
+          }
+      return;
     }
-  else if (datum == 0xe1)
-    {
-    while (kbd_can_read () && kbc_read_outbuf (&datum))
-      videoram_printf ("Keyboard (e1): %02hhx\n", datum);
-      kbc_clear_input (); // TODO
-      return true;
-    }
-  else
-    {
-      kbc_clear_input ();
-      return false;
-    }
+
+  // TODO: inform somebody about the keypress
+  videoram_printf ("Keyboard (%s): 0x%02hhx\n",
+                   key_released ? "release" : "press", code);
 }
 
 static void
 keyboard_handler (int num UNUSED, struct interrupt_frame *f UNUSED)
 {
-  while (keyboard_handle ())
-    continue;
+  uint8_t datum;
+  if (!kbd_can_read () || !kbc_read_outbuf (&datum))
+    return;
+
+  if ((datum & 0xe0) != 0xe0)
+    {
+      if (KEYMAP_NORMAL[datum & ~0x80])
+        keyboard_handle (KEYMAP_NORMAL[datum & ~0x80], datum & 0x80);
+      return;
+    }
+
+  if (datum == 0xe0)
+    {
+      if (!kbd_can_read () || !kbc_read_outbuf (&datum) ||
+          (datum & ~0x80) >= 0x70)
+        return;
+
+      if (KEYMAP_E0[datum & ~0x80])
+        {
+          keyboard_handle (KEYMAP_E0[datum & ~0x80], datum & 0x80);
+          return;
+        }
+
+      videoram_printf ("Keyboard (e0): %02hhx\n", datum);
+      return;
+    }
+
+  if (datum == 0xe1)
+    {
+      uint8_t datum1, datum2;
+      if (!kbd_can_read () || !kbc_read_outbuf (&datum1) ||
+          (datum1 & ~0x80) >= 0x70)
+        return;
+      if (!kbd_can_read () || !kbc_read_outbuf (&datum2) ||
+          (datum2 & ~0x80) >= 0x70)
+        return;
+
+      if (datum1 == 0x1d && datum2 == 0x45)
+        {
+          keyboard_handle (KBD_PAUSE, false);
+          return;
+        }
+      else if (datum1 == 0x9d && datum2 == 0xc5)
+        {
+          keyboard_handle (KBD_PAUSE, true);
+          return;
+        }
+
+      videoram_printf ("Keyboard (e1): %02hhx %02hhx\n", datum1, datum2);
+      return;
+    }
+
+  kbc_clear_input ();
 }
 
 static bool
