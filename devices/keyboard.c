@@ -98,7 +98,7 @@ static const uint8_t KEYMAP_E0[0x70] =
 // 0x30
   KBD_MM_VOL_UP, 0, KBD_WWW_HOME, 0,
 // 0x34
-  0, KBD_NUM_SLASH, KBD_FAKE_RSHIFT, KBD_NUM_SLASH,
+  0, KBD_NUM_SLASH, KBD_FAKE_RSHIFT, KBD_PRINT_SCREEN,
 // 0x38
   KBD_RIGHT_ALT, 0, 0, 0,
 // 0x3C
@@ -129,15 +129,16 @@ static const uint8_t KEYMAP_E0[0x70] =
   0, KBD_MM_SELECT, 0, 0,
 };
 
-static bool keyboard_meta[0x0A];
+static bool keyboard_meta[_KBD_META_MAX];
 
 bool
 keyboard_meta_state (unsigned meta)
 {
-  if (meta < 0x0A)
+  if (meta < _KBD_META_MAX)
     return keyboard_meta[meta];
-  else if ((meta & 0x10) && (meta&~0x10) < 0x04)
-    return keyboard_meta[2*(meta&~0x10)] || keyboard_meta[2*(meta&~0x10) + 1];
+
+  if ((meta&0x80) && (meta&~0x80) < _KBD_META_80_COUNT)
+    return keyboard_meta[2*(meta&~0x80)] || keyboard_meta[2*(meta&~0x80) + 1];
 
   return false;
 }
@@ -167,6 +168,7 @@ keyboard_handle (int code, bool key_released)
     META_KEY (KBD_ESC,          KBD_META_ESCAPE);
     META_KEY (KBD_PRINT_SCREEN, KBD_META_PRINT);
     META_KEY (KBD_SCROLL,       KBD_META_SCROLL);
+    META_KEY (KBD_PAUSE,        KBD_META_PAUSE);
 
     case KBD_FAKE_LSHIFT:
     case KBD_FAKE_RSHIFT:
@@ -179,29 +181,32 @@ keyboard_handle (int code, bool key_released)
       keyboard_meta_state (KBD_META_ESCAPE))
     {
       if (key_released)
-        switch (code)
-          {
-          case KBD_H:
-            videoram_printf ("ctrl shift escape: "
-                             "(H)elp, "
-                             "(I)nterrupt test, "
-                             "(L)ock+hang, "
-                             "(R)eboot, "
-                             "(Q)uit.");
-            return;
-          case KBD_I:
-            asm volatile ("int $0xCC");
-            return;
-          case KBD_L:
-            khalt ();
-            return;
-          case KBD_Q:
-            system_shutdown ();
-            return;
-          case KBD_R:
-            system_reboot ();
-            return;
-          }
+        {
+          switch (code)
+            {
+            case KBD_H:
+              videoram_printf ("%s.\n",
+                               "ctrl shift escape"
+                               ": (H)elp"
+                               ", (I)nterrupt test"
+                               ", (L)ock+hang"
+                               ", (R)eboot"
+                               ", (Q)uit");
+              return;
+            case KBD_I:
+              asm volatile ("int $0xCC");
+              return;
+            case KBD_L:
+              khalt ();
+              return;
+            case KBD_Q:
+              system_shutdown ();
+              return;
+            case KBD_R:
+              system_reboot ();
+              return;
+            }
+        }
       return;
     }
 
@@ -236,7 +241,7 @@ keyboard_handler (int num UNUSED, struct interrupt_frame *f UNUSED)
           return;
         }
 
-      videoram_printf ("Keyboard (e0): %02hhx\n", datum);
+      // videoram_printf ("Keyboard (e0): %02hhx\n", datum);
       return;
     }
 
@@ -261,7 +266,7 @@ keyboard_handler (int num UNUSED, struct interrupt_frame *f UNUSED)
           return;
         }
 
-      videoram_printf ("Keyboard (e1): %02hhx %02hhx\n", datum1, datum2);
+      // videoram_printf ("Keyboard (e1): %02hhx %02hhx\n", datum1, datum2);
       return;
     }
 
