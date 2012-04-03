@@ -35,6 +35,8 @@ paging_map (void *page, void *frame, uint64_t type)
   ASSERT (((uintptr_t) page & ((1<<12) - 1)) == 0);
   ASSERT (((uintptr_t) frame & ((1<<12) - 1)) == 0);
 
+  // videoram_printf ("Page %8p -> frame %8p.\n", page, frame);
+
   uint64_t i_plm4 = ((uint64_t) page >> (12 + 9*3)) & ((1<<9) - 1);
   uintptr_t *i = &plm4[0];
   if (!ensure_toplevel_entry (&i[i_plm4]))

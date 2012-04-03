@@ -45,4 +45,22 @@ round_up_pow2 (uint64_t val, uint8_t exp)
 
 #define ARRAY_LEN(X) (sizeof (X) / sizeof ((X)[0]))
 
+
+
+#define _IN(KEY, ...)                                                         \
+({                                                                            \
+  __extension__ typedef typeof (KEY) _t;                                      \
+  __extension__ register const _t _key = (KEY);                               \
+  __extension__ const _t _values[] = { __VA_ARGS__ };                         \
+  __extension__ register _Bool _r = 0;                                        \
+  __extension__ register unsigned int _i;                                     \
+  for (_i = 0; _i < ARRAY_LEN (_values); ++_i)                                \
+    if (_key == _values[_i])                                                  \
+      {                                                                       \
+        _r = 1;                                                               \
+        break;                                                                \
+      }                                                                       \
+  _r;                                                                         \
+})
+
 #endif

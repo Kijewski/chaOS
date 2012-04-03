@@ -51,9 +51,11 @@ irq_handler (int num, struct interrupt_frame *f)
 {
   num -= PIC_MASTER_INTERRUPT_BASE;
 
+/*
   videoram_puts ("IRQ: ", 7);
   videoram_put_int (num, 7);
   videoram_put_ln ();
+*/
 
   if (pic_funs[num])
     pic_funs[num] (num, f);

@@ -1,14 +1,15 @@
 #include "shutdown.h"
 #include "interrupts.h"
 #include <ports.h>
+#include <devices/kbc.h>
 
-void
+void NO_RETURN
 system_shutdown (void)
 {
-  interrupts_finit ();
+  asm volatile ("cli");
   for (;;)
     {
-      // ACPI shutdown (http://forum.osdev.org/viewtopic.php?t=16990)
+      // (phony) ACPI shutdown (http://forum.osdev.org/viewtopic.php?t=16990)
       // Works for qemu and bochs.
       outw (0xB004, 0x2000);
 
@@ -21,25 +22,20 @@ system_shutdown (void)
     }
 }
 
-void
+void NO_RETURN
 system_reboot (void)
 {
   interrupts_finit ();
   for (;;)
     {
       // Pulse CPU reset line to reboot.
-      // Seems not to work in qemu. (Pintos uses many timer_udelay ...)
       for (int i = 0xFFFF; i >= 0; --i)
         {
-          for (int j = 0xFFFF; j >= 0; --j)
-            {
-              uint8_t temp = inb (0x64);
-              if (temp & 2)
-                inb (0x60);
-              else if (!(temp & 1))
-                break;
-            }
-          outb (0x64, 0xFE);
+          kbc_clear_input ();
+          kbc_send_cmd (0xD1);
+          while (!kbd_can_write ())
+            continue;
+          kbc_write_inbuf (0xFE);
         }
 
       // Pulsing the CPU reset line did not work.
