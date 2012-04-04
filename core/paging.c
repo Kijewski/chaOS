@@ -145,6 +145,7 @@ paging_init (void)
   mark_section (text,   PT_P|      PT_PWT);
   mark_section (rodata, PT_P|      PT_PWT|PT_NX);
   mark_section (data,   PT_P|PT_RW|PT_PWT|PT_NX);
+  mark_section (ehframe,PT_P|PT_RW|PT_PWT|PT_NX);
   mark_section (bss,    PT_P|PT_RW|PT_PWT|PT_NX);
 
   for (uintptr_t i = 0; i < VR_COLS*VR_ROWS*2; i += 0x1000) // videoram

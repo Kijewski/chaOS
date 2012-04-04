@@ -295,6 +295,16 @@ SECTIONS
     _section_data_end = .;
   }
 
+  .eh_frame :
+  {
+    . = ALIGN(0x1000);
+    _section_ehframe_start = .;
+    *(.eh_frame)
+    *(.eh_frame.*)
+    . = ALIGN(0x1000);
+    _section_ehframe_end = .;
+  }
+
   .bss :
   {
     . = ALIGN(0x1000);
@@ -306,4 +316,9 @@ SECTIONS
   }
 
   _kernel_memory_end = .;
+
+  /DISCARD/ :
+  {
+    *(.comment)
+  }
 }

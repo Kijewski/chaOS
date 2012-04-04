@@ -15,6 +15,9 @@ extern uint8_t _section_data_end[0];
 extern uint8_t _section_bss_start[0];
 extern uint8_t _section_bss_end[0];
 
+extern uint8_t _section_ehframe_start[0];
+extern uint8_t _section_ehframe_end[0];
+
 extern uint8_t _kernel_memory_end[0];
 
 #endif
