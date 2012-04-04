@@ -167,12 +167,14 @@ _start (void)
       khalt ();
     }
 
-  cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
-  msr_set_reset (MSR_EFER, EFER_NXE, 0);
-
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
   init_subsystem ("PIC", &pic_init, NULL);
   pic_mask (~PIC_MASK_PIT); // TODO: setup PIT
+
+  videoram_puts ("Setting CPU standards: ", COLOR_NORMAL);
+  cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
+  msr_set_reset (MSR_EFER, EFER_NXE, 0);
+  videoram_puts (" ok \n", COLOR_INFO);
 
   init_subsystem ("paging", &paging_init, NULL);
 

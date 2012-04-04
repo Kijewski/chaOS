@@ -7,6 +7,7 @@
 #include <attributes.h>
 #include <crX.h>
 #include <round.h>
+#include <inttypes.h>
 
 #pragma GCC optimize "omit-frame-pointer", "Os"
 
@@ -35,41 +36,35 @@ static intr_handler_fun *interrupt_funs[256];
 static void
 intr_debug_frame (int num, struct interrupt_frame *f)
 {
-  videoram_puts ("\n Got interrupt 0x", COLOR_ERROR);
-  videoram_put_hex (num, COLOR_ERROR);
-  videoram_puts ("! \n", COLOR_ERROR);
-
-  videoram_puts ( "\n RAX: ", 7); videoram_put_all_hex (f->rax, 7);
-  videoram_puts ("    RBX: ", 7); videoram_put_all_hex (f->rbx, 7);
-  videoram_puts (" \n RCX: ", 7); videoram_put_all_hex (f->rcx, 7);
-  videoram_puts ("    RDX: ", 7); videoram_put_all_hex (f->rdx, 7);
-
-  videoram_puts (" \n RSI: ", 7); videoram_put_all_hex (f->rsi, 7);
-  videoram_puts ("    RDI: ", 7); videoram_put_all_hex (f->rdi, 7);
-  videoram_puts (" \n RBP: ", 7); videoram_put_all_hex (f->rbp, 7);
-  videoram_puts ("    RSP: ", 7); videoram_put_all_hex (f->rsp, 7);
-
-  videoram_puts (" \n R8 : ", 7); videoram_put_all_hex (f->r8 , 7);
-  videoram_puts ("    R9 : ", 7); videoram_put_all_hex (f->r9 , 7);
-  videoram_puts (" \n R10: ", 7); videoram_put_all_hex (f->r10, 7);
-  videoram_puts ("    R11: ", 7); videoram_put_all_hex (f->r11, 7);
-
-  videoram_puts (" \n R12: ", 7); videoram_put_all_hex (f->r12, 7);
-  videoram_puts ("    R13: ", 7); videoram_put_all_hex (f->r13, 7);
-  videoram_puts (" \n R14: ", 7); videoram_put_all_hex (f->r14, 7);
-  videoram_puts ("    R15: ", 7); videoram_put_all_hex (f->r15, 7);
-
-  videoram_puts (" \n\n", 7);
-  videoram_puts (   " CR2: ", 7); videoram_put_all_hex (cr2_read (), 7);
-  videoram_puts ("    RIP: ", 7); videoram_put_all_hex (*(uintptr_t *)f->rsp,7);
-  videoram_puts (" \n\n", 7);
-
-  videoram_puts (   " CR0: ", 7); videoram_put_all_hex (cr0_read (), 7);
-  videoram_puts ("    CR3: ", 7); videoram_put_all_hex (cr3_read (), 7);
-  videoram_puts (" \n CR4: ", 7); videoram_put_all_hex (cr4_read (), 7);
-  videoram_puts ("   EFER: ", 7); videoram_put_all_hex (msr_read (MSR_EFER), 7);
-
-  videoram_puts (" \n", 7);
+  videoram_printf ("\n\e%c "
+                   "              Got interrupt 0x%02hhX               \n"
+                   " RAX: %016" PRIxPTR  "   "
+                   " RBX: %016" PRIxPTR  " \n"
+                   " RCX: %016" PRIxPTR  "   "
+                   " RDX: %016" PRIxPTR  " \n"
+                   " RSI: %016" PRIxPTR  "   "
+                   " RDI: %016" PRIxPTR  " \n"
+                   " RBP: %016" PRIxPTR  "   "
+                   " RSP: %016" PRIxPTR  " \n"
+                   " R8 : %016" PRIxPTR  "   "
+                   " R9 : %016" PRIxPTR  " \n"
+                   " R10: %016" PRIxPTR  "   "
+                   " R11: %016" PRIxPTR  " \n"
+                   " R12: %016" PRIxPTR  "   "
+                   " R13: %016" PRIxPTR  " \n"
+                   " R14: %016" PRIxPTR  "   "
+                   " R15: %016" PRIxPTR  " \n"
+                   " CR2: %016" PRIxPTR  "   "
+                   " RIP: %016" PRIxPTR  " \n"
+                   " CR0: %016" PRIxPTR  "   "
+                   " CR3: %016" PRIxPTR  " \n"
+                   " CR4: %016" PRIxPTR  "   "
+                   "EFER: %016" PRIxPTR " \n\n",
+                   COLOR_ERROR, num,
+                   f->rax, f->rbx, f->rcx, f->rdx, f->rsi, f->rdi, f->rbp,
+                   f->rsp, f->r8, f->r9, f->r10, f->r11, f->r12, f->r13, f->r14,
+                   f->r15, cr2_read (), *(uintptr_t *)f->rsp, cr0_read (),
+                   cr3_read (), cr4_read (), msr_read (MSR_EFER));
 }
 
 static void
