@@ -20,6 +20,7 @@ enum
   reg_day    = 0x07,
   reg_month  = 0x08,
   reg_year   = 0x09,
+  reg_update = 0x0a,
   reg_b      = 0x0b,
 };
 
@@ -29,17 +30,16 @@ enum
   flag_binary = 0x04,
 };
 
-static inline bool
-is_update_in_progress (void)
-{
-  outb (cmos_address, 0x0A);
-  return (inb (cmos_data) & 0x80) != 0;
-}
-
 static inline uint8_t
 read (int reg) {
   outb (cmos_address, reg);
   return inb (cmos_data);
+}
+
+static inline bool
+is_update_in_progress (void)
+{
+  return (read (reg_update) & 0x80) != 0;
 }
 
 bool
@@ -79,4 +79,18 @@ rtc_read (struct rtc_data *dest)
 
   intr_set (old_intr_level);
   return true;
+}
+
+uint8_t
+rtc_read_second (void)
+{
+  while (is_update_in_progress ())
+    expensive_nop ();
+
+  uint8_t second = read (reg_second);
+  uint8_t b      = read (reg_b);
+  if (!(b & flag_binary))
+    second = (second & 0x0F) + ((second / 16) * 10);
+
+  return second;
 }

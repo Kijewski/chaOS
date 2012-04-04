@@ -17,6 +17,7 @@
 #include <devices/mouse.h>
 #include <random.h>
 #include <cpuid.h>
+#include <timeout.h>
 
 void NO_RETURN
 khalt (void)
@@ -31,7 +32,7 @@ khalt (void)
 static void
 init_subsystem (const char *desc, bool (*init) (void), bool (*cleanup) (void))
 {
-  videoram_printf ("Initializing %s:", desc);
+  videoram_printf ("Initializing %s: ", desc);
 
   if (init ())
     videoram_puts (" ok \n", COLOR_INFO);
@@ -174,6 +175,8 @@ _start (void)
   pic_mask (~PIC_MASK_PIT); // TODO: setup PIT
 
   init_subsystem ("paging", &paging_init, NULL);
+
+  init_subsystem ("timeout handler", &timeout_init, NULL);
 
   videoram_puts ("Enabling interrupts: ", COLOR_NORMAL);
   asm volatile ("sti");

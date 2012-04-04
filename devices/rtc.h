@@ -12,4 +12,6 @@ struct rtc_data
 
 bool rtc_read (struct rtc_data *dest);
 
+uint8_t rtc_read_second (void);
+
 #endif
