@@ -1,5 +1,7 @@
 # INCLUDED
 
+TARGET := build
+
 include $(ROOT)/Makefile.vars
 
 C_BIN := $(C_SRC:%.c=$(TARGET)/%.o)

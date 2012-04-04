@@ -2,12 +2,15 @@
 
 #include "interrupts.h"
 #include "kmain.h"
+#include "syscalls.h"
+
 #include <assert.h>
 #include <string.h>
 #include <attributes.h>
 #include <crX.h>
 #include <round.h>
 #include <inttypes.h>
+#include <stdarg.h>
 
 #pragma GCC optimize "omit-frame-pointer", "Os"
 
@@ -130,20 +133,20 @@ intr_handler_x (void)
 }
 
 #define INTR_HANDLER(NUM)                                                     \
-GLOBAL_CASSERT (ARRAY_LEN (interrupt_funs) >= NUM);                           \
-void CASSERT_CONCAT_ (intr_handler_, NUM) (void);                             \
-void ALIGNED(0x10) CASSERT_CONCAT_ (intr_handler_, NUM) (void)                \
-{                                                                             \
-  static struct interrupt_frame f;                                            \
-  asm volatile ("mov %%rax, %0;"                                              \
-                "lea %0, %%rax;"                                              \
-                "mov %%rbx, 0x08(%%rax);"                                     \
-                "mov %1, %%rbx;"                                              \
-                "jmp intr_handler_x;"                                         \
-                : "+m"(f)                                                     \
-                : "i"(NUM));                                                  \
-  UNREACHABLE ();                                                             \
-}
+    GLOBAL_CASSERT (ARRAY_LEN (interrupt_funs) >= NUM);                       \
+    void CASSERT_CONCAT_ (intr_handler_, NUM) (void);                         \
+    void ALIGNED (0x10) CASSERT_CONCAT_ (intr_handler_, NUM) (void)           \
+    {                                                                         \
+      static struct interrupt_frame f;                                        \
+      asm volatile ("mov %%rax, %0;"                                          \
+                    "lea %0, %%rax;"                                          \
+                    "mov %%rbx, 0x08(%%rax);"                                 \
+                    "mov %1, %%rbx;"                                          \
+                    "jmp intr_handler_x;"                                     \
+                    : "+m"(f)                                                 \
+                    : "i"(NUM));                                              \
+      UNREACHABLE ();                                                         \
+    }
 
 INTR_HANDLER (0)   INTR_HANDLER (1)   INTR_HANDLER (2)   INTR_HANDLER (3) 
 INTR_HANDLER (4)   INTR_HANDLER (5)   INTR_HANDLER (6)   INTR_HANDLER (7) 
@@ -161,7 +164,17 @@ INTR_HANDLER (48)  INTR_HANDLER (49)  INTR_HANDLER (50)  INTR_HANDLER (51)
 INTR_HANDLER (52)  INTR_HANDLER (53)  INTR_HANDLER (54)  INTR_HANDLER (55)
 INTR_HANDLER (56)  INTR_HANDLER (57)  INTR_HANDLER (58)  INTR_HANDLER (59)
 INTR_HANDLER (60)  INTR_HANDLER (61)  INTR_HANDLER (62)  INTR_HANDLER (63)
-INTR_HANDLER (64)  INTR_HANDLER (65)  INTR_HANDLER (66)  INTR_HANDLER (67)
+INTR_HANDLER (64)  INTR_HANDLER (65)  INTR_HANDLER (66) /*INTR_HANDLER (67)*/
+
+uint64_t intr_handler_67 (int num, void *pivot, va_list args);
+uint64_t ALIGNED (0x10) __attribute__ ((__optimize__ ("no-omit-frame-pointer")))
+intr_handler_67 (int num, void *pivot, va_list args)
+{
+  uint64_t result = syscall_handle (num, pivot, args);
+  asm volatile ("iretq" :: "a"(result));
+  UNREACHABLE ();
+}
+
 INTR_HANDLER (68)  INTR_HANDLER (69)  INTR_HANDLER (70)  INTR_HANDLER (71)
 INTR_HANDLER (72)  INTR_HANDLER (73)  INTR_HANDLER (74)  INTR_HANDLER (75)
 INTR_HANDLER (76)  INTR_HANDLER (77)  INTR_HANDLER (78)  INTR_HANDLER (79)
