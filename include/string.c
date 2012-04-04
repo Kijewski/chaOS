@@ -6,6 +6,7 @@
 #include <attributes.h>
 #include <core/kmalloc.h>
 
+/*
 void *
 memchr (const void *s_, int c_, size_t n)
 {
@@ -226,3 +227,4 @@ strspn (const char *s, const char *accept)
     }
   return result;
 }
+*/

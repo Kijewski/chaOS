@@ -9,6 +9,8 @@
 
 // copy/extract of Pintos' stdio.c
 
+#if 0
+
 /* Auxiliary data for vsnprintf_helper(). */
 struct vsnprintf_aux 
   {
@@ -74,6 +76,8 @@ snprintf (char *buffer, size_t buf_size, const char *format, ...)
 
   return retval;
 }
+
+#endif
 
 /* printf() formatting internals. */
 

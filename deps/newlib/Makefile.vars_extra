@@ -1,0 +1,2 @@
+CLFAGS       += $(ROOT)/deps/newlib/$(TARGET)/include
+DEPS_ACHIVES += $(ROOT)/deps/newlib/$(TARGET)/lib/libc.a

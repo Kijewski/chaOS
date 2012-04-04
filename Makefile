@@ -12,8 +12,14 @@ ARCHIVES := $(FOLDERS:%=%/$(TARGET)/build.a)
 
 all:: $(TARGET)/disk.img
 
+deps::
+	cd deps && $(MAKE) all
+
+$(DEPS_ACHIVES) :: deps
+
 clean:: $(FOLDERS:%=.clean.%)
 	rm -rf $(TARGET)
+	cd deps && $(MAKE) clean
 
 bochs:: $(TARGET)/disk.img
 	bochs -f execute.bxrc
@@ -21,18 +27,18 @@ bochs:: $(TARGET)/disk.img
 qemu:: $(TARGET)/disk.img
 	qemu-system-x86_64 -cpu qemu64 -monitor stdio -m 32 -s -hda $<
 
-$(FOLDERS:%=.clean.%) .clean.bootsector:
+$(FOLDERS:%=.clean.%) .clean.bootsector: deps
 	cd $(@:.clean.%=%) && $(MAKE) clean
 
-$(ARCHIVES): %/$(TARGET)/build.a: % .PHONY
+$(ARCHIVES): %/$(TARGET)/build.a: %
 	cd $< && $(MAKE) all
 
-bootloader/$(TARGET)/bootloader.bin: bootloader .PHONY
+bootloader/$(TARGET)/bootloader.bin: bootloader
 	cd $< && $(MAKE) all
 
-$(TARGET)/kernel.bin: kernel.lds $(ARCHIVES)
+$(TARGET)/kernel.bin: kernel.lds $(ARCHIVES) $(DEPS_ACHIVES)
 	@mkdir -p $(TARGET)
-	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ $(ARCHIVES)
+	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ $(ARCHIVES) $(DEPS_ACHIVES)
 	objcopy --only-keep-debug $@ $@.dbg
 	strip -sx $@
 
@@ -48,4 +54,4 @@ $(TARGET)/disk.img: $(TARGET)/kernel.bin bootloader/$(TARGET)/bootloader.bin
 	dd conv=notrunc if=bootloader/$(TARGET)/bootloader.bin of=$@ bs=446 count=1
 	dd conv=notrunc if=$(TARGET)/kernel.bin of=$@ bs=512 seek=1
 
-.PHONY:
+.PHONY: deps
