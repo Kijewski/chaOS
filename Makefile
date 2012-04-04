@@ -1,6 +1,8 @@
 # IMAGE
 
-TARGET := build
+ROOT := $(shell pwd)
+
+include Makefile.vars
 
 LD := ld
 LDFLAGS := --nmagic --fatal-warnings -nostdlib -static --whole-archive
@@ -32,7 +34,7 @@ $(TARGET)/kernel.bin: kernel.lds $(ARCHIVES)
 	@mkdir -p $(TARGET)
 	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ $(ARCHIVES)
 	objcopy --only-keep-debug $@ $@.dbg
-	#strip -sx $@
+	strip -sx $@
 
 $(TARGET)/disk.img: $(TARGET)/kernel.bin bootloader/$(TARGET)/bootloader.bin
 	@rm -f $@
