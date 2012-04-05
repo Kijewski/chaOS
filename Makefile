@@ -27,10 +27,10 @@ bochs:: $(TARGET)/disk.img
 qemu:: $(TARGET)/disk.img
 	qemu-system-x86_64 -cpu qemu64 -monitor stdio -m 32 -s -hda $<
 
-$(FOLDERS:%=.clean.%) .clean.bootsector: deps
+$(FOLDERS:%=.clean.%) .clean.bootsector:
 	cd $(@:.clean.%=%) && $(MAKE) clean
 
-$(ARCHIVES): %/$(TARGET)/build.a: %
+$(ARCHIVES): %/$(TARGET)/build.a: % deps
 	cd $< && $(MAKE) all
 
 bootloader/$(TARGET)/bootloader.bin: bootloader
@@ -40,11 +40,11 @@ $(TARGET)/kernel.bin: kernel.lds $(ARCHIVES) $(DEPS_ACHIVES)
 	@mkdir -p $(TARGET)
 	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ $(ARCHIVES) $(DEPS_ACHIVES)
 	objcopy --only-keep-debug $@ $@.dbg
-	#strip -sx $@
+	strip -sx $@
 
 $(TARGET)/disk.img: $(TARGET)/kernel.bin bootloader/$(TARGET)/bootloader.bin
 	@rm -f $@
-	bximage -q -hd -mode=flat -size=32 $@
+	bximage -q -hd -mode=flat -size=4 $@
 	parted -s $@ -- mklabel msdos
 	parted -s -a minimal $@ -- mkpart primary ext2 \
 			1s  $(shell dc -e "$(shell stat -c%s $(TARGET)/kernel.bin) 4095+4096/8*p")s
@@ -53,5 +53,3 @@ $(TARGET)/disk.img: $(TARGET)/kernel.bin bootloader/$(TARGET)/bootloader.bin
 	parted -s $@ -- set 1 boot on
 	dd conv=notrunc if=bootloader/$(TARGET)/bootloader.bin of=$@ bs=446 count=1
 	dd conv=notrunc if=$(TARGET)/kernel.bin of=$@ bs=512 seek=1
-
-.PHONY: deps
