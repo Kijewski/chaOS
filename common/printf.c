@@ -204,7 +204,7 @@ __vprintf (const char *format, va_list args,
                 break;
               case SIZET:
                 value = va_arg (args, size_t);
-                if (value > SIZE_MAX / 2)
+                if (value > (intmax_t) (SIZE_MAX / 2))
                   value = value - SIZE_MAX - 1;
                 break;
               default:

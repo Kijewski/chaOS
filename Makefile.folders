@@ -1,8 +1,6 @@
 # INCLUDED
 
-TARGET := build
-
-include $(ROOT)/Makefile.vars
+include $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))/Makefile.vars
 
 C_BIN := $(C_SRC:%.c=$(TARGET)/%.o)
 S_BIN := $(S_SRC:%.asm=$(TARGET)/%.o)

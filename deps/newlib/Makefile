@@ -1,14 +1,15 @@
-ROOT := $(shell pwd)/../..
-TARGET := $(shell pwd)/build
+NEWLIB_CWD := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+ROOT := $(NEWLIB_CWD)/../..
+TARGET := $(NEWLIB_CWD)/build
 
 CVS := cvs
 CVSFLAGS := -z 7
 
 export CC := gcc
 export CFLAGS = -m64 -g3 -ggdb -mcmodel=small -fno-pic -mno-red-zone -fno-stack-protector \
-                 -fstrict-aliasing -fsigned-char -fno-common \
-                 -ffreestanding -nostdlib -nostdinc -fno-builtin -nostartfiles -nodefaultlibs \
-                 -I$(ROOT)/include -I$(ROOT)/common -I$(ROOT)
+                -fstrict-aliasing -fsigned-char -fno-common \
+                -ffreestanding -nostdlib -nostdinc -fno-builtin -nostartfiles -nodefaultlibs \
+                -I$(ROOT)/include -I$(ROOT)/common -I$(ROOT)
 
 all:: src/newlib/config.status
 	cd src/newlib && $(MAKE)

@@ -29,6 +29,8 @@ void assert_failure (const char *expr, const char *file, int line);
       }                                                                       \
     while (0)
 
+#define assert(X) ASSERT (X)
+
 #endif
 
 #undef ASSERT

@@ -1,7 +1,5 @@
 # IMAGE
 
-ROOT := $(shell pwd)
-
 include Makefile.vars
 
 LD := ld
@@ -38,7 +36,7 @@ bootloader/$(TARGET)/bootloader.bin: bootloader
 
 $(TARGET)/kernel.bin: kernel.lds $(ARCHIVES) $(DEPS_ACHIVES)
 	@mkdir -p $(TARGET)
-	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ $(ARCHIVES) $(DEPS_ACHIVES)
+	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ $(ARCHIVES) $(DEPS_ACHIVES:%=$(ROOT)/%)
 	objcopy --only-keep-debug $@ $@.dbg
 	strip -sx $@
 
