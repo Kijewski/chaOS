@@ -164,17 +164,7 @@ INTR_HANDLER (48)  INTR_HANDLER (49)  INTR_HANDLER (50)  INTR_HANDLER (51)
 INTR_HANDLER (52)  INTR_HANDLER (53)  INTR_HANDLER (54)  INTR_HANDLER (55)
 INTR_HANDLER (56)  INTR_HANDLER (57)  INTR_HANDLER (58)  INTR_HANDLER (59)
 INTR_HANDLER (60)  INTR_HANDLER (61)  INTR_HANDLER (62)  INTR_HANDLER (63)
-INTR_HANDLER (64)  INTR_HANDLER (65)  INTR_HANDLER (66) /*INTR_HANDLER (67)*/
-
-uint64_t intr_handler_67 (int num, void *pivot, va_list args);
-uint64_t ALIGNED (0x10) __attribute__ ((__optimize__ ("no-omit-frame-pointer")))
-intr_handler_67 (int num, void *pivot, va_list args)
-{
-  uint64_t result = syscall_handle (num, pivot, args);
-  asm volatile ("iretq" :: "a"(result));
-  UNREACHABLE ();
-}
-
+INTR_HANDLER (64)  INTR_HANDLER (65)  INTR_HANDLER (66)  INTR_HANDLER (67)
 INTR_HANDLER (68)  INTR_HANDLER (69)  INTR_HANDLER (70)  INTR_HANDLER (71)
 INTR_HANDLER (72)  INTR_HANDLER (73)  INTR_HANDLER (74)  INTR_HANDLER (75)
 INTR_HANDLER (76)  INTR_HANDLER (77)  INTR_HANDLER (78)  INTR_HANDLER (79)
@@ -228,11 +218,18 @@ static const struct idtr idtr = {
   .offset = (uintptr_t) &idt_entries[0]
 };
 
+static void
+intr_syscall (int num UNUSED, struct interrupt_frame *f)
+{
+  f->rax = syscall_handle ((unsigned) f->rax, f);
+}
+
 bool
 interrupts_init (void)
 {
   asm volatile ("lidtq %0" :: "m"(idtr));
   interrupts_set_handler (INT_SPECIAL_DEBUG, intr_debug_frame);
+  interrupts_set_handler (INT_SYSCALL, intr_syscall);
   return true;
 }
 

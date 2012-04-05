@@ -51,9 +51,7 @@ timeout_init (void)
     }
 
   timeout_speed = count;
-  videoram_printf (" (%"PRIu64".%03"PRIu64"M) ",
-                   timeout_speed/TIMEOUT_MEASURE_SECONDS/1000/1000,
-                   timeout_speed/TIMEOUT_MEASURE_SECONDS/1000%1000);
+  videoram_printf (" (%'"PRIu64") ", timeout_speed/TIMEOUT_MEASURE_SECONDS);
 
   return true;
 }

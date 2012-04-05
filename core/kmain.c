@@ -18,6 +18,7 @@
 #include <random.h>
 #include <cpuid.h>
 #include <timeout.h>
+#include <glue.h>
 
 void NO_RETURN
 khalt (void)
@@ -92,8 +93,11 @@ static void
 put_welcoming_message (void)
 {
   uint64_t r = random_get () % chaos_quotes_count;
-  videoram_printf ("\n  ``%s''\n     %s\n\n",
+  videoram_printf ("\n``%s''\n --  %s\n\n",
                    chaos_quotes[r][0], chaos_quotes[r][1]);
+
+  videoram_puts ("Press ctrl+shift+esc+H to see possible commands.\n\n",
+                 COLOR_NORMAL);
 }
 
 static void
@@ -168,6 +172,17 @@ _start (void)
     }
 
   init_subsystem ("interrupt handling", &interrupts_init, NULL);
+
+  videoram_puts ("Running a syscall test: ", COLOR_NORMAL);
+  if (syscall_test ())
+    videoram_puts (" ok \n", COLOR_INFO);
+  else
+    {
+      videoram_puts (" FAIL \n", COLOR_ERROR);
+      khalt ();
+    }
+
+  init_subsystem ("a syscall test", &syscall_test, NULL);
   init_subsystem ("PIC", &pic_init, NULL);
   pic_mask (~PIC_MASK_PIT); // TODO: setup PIT
 

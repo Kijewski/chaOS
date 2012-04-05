@@ -40,11 +40,11 @@ $(TARGET)/kernel.bin: kernel.lds $(ARCHIVES) $(DEPS_ACHIVES)
 	@mkdir -p $(TARGET)
 	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ $(ARCHIVES) $(DEPS_ACHIVES)
 	objcopy --only-keep-debug $@ $@.dbg
-	strip -sx $@
+	#strip -sx $@
 
 $(TARGET)/disk.img: $(TARGET)/kernel.bin bootloader/$(TARGET)/bootloader.bin
 	@rm -f $@
-	bximage -q -hd -mode=flat -size=4 $@
+	bximage -q -hd -mode=flat -size=32 $@
 	parted -s $@ -- mklabel msdos
 	parted -s -a minimal $@ -- mkpart primary ext2 \
 			1s  $(shell dc -e "$(shell stat -c%s $(TARGET)/kernel.bin) 4095+4096/8*p")s

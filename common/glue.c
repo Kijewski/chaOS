@@ -1,40 +1,25 @@
 #include "glue.h"
+#include <core/interrupts.h>
 #include <attributes.h>
+#include <random.h>
 
-static uint64_t __attribute__ ((__optimize__ (3, "omit-frame-pointer")))
-syscall_int (unsigned num, void *pivot, va_list args)
-{
-  (void) num;
-  (void) pivot;
-  (void) args;
-  uint64_t result;
-  asm ("int $67" : "=a"(result));
-  return result;
-}
-
-uint64_t
-syscall_call (void *pivot, ...)
-{
-  unsigned num;
-  asm volatile ("" : "=a"(num));
-
-  va_list args;
-  va_start (args, pivot);
-  uint64_t result = syscall_int (num, pivot, args);
-  va_end (args);
-
-  return result;
-}
+#pragma GCC optimize "omit-frame-pointer", "Os"
+#pragma GCC diagnostic ignored "-Wstrict-prototypes"
 
 #define INT(NAME)                                                             \
-    void NAME (void);                                                         \
-    void __attribute__ ((__optimize__ (3, "omit-frame-pointer")))             \
-    NAME (void)                                                               \
+    uint64_t NAME ();                                                         \
+    uint64_t                                                                  \
+    NAME ()                                                                   \
     {                                                                         \
-      asm ("jmp *%1" :: "a"(SYSCALL_##NAME), "r"(syscall_call));              \
-      UNREACHABLE ();                                                         \
+      uint64_t result;                                                        \
+      asm ("int %2"                                                           \
+           : "=a"(result)                                                     \
+           : "a"(SYSCALL_##NAME), "i"(INT_SYSCALL)                            \
+           : "memory");                                                       \
+      return result;                                                          \
     }
 
+INT (echo)
 INT (open)
 INT (close)
 INT (stat)
@@ -59,3 +44,11 @@ INT (_init)
 INT (_fini)
 INT (getpid)
 INT (times)
+
+bool
+syscall_test (void)
+{
+  uint64_t value = random_get ();
+  uint64_t result = echo (value);
+  return result == value;
+}

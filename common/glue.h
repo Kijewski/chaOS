@@ -1,11 +1,12 @@
 #ifndef __COMMON_GLUE_H
 #define __COMMON_GLUE_H
 
-#include <stdarg.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 enum
 {
+  SYSCALL_echo,
   SYSCALL_open,
   SYSCALL_close,
   SYSCALL_stat,
@@ -33,5 +34,7 @@ enum
 };
 
 uint64_t syscall_call (void *pivot, ...);
+
+bool syscall_test (void);
 
 #endif

@@ -49,6 +49,7 @@ enum
   INT_SIMD_FLOATION_POINT_EXCEPTION = 19,
 
   INT_SPECIAL_DEBUG = 0xCC,
+  INT_SYSCALL       = 0xA0,
 };
 
 extern const struct idt_entry idt_entries[256];
