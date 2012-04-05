@@ -10,7 +10,8 @@ const char *chaos_quotes[][2] = {
   { "All genius is a conquering of "CHAOS" and mystery.",
     "Otto Weininger" },
 
-  { "Any change is resisted because bureaucrats have a vested interest in the "CHAOS" in which they exist.",
+  { "Any change is resisted because bureaucrats have a vested interest in\n"
+  "  the "CHAOS" in which they exist.",
     "Richard M. Nixon" },
 
   { "Anything you build on a large scale or with intense passion invites "CHAOS".",
@@ -25,10 +26,12 @@ const char *chaos_quotes[][2] = {
   { "Blame is just a lazy person's way of making sense of "CHAOS".",
     "Doug Coupland" },
 
-  { CHAOS" in the midst of "CHAOS" isn't funny, but "CHAOS" in the midst of order is.",
+  { CHAOS" in the midst of "CHAOS" isn't funny,\b"
+  "  but "CHAOS" in the midst of order is.",
     "Steve Martin" },
 
-  { CHAOS" in the world brings uneasiness, but it also allows the opportunity for creativity and growth.",
+  { CHAOS" in the world brings uneasiness, but it also allows the\n"
+  "  opportunity for creativity and growth.",
     "Tom Barrett" },
 
   { CHAOS" is a friend of mine.",
@@ -64,10 +67,12 @@ const char *chaos_quotes[][2] = {
   { "I am still making order out of "CHAOS" by reinvention.",
     "John Le Carre" },
 
-  { "I believe, as Lenin said, that this revolutionary "CHAOS" may yet crystallize into new forms of life.",
+  { "I believe, as Lenin said, that this revolutionary "CHAOS" may yet\n"
+  "  crystallize into new forms of life.",
     "Mikhail Gorbachev" },
 
-  { "I have great belief in the fact that whenever there is "CHAOS", it creates wonderful thinking. I consider "CHAOS" a gift.",
+  { "I have great belief in the fact that whenever there is "CHAOS",\n"
+  "  it creates wonderful thinking. I consider "CHAOS" a gift.",
     "Septima Clark" },
 
   { "I want to create a little "CHAOS" and make people's heads turn.",
@@ -82,7 +87,8 @@ const char *chaos_quotes[][2] = {
   { "I'm not afraid of "CHAOS" and I'm happy talking to strangers.",
     "Fiona Shaw" },
 
-  { "If we wish to make a new world we have the material ready. The first one, too, was made out of "CHAOS".",
+  { "If we wish to make a new world we have the material ready.\n"
+  "  The first one, too, was made out of "CHAOS".",
     "Robert Quillen" },
 
   { "In all "CHAOS" there is a cosmos, in all disorder a secret order.",
@@ -91,13 +97,16 @@ const char *chaos_quotes[][2] = {
   { "In the midst of movement and "CHAOS", keep stillness inside of you.",
     "Deepak Chopra" },
 
-  { "Invention, it must be humbly admitted, does not consist in creating out of void, but out of "CHAOS".",
+  { "Invention, it must be humbly admitted, does not consist in creating\n"
+  "  out of void, but out of "CHAOS".",
     "Mary Wollstonecraft Shelley" },
 
-  { "It is only a step from boredom to disillusionment, which leads naturally to self-pity, which in turn ends in "CHAOS".",
+  { "It is only a step from boredom to disillusionment,\n"
+  "  which leads naturally to self-pity, which in turn ends in "CHAOS".",
     "Manly Hall" },
 
-  { "Living in continual "CHAOS" is exhausting, frightening. The catch is that it's also very addictive.",
+  { "Living in continual "CHAOS" is exhausting, frightening.\n"
+  "  The catch is that it's also very addictive.",
     "Lorna Luft" },
 
   { "No one welcomes "CHAOS", but why crave stability and predictability?",
@@ -106,19 +115,23 @@ const char *chaos_quotes[][2] = {
   { "Oh, God, why don't I remember that a little "CHAOS" is good for the soul?",
     "Marilyn French" },
 
-  { "One must still have "CHAOS" in oneself to be able to give birth to a dancing star.",
+  { "One must still have "CHAOS" in oneself to be able to\n"
+  "  give birth to a dancing star.",
     "Friedrich Nietzsche" },
 
-  { "Organized religion preaches Order and Love but spawns "CHAOS" and Fury. Why?",
+  { "Organized religion preaches Order and Love but spawns "CHAOS" and Fury.\n"
+  "  Why?",
     "Kerry Thornley" },
 
   { "Out of "CHAOS" God made a world, and out of high passions comes a people.",
     "Lord Byron" },
 
-  { "Progress everywhere today does seem to come so very heavily disguised as "CHAOS".",
+  { "Progress everywhere today does seem to come so\n"
+  "  very heavily disguised as "CHAOS".",
     "Joyce Grenfell" },
 
-  { "The irreversibility of time is the mechanism that brings order out of "CHAOS".",
+  { "The irreversibility of time is the mechanism that\n"
+  "  brings order out of "CHAOS".",
     "Ilya Prigogine" },
 
   { "The task of art today is to bring "CHAOS" into order.",
@@ -142,7 +155,8 @@ const char *chaos_quotes[][2] = {
   { "When tempest tossed, embrace "CHAOS".",
     "Dean Koontz" },
 
-  { "When the mind withdraws into itself and dispenses with facts it makes only "CHAOS".",
+  { "When the mind withdraws into itself and dispenses\n"
+  "  with facts it makes only "CHAOS".",
     "Edith Hamilton" },
 
   { "You can reconstruct the picture from "CHAOS" and memory's ruins.",

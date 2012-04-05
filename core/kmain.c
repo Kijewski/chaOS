@@ -49,7 +49,7 @@ static void
 put_memory_map (void)
 {
   uint64_t total_memory = 0;
-  videoram_puts ("Memory map:\n", COLOR_NORMAL);
+  videoram_puts ("Memory map (e820):\n", COLOR_NORMAL);
   for (const struct e820_ref *ref = e820_start (); ref; ref = e820_next (ref))
     {
       videoram_printf ("  * 0x%016" PRIxPTR " to 0x%016" PRIxPTR " is ",
