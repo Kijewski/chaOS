@@ -1,9 +1,9 @@
 #ifndef __COMMON_PRINTF_H
 #define __COMMON_PRINTF_H
 
+#include "attributes.h"
 #include <stdarg.h>
 #include <stddef.h>
-#include <attributes.h>
 
 /* Standard functions. */
 int snprintf (char *, size_t, const char *, ...) PRINTF_FORMAT (3, 4);

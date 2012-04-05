@@ -1,9 +1,9 @@
 #ifndef BSWAP_H__
 #define BSWAP_H__
 
+#include "attributes.h"
+#include "round.h"
 #include <stdint.h>
-#include <attributes.h>
-#include <round.h>
 
 static inline uint16_t
 bswap16 (uint16_t value_)

@@ -2,8 +2,8 @@
 #include "kbc.h"
 #include "pic.h"
 
-#include <attributes.h>
-#include <intr.h>
+#include <common/attributes.h>
+#include <common/intr.h>
 #include <devices/videoram.h>
 #include <core/shutdown.h>
 #include <core/kmain.h>

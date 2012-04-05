@@ -1,8 +1,8 @@
 #include "pic.h"
-#include <ports.h>
-#include <attributes.h>
+#include <common/ports.h>
+#include <common/attributes.h>
 #include <assert.h>
-#include <round.h>
+#include <common/round.h>
 #include <devices/videoram.h>
 
 // assumed so in the code

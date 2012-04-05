@@ -30,5 +30,3 @@ src/newlib/config.status: src/newlib/configure
 clean:: src/newlib/configure
 	rm -rf $(TARGET)
 	rm -f src/newlib/config.status
-	cd src/newlib && $(MAKE) clean
-	cd src/newlib && $(MAKE) distclean

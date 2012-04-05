@@ -1,5 +1,5 @@
 #include "syscalls.h"
-#include <glue.h>
+#include <common/glue.h>
 
 static uint64_t
 syscall_echo (struct interrupt_frame *f)

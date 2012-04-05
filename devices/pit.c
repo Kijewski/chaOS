@@ -23,3 +23,5 @@ enum
   PIT_REGISTER_2       = 2,
   PIT_REGISTER_CONTROL = 3,
 };
+
+// TODO

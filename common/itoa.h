@@ -2,7 +2,7 @@
 #define ITOA_H__
 
 #include <stdint.h>
-#include <attributes.h>
+#include <common/attributes.h>
 
 // the numbers include the nullterminator and a minus
 #define I64_TO_BIN_BUF_SIZE (64 + 2)

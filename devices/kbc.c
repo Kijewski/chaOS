@@ -2,8 +2,8 @@
 // by http://lowlevel.eu/wiki/Benutzer:Bjork
 
 #include "kbc.h"
-#include <ports.h>
-#include <nop.h>
+#include <common/ports.h>
+#include <common/nop.h>
 
 bool
 kbd_can_read (void)

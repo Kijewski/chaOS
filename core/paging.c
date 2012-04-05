@@ -1,8 +1,8 @@
 #include "paging.h"
 #include "frame_allocator.h"
 
-#include <attributes.h>
-#include <round.h>
+#include <common/attributes.h>
+#include <common/round.h>
 #include <kernel.h>
 #include <assert.h>
 #include <devices/videoram.h>

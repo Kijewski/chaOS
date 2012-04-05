@@ -1,7 +1,7 @@
 #include "glue.h"
+#include "attributes.h"
+#include "random.h"
 #include <core/interrupts.h>
-#include <attributes.h>
-#include <random.h>
 
 #pragma GCC optimize "omit-frame-pointer", "Os"
 #pragma GCC diagnostic ignored "-Wstrict-prototypes"

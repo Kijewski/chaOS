@@ -3,8 +3,8 @@
 #include "kmain.h"
 #include "paging.h"
 
-#include <list.h>
-#include <round.h>
+#include <common/list.h>
+#include <common/round.h>
 #include <assert.h>
 #include <kernel.h>
 

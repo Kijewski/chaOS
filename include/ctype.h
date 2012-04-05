@@ -1,9 +1,7 @@
 #ifndef CTYPE_H__
 #define CTYPE_H__
 
-#include <attributes.h>
-
-// TODO
+#include <common/attributes.h>
 
 #define _IN_RANGE(X, A, B)       \
     ({                           \

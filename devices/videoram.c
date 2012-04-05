@@ -1,10 +1,10 @@
 #include "videoram.h"
 
-#include <attributes.h>
+#include <common/attributes.h>
 #include <string.h>
-#include <ports.h>
+#include <common/ports.h>
 #include <assert.h>
-#include <printf.h>
+#include <common/printf.h>
 #include <stdbool.h>
 
 static unsigned vr_xpos, vr_ypos;

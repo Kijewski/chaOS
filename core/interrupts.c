@@ -6,9 +6,9 @@
 
 #include <assert.h>
 #include <string.h>
-#include <attributes.h>
-#include <crX.h>
-#include <round.h>
+#include <common/attributes.h>
+#include <common/crX.h>
+#include <common/round.h>
 #include <inttypes.h>
 #include <stdarg.h>
 

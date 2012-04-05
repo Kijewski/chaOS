@@ -1,8 +1,8 @@
 #ifndef BITMAP_H__
 #define BITMAP_H__
 
+#include "attributes.h"
 #include <stdbool.h>
-#include <attributes.h>
 #include <stddef.h>
 #include <assert.h>
 #include <wordsize.h>

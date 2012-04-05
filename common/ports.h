@@ -1,9 +1,9 @@
 #ifndef PORTS_H__
 #define PORTS_H__
 
+#include "attributes.h"
 #include <stdlib.h>
 #include <stdint.h>
-#include <attributes.h>
 
 // Copy of Pintos' threads/io.h
 

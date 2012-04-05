@@ -1,6 +1,6 @@
 #include "random.h"
-#include <spinlock.h>
-#include <round.h>
+#include "spinlock.h"
+#include "round.h"
 #include <devices/rtc.h>
 
 static uint64_t seed[4];

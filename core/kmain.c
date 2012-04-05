@@ -3,22 +3,21 @@
 #include "frame_allocator.h"
 #include "paging.h"
 #include "e820.h"
-#include "kmalloc.h"
 #include "quotes.h"
 
-#include <attributes.h>
+#include <common/attributes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 #include <kernel.h>
-#include <crX.h>
+#include <common/crX.h>
 #include <devices/pic.h>
 #include <devices/keyboard.h>
 #include <devices/mouse.h>
-#include <random.h>
-#include <cpuid.h>
-#include <timeout.h>
-#include <glue.h>
+#include <common/random.h>
+#include <common/cpuid.h>
+#include <common/timeout.h>
+#include <common/glue.h>
 
 void NO_RETURN
 khalt (void)
@@ -201,7 +200,6 @@ _start (void)
 
   init_subsystem ("random number generator", &random_init, NULL);
   init_subsystem ("frame allocator", &frame_allocator_init, NULL);
-  init_subsystem ("kernel memory allocator", &kmalloc_init, NULL);
 
   init_subsystem ("PS/2 keyboard", &keyboard_init, NULL);
   init_subsystem ("PS/2 mouse", &mouse_init, NULL);

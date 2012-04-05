@@ -2,9 +2,9 @@
 // by http://wiki.osdev.org/User:Bewing
 
 #include "rtc.h"
-#include <ports.h>
-#include <intr.h>
-#include <nop.h>
+#include <common/ports.h>
+#include <common/intr.h>
+#include <common/nop.h>
 
 enum
 {

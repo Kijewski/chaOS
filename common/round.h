@@ -1,8 +1,8 @@
 #ifndef ROUND_H__
 #define ROUND_H__
 
+#include "attributes.h"
 #include <stdint.h>
-#include <attributes.h>
 
 static inline uint64_t
 round_down_pow2 (uint64_t val, uint8_t exp)

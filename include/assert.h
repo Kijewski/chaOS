@@ -1,7 +1,7 @@
 #ifndef ASSERT_H__
 #define ASSERT_H__
 
-#include <attributes.h>
+#include <common/attributes.h>
 #include <stddef.h>
 
 #define CASSERT_CONCAT_(X,Y) X##Y

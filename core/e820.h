@@ -1,7 +1,7 @@
 #ifndef E820_H__
 #define E820_H__
 
-#include <attributes.h>
+#include <common/attributes.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>

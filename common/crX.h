@@ -1,8 +1,8 @@
 #ifndef CR_X_H__
 #define CR_X_H__
 
+#include "attributes.h"
 #include <stdint.h>
-#include <attributes.h>
 
 enum
 {

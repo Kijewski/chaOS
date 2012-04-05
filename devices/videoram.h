@@ -2,7 +2,7 @@
 #define VIDEORAM_H__
 
 #include <stdint.h>
-#include <itoa.h>
+#include <common/itoa.h>
 #include <stdarg.h>
 
 #define VR_BASE ((char *) 0xb8000)

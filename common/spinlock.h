@@ -1,8 +1,9 @@
 #ifndef SPINLOCK_H__
 #define SPINLOCK_H__
 
+#include "attributes.h"
+
 #include <stdint.h>
-#include <attributes.h>
 #include <assert.h>
 
 typedef volatile struct

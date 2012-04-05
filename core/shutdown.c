@@ -1,6 +1,6 @@
 #include "shutdown.h"
 #include "interrupts.h"
-#include <ports.h>
+#include <common/ports.h>
 #include <devices/kbc.h>
 
 void NO_RETURN

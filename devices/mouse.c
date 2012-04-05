@@ -5,10 +5,10 @@
 #include "kbc.h"
 #include "pic.h"
 
-#include <attributes.h>
-#include <intr.h>
+#include <common/attributes.h>
+#include <common/intr.h>
 #include <devices/videoram.h>
-#include <round.h>
+#include <common/round.h>
 
 enum
 {

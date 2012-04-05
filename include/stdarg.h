@@ -1,7 +1,7 @@
 #ifndef STDARG_H__
 #define STDARG_H__
 
-#include <attributes.h>
+#include <common/attributes.h>
 
 typedef __builtin_va_list va_list;
 typedef va_list __gnuc_va_list;

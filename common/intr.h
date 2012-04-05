@@ -1,8 +1,8 @@
 #ifndef INTR_H__
 #define INTR_H__
 
+#include "attributes.h"
 #include <stdbool.h>
-#include <attributes.h>
 
 static inline bool FUNCTION
 intr_get (void)

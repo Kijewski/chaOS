@@ -1,7 +1,7 @@
 #ifndef STDDEF_H__
 #define STDDEF_H__
 
-#include <attributes.h>
+#include <common/attributes.h>
 #include <stdint.h>
 
 #define NULL ((void *) 0)

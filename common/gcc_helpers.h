@@ -1,7 +1,7 @@
 #ifndef __COMMON_GCC_HELPERS_H
 #define __COMMON_GCC_HELPERS_H
 
-#include <int128.h>
+#include "int128.h"
 #include <stdint.h>
 
 uint128_t __umodti3 (uint128_t num, uint128_t den);

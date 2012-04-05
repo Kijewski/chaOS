@@ -1,7 +1,7 @@
 #ifndef __COMMON_CPUID_H
 #define __COMMON_CPUID_H
 
-#include <attributes.h>
+#include "attributes.h"
 #include <stdint.h>
 
 struct cpuid_basic_info

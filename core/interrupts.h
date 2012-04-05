@@ -1,10 +1,10 @@
 #ifndef INTERRUPTS__
 #define INTERRUPTS__
 
+#include <common/attributes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
-#include <attributes.h>
 
 struct idt_entry
 {

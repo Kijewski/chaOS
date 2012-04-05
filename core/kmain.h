@@ -2,7 +2,7 @@
 #define KMAIN_H__
 
 #include <stdint.h>
-#include <attributes.h>
+#include <common/attributes.h>
 #include <devices/videoram.h>
 
 #define BG_NORMAL (VR_GREEN|VR_BRIGHT)
