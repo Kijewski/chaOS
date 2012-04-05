@@ -374,7 +374,7 @@ parse_conversion (const char *format, struct printf_conversion *c,
     }
   else 
     {
-      for (; isdigit (*format); format++)
+      for (; isdigit ((int) *format); format++)
         c->width = c->width * 10 + *format - '0';
     }
   if (c->width < 0) 
@@ -396,7 +396,7 @@ parse_conversion (const char *format, struct printf_conversion *c,
       else 
         {
           c->precision = 0;
-          for (; isdigit (*format); format++)
+          for (; isdigit ((int) *format); format++)
             c->precision = c->precision * 10 + *format - '0';
         }
       if (c->precision < 0) 

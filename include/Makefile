@@ -1,4 +1,4 @@
 ROOT := ..
-C_SRC := assert.c string.c
+C_SRC := assert.c
 
 include ../Makefile.folders
