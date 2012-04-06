@@ -53,6 +53,8 @@ enum
 // e1
 
   KBD_PAUSE,
+
+  _KBD_CODE_COUNT,
 };
 
 enum
@@ -82,5 +84,8 @@ bool keyboard_init (void);
 
 bool keyboard_meta_state (unsigned meta);
 bool keyboard_stateful_state (unsigned stateful);
+
+typedef void keyboard_handler_t (unsigned code, bool released);
+bool keyboard_set_handler (keyboard_handler_t handler);
 
 #endif

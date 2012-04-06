@@ -129,6 +129,8 @@ static const uint8_t KEYMAP_E0[0x70] =
   0, KBD_MM_SELECT, 0, 0,
 };
 
+static keyboard_handler_t *keyboard_handler_cb;
+
 static bool keyboard_meta[_KBD_META_MAX];
 
 bool
@@ -236,9 +238,8 @@ keyboard_handle (int code, bool key_released)
       return;
     }
 
-  // TODO: inform somebody about the keypress
-  videoram_printf ("Keyboard (%s): 0x%02hhx\n",
-                   key_released ? "release" : "press", code);
+  if (keyboard_handler_cb != NULL)
+    keyboard_handler_cb (code, key_released);
 }
 
 static void
@@ -315,4 +316,11 @@ keyboard_init (void)
   intr_set (old_level);
 
   return result;
+}
+
+bool
+keyboard_set_handler (keyboard_handler_t handler)
+{
+  keyboard_handler_cb = handler;
+  return true;
 }

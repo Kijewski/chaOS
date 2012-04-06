@@ -4,6 +4,7 @@
 #include "paging.h"
 #include "e820.h"
 #include "quotes.h"
+#include "keypress_handler.h"
 
 #include <common/attributes.h>
 #include <stdlib.h>
@@ -14,6 +15,7 @@
 #include <devices/pic.h>
 #include <devices/keyboard.h>
 #include <devices/mouse.h>
+#include <devices/videoram.h>
 #include <common/random.h>
 #include <common/cpuid.h>
 #include <common/timeout.h>
@@ -204,11 +206,22 @@ _start (void)
   init_subsystem ("PS/2 keyboard", &keyboard_init, NULL);
   init_subsystem ("PS/2 mouse", &mouse_init, NULL);
 
+  init_subsystem ("keypress handler", &keypress_handler_init, NULL);
+  ENSURE (keypress_handler_set_keymap (KEYMAP_QWERTZ_DE_DE));
+
   // TODO: initialize more subsystems
 
   videoram_printf ("Available frames: %zu\n", free_frames_count ());
 
   put_welcoming_message ();
+
+  for (;;)
+    {
+      int c = keypress_handler_getc ();
+      if (!c)
+        break;
+      videoram_printf ("C: %c\n", c);
+    }
 
   // TODO: do something
   for (;;)

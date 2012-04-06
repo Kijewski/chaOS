@@ -3,6 +3,7 @@
 
 #include "attributes.h"
 #include <stdbool.h>
+#include <stdint.h>
 
 static inline bool FUNCTION
 intr_get (void)
