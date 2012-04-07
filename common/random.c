@@ -55,6 +55,8 @@ random_init (void)
   if (!rtc_read (&time))
     return false;
 
+  seed[0] ^= rdtsc ();
+
   seed[ARRAY_LEN (seed) - 1] = ((uint64_t) time.second <<  0) +
                                ((uint64_t) time.minute <<  8) +
                                ((uint64_t) time.hour   << 16) +
