@@ -1,6 +1,3 @@
-plugin_ctrl: unmapped=1, biosdev=1, speaker=1, extfpuirq=1, gameport=1, pci_ide=1, acpi=1, ioapic=1
-config_interface: wx
-display_library: wx
 memory: host=128, guest=32
 
 boot: disk

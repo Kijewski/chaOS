@@ -81,11 +81,12 @@ kbc_clear_input (void)
   for (;;)
     {
       uint8_t datum = inb (0x64);
+/* bochs:
       if (!(datum & KBD_STATUS_BIST_OK))
         return false;
-      else if (!(datum & KBD_STATUS_READABLE))
+*/
+      if (!(datum & KBD_STATUS_READABLE))
         return true;
-      else
-        inb (0x60);
+      inb (0x60);
     }
 }

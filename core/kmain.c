@@ -189,8 +189,10 @@ _start (void)
 
   videoram_puts ("Setting CPU standards: ", COLOR_NORMAL);
   cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
+  /* bochs:
   msr_set_reset (MSR_EFER, EFER_NXE, 0);
-  videoram_puts (" ok \n", COLOR_INFO);
+  */
+  videoram_put_right (" ok ", COLOR_INFO);
 
   init_subsystem ("paging", &paging_init, NULL);
 

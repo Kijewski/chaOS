@@ -252,7 +252,7 @@ build_temp_pagetable:
 
     ; Enable Long Mode
     rdmsr
-    or ah, 1
+    or ah, (1<<(8-8)) | (1<<(11-8))
     wrmsr
 
     mov ebx,cr0       ; Activate long mode
