@@ -53,4 +53,8 @@ void videoram_put_all_hex (uint64_t v, char attributes);
 void videoram_printf (const char *format, ...);
 void videoram_vprintf (const char *format, va_list args);
 
+unsigned videoram_pos_x (void);
+unsigned videoram_pos_y (void);
+void videoram_put_right (const char *s, char attributes);
+
 #endif

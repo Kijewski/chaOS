@@ -37,10 +37,10 @@ init_subsystem (const char *desc, bool (*init) (void), bool (*cleanup) (void))
   videoram_printf ("Initializing %s: ", desc);
 
   if (init ())
-    videoram_puts (" ok \n", COLOR_INFO);
+    videoram_put_right (" ok ", COLOR_INFO);
   else
     {
-      videoram_puts (" FAIL \n", COLOR_ERROR);
+      videoram_put_right (" FAIL ", COLOR_ERROR);
       if (cleanup)
         cleanup ();
       khalt ();
@@ -176,10 +176,10 @@ _start (void)
 
   videoram_puts ("Running a syscall test: ", COLOR_NORMAL);
   if (syscall_test ())
-    videoram_puts (" ok \n", COLOR_INFO);
+    videoram_put_right (" ok ", COLOR_INFO);
   else
     {
-      videoram_puts (" FAIL \n", COLOR_ERROR);
+      videoram_put_right (" FAIL ", COLOR_ERROR);
       khalt ();
     }
 
@@ -198,7 +198,7 @@ _start (void)
 
   videoram_puts ("Enabling interrupts: ", COLOR_NORMAL);
   asm volatile ("sti");
-  videoram_puts (" ok \n", COLOR_INFO);
+  videoram_put_right (" ok ", COLOR_INFO);
 
   init_subsystem ("random number generator", &random_init, NULL);
   init_subsystem ("frame allocator", &frame_allocator_init, NULL);

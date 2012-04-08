@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <common/printf.h>
 #include <stdbool.h>
+#include <string.h>
 
 static unsigned vr_xpos, vr_ypos;
 static char cls_color = VR_COLOR (VR_BLACK, VR_GRAY);
@@ -112,4 +113,27 @@ videoram_vprintf (const char *format, va_list args)
   };
 
   __vprintf (format, args, &videoram_vprintf_helper, &aux);
+}
+
+unsigned
+videoram_pos_x (void)
+{
+  return vr_xpos;
+}
+
+unsigned
+videoram_pos_y (void)
+{
+  return vr_ypos;
+}
+
+void
+videoram_put_right (const char *s, char attributes)
+{
+  size_t l = VR_COLS - strlen (s);
+  if (vr_xpos < l && vr_xpos % 2)
+    videoram_putc (' ', cls_color);
+  while (vr_xpos < l)
+    videoram_puts (". ", cls_color);
+  videoram_puts (s, attributes);
 }
