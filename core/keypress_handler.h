@@ -17,5 +17,6 @@ bool keypress_handler_init (void);
 bool keypress_handler_set_keymap (unsigned);
 
 int keypress_handler_getc (void);
+int keypress_handler_try_getc (void);
 
 #endif

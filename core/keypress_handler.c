@@ -32,8 +32,8 @@ keypress_handler (unsigned code, bool released)
       keyboard_meta_state (KBD_META_CTRL))
     return;
   
-  unsigned shift = keyboard_meta_state (KBD_META_SHIFT) ? 1 : 0;
-  unsigned alt   = keyboard_meta_state (KBD_META_RALT)  ? 1 : 0;
+  unsigned shift = !!keyboard_meta_state (KBD_META_SHIFT);
+  unsigned alt   = !!keyboard_meta_state (KBD_META_RALT);
 
   int c = keymap_de[keypress_handler_keymap][alt][shift][code];
   if (c == 0)
@@ -76,6 +76,22 @@ keypress_handler_getc (void)
   --ringbuffer_length;
   ringbuffer_head = (ringbuffer_head+1) % ARRAY_LEN (ringbuffer);
 
+  intr_set (old_intr_level);
+  return result;
+}
+
+int
+keypress_handler_try_getc (void)
+{
+  bool old_intr_level = intr_get_and_set_off ();
+  int result = 0;
+  if (ringbuffer_length > 0)
+    {
+      result = ringbuffer[ringbuffer_head];
+
+      --ringbuffer_length;
+      ringbuffer_head = (ringbuffer_head+1) % ARRAY_LEN (ringbuffer);
+    }
   intr_set (old_intr_level);
   return result;
 }

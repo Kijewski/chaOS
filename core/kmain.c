@@ -217,17 +217,15 @@ _start (void)
 
   put_welcoming_message ();
 
+  // TODO: do something
   for (;;)
     {
       int c = keypress_handler_getc ();
       if (!c)
         break;
-      videoram_printf ("C: %c\n", c);
+      if (c < 128 && c != 127)
+        videoram_printf ("C: <%c>\n", c);
     }
-
-  // TODO: do something
-  for (;;)
-    asm volatile ("hlt");
   
   khalt ();
 }
