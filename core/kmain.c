@@ -6,21 +6,24 @@
 #include "quotes.h"
 #include "keypress_handler.h"
 
-#include <common/attributes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <inttypes.h>
 #include <kernel.h>
+
+#include <common/attributes.h>
 #include <common/crX.h>
-#include <devices/pic.h>
-#include <devices/keyboard.h>
-#include <devices/mouse.h>
-#include <devices/videoram.h>
 #include <common/random.h>
 #include <common/cpuid.h>
 #include <common/timeout.h>
 #include <common/glue.h>
+
+#include <devices/pic.h>
+#include <devices/keyboard.h>
+#include <devices/mouse.h>
+#include <devices/videoram.h>
+#include <devices/rtc.h>
 
 void NO_RETURN
 khalt (void)
@@ -44,7 +47,8 @@ init_subsystem (const char *desc, bool (*init) (void), bool (*cleanup) (void))
       videoram_put_right (" FAIL ", COLOR_ERROR);
       if (cleanup)
         cleanup ();
-      khalt ();
+      else
+        khalt ();
     }
 }
 
@@ -195,12 +199,12 @@ _start (void)
 
   init_subsystem ("paging", &paging_init, NULL);
 
-  init_subsystem ("timeout handler ", &timeout_init, NULL);
-
   videoram_puts ("Enabling interrupts", COLOR_NORMAL);
   asm volatile ("sti");
   videoram_put_right (" ok ", COLOR_INFO);
 
+  init_subsystem ("real-time clock", &rtc_init, NULL);
+  init_subsystem ("timeout handler ", &timeout_init, NULL);
   init_subsystem ("random number generator", &random_init, NULL);
   init_subsystem ("frame allocator", &frame_allocator_init, NULL);
 
