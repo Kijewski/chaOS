@@ -9,6 +9,7 @@
 #include <common/attributes.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include <inttypes.h>
 #include <kernel.h>
 #include <common/crX.h>
@@ -34,7 +35,7 @@ khalt (void)
 static void
 init_subsystem (const char *desc, bool (*init) (void), bool (*cleanup) (void))
 {
-  videoram_printf ("Initializing %s: ", desc);
+  videoram_printf ("Initializing %s", desc);
 
   if (init ())
     videoram_put_right (" ok ", COLOR_INFO);
@@ -52,18 +53,17 @@ put_memory_map (void)
 {
   uint64_t total_memory = 0;
   videoram_puts ("Memory map (e820):\n", COLOR_NORMAL);
-  for (const struct e820_ref *ref = e820_start (); ref; ref = e820_next (ref))
+  for (const struct e820_entry *e = e820_start (); e; e = e820_next (e))
     {
       videoram_printf ("  * 0x%016" PRIxPTR " to 0x%016" PRIxPTR " is ",
-                       ref->entry.base_addr,
-                       ref->entry.base_addr + ref->entry.length - 1);
+                       e->base_addr, e->base_addr + e->length - 1);
 
-      switch (ref->entry.type)
+      switch (e->type)
         {
         case E820_MEMORY:
           videoram_puts (" usable ", COLOR_INFO);
-          if (ref->entry.base_addr >= 1024*1024)
-            total_memory += ref->entry.length;
+          if (e->base_addr >= 1024*1024)
+            total_memory += e->length;
           else
             videoram_puts (" (ignored)", COLOR_NORMAL);
           break;
@@ -80,7 +80,7 @@ put_memory_map (void)
           videoram_puts (" defect! ", COLOR_ERROR);
           break;
         default:
-          videoram_printf (" UNKNOWN (%d) ", ref->entry.type);
+          videoram_printf (" UNKNOWN (%d) ", e->type);
           break;
         }
       videoram_put_ln ();
@@ -183,11 +183,10 @@ _start (void)
       khalt ();
     }
 
-  init_subsystem ("a syscall test", &syscall_test, NULL);
   init_subsystem ("PIC", &pic_init, NULL);
   pic_mask (~PIC_MASK_PIT); // TODO: setup PIT
 
-  videoram_puts ("Setting CPU standards: ", COLOR_NORMAL);
+  videoram_puts ("Setting CPU standards", COLOR_NORMAL);
   cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
   /* bochs:
   msr_set_reset (MSR_EFER, EFER_NXE, 0);
@@ -196,9 +195,9 @@ _start (void)
 
   init_subsystem ("paging", &paging_init, NULL);
 
-  init_subsystem ("timeout handler", &timeout_init, NULL);
+  init_subsystem ("timeout handler ", &timeout_init, NULL);
 
-  videoram_puts ("Enabling interrupts: ", COLOR_NORMAL);
+  videoram_puts ("Enabling interrupts", COLOR_NORMAL);
   asm volatile ("sti");
   videoram_put_right (" ok ", COLOR_INFO);
 

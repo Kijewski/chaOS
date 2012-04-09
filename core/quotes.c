@@ -3,7 +3,7 @@
 
 #define CHAOS "\e\x8C chaOS \e\xA8"
 
-const char *chaos_quotes[][2] = {
+const char *const chaos_quotes[][2] = {
   { "There is much "CHAOS" in me, much "CHAOS" in our time.",
     "Otto Dix" },
 

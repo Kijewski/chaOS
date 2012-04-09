@@ -20,7 +20,7 @@ clean:: $(FOLDERS:%=.clean.%)
 	cd deps && $(MAKE) clean
 
 bochs:: $(TARGET)/disk.img
-	bochs -f execute.bxrc
+	bochs -q -f execute.bxrc
 
 qemu:: $(TARGET)/disk.img
 	qemu-system-x86_64 -cpu qemu64 -monitor stdio -m 32 -s -hda $<

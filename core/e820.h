@@ -2,9 +2,8 @@
 #define E820_H__
 
 #include <common/attributes.h>
-#include <stdlib.h>
 #include <stdint.h>
-#include <assert.h>
+#include <stddef.h>
 
 enum
 {
@@ -29,20 +28,20 @@ struct e820_ref
   struct e820_entry entry;
 } PACKED;
 
-static inline const struct e820_ref *
+static inline const struct e820_entry *
 e820_start (void)
 {
   const struct e820_ref *result = (void *) 0x4500;
-  return result->size != 0 ? result : NULL;
+  return result->size != 0 ? &result->entry : NULL;
 }
 
-static inline const struct e820_ref *
-e820_next (const struct e820_ref *cur)
+static inline const struct e820_entry *
+e820_next (const struct e820_entry *cur_)
 {
-  ASSERT (cur->size != 0);
+  const struct e820_ref *cur = container_of (cur_, struct e820_ref, entry);
   const struct e820_ref *result;
   result = (void *) ((uintptr_t) cur + cur->size + sizeof (cur->size));
-  return result->size != 0 ? result : NULL;
+  return result->size != 0 ? &result->entry : NULL;
 }
 
 #endif

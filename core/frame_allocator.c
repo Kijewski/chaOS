@@ -101,17 +101,16 @@ init_freemap (void)
   static uint8_t first_block[4096];
   use_block (&first_block[0]);
 
-  for (const struct e820_ref *mem = e820_start (); mem; mem = e820_next (mem))
+  for (const struct e820_entry *mem = e820_start (); mem; mem = e820_next (mem))
     {
-      if (mem->entry.type != E820_MEMORY)
+      if (mem->type != E820_MEMORY)
         continue;
 
       uint8_t *start, *end;
-      start = (void *) round_up_pow2 (MAX (mem->entry.base_addr,
+      start = (void *) round_up_pow2 (MAX (mem->base_addr,
                                            (uintptr_t) &_kernel_memory_end),
                                       12);
-      end = (void *) round_down_pow2 (mem->entry.base_addr + mem->entry.length,
-                                      12);
+      end = (void *) round_down_pow2 (mem->base_addr + mem->length, 12);
       for (uint8_t *i = start; i < end; i += 4096)
         return_frame (i);
     }
