@@ -92,13 +92,13 @@ static const uint8_t KEYMAP_E0[0x70] =
 // 0x24
   KBD_MM_STOP, 0, 0, 0,
 // 0x28
-  0, 0, KBD_FAKE_LSHIFT, 0,
+  0, 0, _KBD_FAKE_LSHIFT, 0,
 // 0x2C
   0, 0, KBD_MM_VOL_DOWN, 0,
 // 0x30
   KBD_MM_VOL_UP, 0, KBD_WWW_HOME, 0,
 // 0x34
-  0, KBD_NUM_SLASH, KBD_FAKE_RSHIFT, KBD_PRINT_SCREEN,
+  0, KBD_NUM_SLASH, _KBD_FAKE_RSHIFT, KBD_PRINT_SCREEN,
 // 0x38
   KBD_RIGHT_ALT, 0, 0, 0,
 // 0x3C
@@ -183,8 +183,8 @@ keyboard_handle (int code, bool key_released)
     META_KEY (KBD_SCROLL,       KBD_META_SCROLL);
     META_KEY (KBD_PAUSE,        KBD_META_PAUSE);
 
-    case KBD_FAKE_LSHIFT:
-    case KBD_FAKE_RSHIFT:
+    case _KBD_FAKE_LSHIFT:
+    case _KBD_FAKE_RSHIFT:
       return;
     }
 
