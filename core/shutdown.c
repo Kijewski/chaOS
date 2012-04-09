@@ -28,9 +28,12 @@ system_reboot (void)
   interrupts_finit ();
   for (;;)
     {
-      // Pulse CPU reset line to reboot.
-      for (int i = 0xFFFF; i >= 0; --i)
+      for (unsigned x = 0x10; x > 0; --x)
         {
+          // try port 92h
+          outb (0x92, inb (0x92) | 1);
+
+          // Pulse CPU reset line to reboot.
           kbc_clear_input ();
           kbc_send_cmd (0xD1);
           while (!kbd_can_write ())

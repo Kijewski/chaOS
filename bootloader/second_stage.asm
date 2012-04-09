@@ -81,6 +81,8 @@ read_e820:
     jmp fail
 
 enter_long_mode:
+    putsln "Entering long mode ..." ; invisible
+
     ; Set PAE and PGE
     mov eax,10100000b
     mov cr4,eax
@@ -97,7 +99,6 @@ enter_long_mode:
     or ah, ((1<<8) | (1<<11)) >> 8 ; LMA + NXE
     wrmsr
 
-    putsln "Entering long mode" ; invisible
     call set_text_mode ; don't call puts afterwards!
 
     mov ebx,cr0       ; Activate long mode
