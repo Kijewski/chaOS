@@ -2,7 +2,13 @@
 
 [ORG SECOND_STAGE_BASE + ELF64_HEADER_SIZE]
 
+%macro putsln 1
+    call _puts
+    db %1, 13, 10, 0
+%endmacro
+
 [BITS 16]
+    putsln {13,10,"chaOS image loaded"}
 
 detect_amd64:
 .detect_cpuid:
@@ -18,21 +24,35 @@ detect_amd64:
     popfd
 
     xor eax, ecx
-    jz fail
+    jnz .detect_cpuid_gt_80000000
 
+    putsln "Your PC does not support the cpuid instruction."
+    jmp fail
+
+; http://www.sandpile.org/x86/cpuid.htm#level_8000_0000h
 .detect_cpuid_gt_80000000:
-    mov eax, 0x80000000    ; Set the A-register to 0x80000000.
-    mov esi, eax
-    inc si
-    cpuid                  ; CPU identification.
-    cmp eax, esi    ; Compare the A-register with 0x80000001.
-    jb fail         ; It is less, there is no long mode.
+    mov eax, 0x80000000          ; Set the A-register to 0x80000000.
+    cpuid                        ; CPU identification.
+    cmp eax, 0x80000001          ; Compare the A-register with 0x80000001.
+    jae .detect_features         ; It is less, there is no long mode.
 
-.detect_long_mode:
-    mov eax, esi    ; Set the A-register to 0x80000001.
+    putsln "Your CPU does not support extended level 8000 0001h."
+    jmp fail
+
+; http://www.sandpile.org/x86/cpuid.htm#level_8000_0001h
+.detect_features:
+    mov eax, esi           ; Set the A-register to 0x80000001.
     cpuid                  ; CPU identification.
-    bt edx, 29      ; Test if the LM-bit, which is bit 29, is set in the D-register.
-    jnc fail         ; They aren't, there is no long mode.
+.lm:
+    bt edx, 29             ; Test if the LM-bit, which is bit 29, is set in the D-register.
+    jnc .nx                ; They aren't, there is no long mode.
+    putsln "Your CPU does not support long mode."
+    jmp fail
+.nx:
+    bt edx, 20
+    jnc read_e820
+    putsln "Your CPU does not support the NX / XD bit."
+    jmp fail
 
 read_e820:
     xor ebx, ebx
@@ -43,9 +63,9 @@ read_e820:
     mov edx, 'PAMS'
 
     int 0x15
-    jc fail
+    jc .fail
     cmp eax, 'PAMS'
-    jne fail
+    jne .fail
 
     mov word [di-2], cx
     add di, cx
@@ -55,16 +75,10 @@ read_e820:
     jnz .loop
 .end:
     mov word [di-2], bx ; bx is zero
-
-set_console:
-    ; set 80x25 text mode so we're in a known state, and to set 8x16 font
-    mov ax,0083h
-    int 10h
-  
-    ; set 80x50 text mode and 8x8 font
-    mov ax,1112h
-    xor bl,bl
-    int 10h
+    jmp enter_long_mode
+.fail:
+    putsln "Yout BIOS does not support e820 or reported an error."
+    jmp fail
 
 enter_long_mode:
     ; Set PAE and PGE
@@ -83,6 +97,9 @@ enter_long_mode:
     or ah, ((1<<8) | (1<<11)) >> 8 ; LMA + NXE
     wrmsr
 
+    putsln "Entering long mode" ; invisible
+    call set_text_mode ; don't call puts afterwards!
+
     mov ebx,cr0       ; Activate long mode
     or ebx,0x80000001 ; by enabling paging and protection simultaneously
     mov cr0,ebx       ; skipping protected mode entirely
@@ -92,6 +109,9 @@ enter_long_mode:
 
 fail:
     int 0x18
+
+%include 'puts.inc.asm'
+%include 'textmode.inc.asm'
 
 [BITS 64]
 startLongMode:

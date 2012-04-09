@@ -3,6 +3,7 @@
 
 #define CHAOS "\e\x8C chaOS \e\xA8"
 
+//   23456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 1234567
 const char *const chaos_quotes[][2] = {
   { "There is much "CHAOS" in me, much "CHAOS" in our time.",
     "Otto Dix" },
@@ -26,7 +27,7 @@ const char *const chaos_quotes[][2] = {
   { "Blame is just a lazy person's way of making sense of "CHAOS".",
     "Doug Coupland" },
 
-  { CHAOS" in the midst of "CHAOS" isn't funny,\b"
+  { CHAOS" in the midst of "CHAOS" isn't funny,\n"
   "  but "CHAOS" in the midst of order is.",
     "Steve Martin" },
 

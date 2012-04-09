@@ -1,5 +1,10 @@
 %include 'definitions.h.asm'
 
+%macro puts 1
+    call _puts
+    db %1, 0
+%endmacro
+
 [ORG 0x00007C00]
 
 [BITS 16]
@@ -51,6 +56,8 @@ enter_unreal_mode:
 load_image:
     pop dx
 
+    puts "Prepare for chaOS "
+
     ; copy kernel image
     mov edi, KERNEL_BASE
 
@@ -69,6 +76,8 @@ load_image:
     mov ah, 0x42
     int 0x13
     jc .read_sector_again
+
+    puts "."
 
     mov bx, [dap.count]
     movzx ebx, bx
@@ -98,6 +107,7 @@ load_image:
     jnc .read_sector
 
 fail:
+    puts {13,10,"Disk failure while loading chaOS!",13,10}
     int 0x18
 
 build_temp_pagetable:
@@ -154,8 +164,8 @@ build_temp_pagetable:
 enter_second_stage:
 .copy:
     mov esi, KERNEL_BASE + ELF64_HEADER_SIZE
-    mov edi, SECOND_STAGE_BASE + ELF64_HEADER_SIZE
-    mov cx, (0x1000 - ELF64_HEADER_SIZE) / 4
+    mov di, SECOND_STAGE_BASE + ELF64_HEADER_SIZE
+    mov cx, (SECOND_STAGE_MAX_SIZE - ELF64_HEADER_SIZE) / 4
 .loop:
     mov eax, [esi]
     add esi, 4
@@ -163,6 +173,8 @@ enter_second_stage:
     loop .loop
 .enter:
     jmp SECOND_STAGE_BASE + ELF64_HEADER_SIZE
+
+%include 'puts.inc.asm'
 
     ;Global Descriptor Table
 gdt:

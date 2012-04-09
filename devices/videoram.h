@@ -6,8 +6,8 @@
 #include <stdarg.h>
 
 #define VR_BASE ((char *) 0xb8000)
-#define VR_COLS (80)
-#define VR_ROWS (50)
+#define VR_COLS (90)
+#define VR_ROWS (60)
 
 enum
 {

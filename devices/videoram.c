@@ -11,6 +11,19 @@
 static unsigned vr_xpos, vr_ypos;
 static char cls_color = VR_COLOR (VR_BLACK, VR_GRAY);
 
+static void
+update_cursor (void)
+{
+  unsigned short position = (vr_ypos*VR_COLS) + vr_xpos;
+
+  // cursor LOW port to vga INDEX register
+  outb (0x3D4, 0x0F);
+  outb (0x3D5, (unsigned char) (position & 0xFF));
+  // cursor HIGH port to vga INDEX register
+  outb (0x3D4, 0x0E);
+  outb (0x3D5, (unsigned char ) ((position>>8) & 0xFF));
+}
+
 static inline void
 videoram_putc_at (char c, char attributes, unsigned x, unsigned y)
 {
@@ -42,6 +55,7 @@ videoram_putc (char c, char attributes)
             videoram_putc_at (' ', cls_color, x, vr_ypos);
         }
     }
+  update_cursor ();
 }
 
 void
