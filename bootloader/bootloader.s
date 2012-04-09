@@ -20,8 +20,6 @@ boot_loader:
     ;Parameter from BIOS: dl = boot drive
 
     ; sane default state
-    cli
-
     xor ax,ax
     mov ds,ax
     mov es,ax

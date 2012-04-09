@@ -6,6 +6,7 @@
 #include <common/intr.h>
 #include <common/nop.h>
 #include <common/attributes.h>
+#include <devices/pic.h>
 
 enum
 {
@@ -125,7 +126,7 @@ rtc_interrupt_handler (int num UNUSED, struct interrupt_frame *f)
 bool
 rtc_init (void)
 {
-  interrupts_set_handler (RTC_INTR_NUM, &rtc_interrupt_handler);
+  pic_set_handler (PIC_NUM_RTC, &rtc_interrupt_handler);
   return true;
 }
 

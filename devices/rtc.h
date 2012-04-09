@@ -5,11 +5,6 @@
 #include <stdbool.h>
 #include <core/interrupts.h>
 
-enum
-{
-  RTC_INTR_NUM = 0x70,
-};
-
 struct rtc_data
 {
   uint8_t second, minute, hour;
