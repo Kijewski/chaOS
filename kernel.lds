@@ -5,6 +5,11 @@ SECTIONS
 {
   . = 1024*1024 + SIZEOF_HEADERS;
 
+  .second_stage :
+  {
+    bootloader/build/second_stage.elf
+  }
+
   .text :
   {
     . = ALIGN(0x1000);

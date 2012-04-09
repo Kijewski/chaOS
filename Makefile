@@ -31,10 +31,10 @@ $(FOLDERS:%=.clean.%) .clean.bootsector:
 $(ARCHIVES): %/$(TARGET)/build.a: % deps
 	cd $< && $(MAKE) all
 
-bootloader/$(TARGET)/bootloader.bin: bootloader
+bootloader/build/second_stage.elf bootloader/$(TARGET)/bootloader.bin: bootloader
 	cd $< && $(MAKE) all
 
-$(TARGET)/kernel.bin: kernel.lds $(ARCHIVES) $(DEPS_ACHIVES)
+$(TARGET)/kernel.bin: kernel.lds $(ARCHIVES) $(DEPS_ACHIVES) bootloader/build/second_stage.elf
 	@mkdir -p $(TARGET)
 	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ $(ARCHIVES) $(DEPS_ACHIVES:%=$(ROOT)/%)
 	objcopy --only-keep-debug $@ $@.dbg

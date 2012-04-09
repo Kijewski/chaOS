@@ -1,18 +1,6 @@
-; Crude composition of
-;   * http://wiki.osdev.org/index.php?title=Talk:Entering_Long_Mode_Directly&oldid=12173
-;     by http://wiki.osdev.org/User:Oculusfervoris
-; and
-;   * http://wiki.osdev.org/index.php?title=Unreal_Mode&oldid=10705
-;     by http://wiki.osdev.org/User:Jhawthorn
+%include 'definitions.h.asm'
 
 [ORG 0x00007C00]
-KERNEL_BASE equ 1024*1024
-ELF64_ENTRY_POINT equ 3*8
-
-PARTITION equ 1
-
-MAX_SECTORS_AT_ONCE equ 32
-E820_MAP_BASE equ 0x0500 + 0x200*MAX_SECTORS_AT_ONCE ; 0x4500
 
 [BITS 16]
 
@@ -37,63 +25,11 @@ boot_loader:
     jmp 0:.clear_cs
 .clear_cs:
 
-detect_amd64:
-.detect_cpuid:
-    pushfd
-    mov ecx, [esp]
-    btc long [esp], 21
-    popfd
-
-    pushfd
-    pop eax
-
-    push ecx
-    popfd
-
-    xor eax, ecx
-    jz fail
-
-.detect_cpuid_gt_80000000:
-    mov eax, 0x80000000    ; Set the A-register to 0x80000000.
-    mov esi, eax
-    inc si
-    cpuid                  ; CPU identification.
-    cmp eax, esi    ; Compare the A-register with 0x80000001.
-    jb fail         ; It is less, there is no long mode.
-
-.detect_long_mode:
-    mov eax, esi    ; Set the A-register to 0x80000001.
-    cpuid                  ; CPU identification.
-    bt edx, 29      ; Test if the LM-bit, which is bit 29, is set in the D-register.
-    jnc fail         ; They aren't, there is no long mode.
-
 enabled_a20:
     ;Enable A20 via port 92h
     in al,92h
     or al,02h
     out 92h,al
-
-read_e820:
-    xor ebx, ebx
-    mov di, E820_MAP_BASE+2
-.loop:
-    mov eax, 0xe820
-    mov ecx, 20
-    mov edx, 'PAMS'
-
-    int 0x15
-    jc fail
-    cmp eax, 'PAMS'
-    jne fail
-
-    mov word [di-2], cx
-    add di, cx
-    add di, 2
-
-    test ebx, ebx
-    jnz .loop
-.end:
-    mov word [di-2], bx ; bx is zero
 
 enter_unreal_mode:
     lgdt [gdt.pointer]
@@ -152,7 +88,7 @@ load_image:
     jmp .copy
 
 .cont:
-    jecxz set_console
+    jecxz build_temp_pagetable
     jmp .read_sector
 
 .read_sector_again:
@@ -163,27 +99,6 @@ load_image:
 
 fail:
     int 0x18
-
-dap:
-    db 0x10 ; size
-    db 0x00 ; reserved
-.count:
-    dw 0x0001
-.offs:
-    dw 0x0500
-    dw 0x0000
-.start:
-    dq 0x0000000000000000
-
-set_console:
-    ; set 80x25 text mode so we're in a known state, and to set 8x16 font
-    mov ax,0083h
-    int 10h
-  
-    ; set 80x50 text mode and 8x8 font
-    mov ax,1112h
-    xor bl,bl
-    int 10h
 
 build_temp_pagetable:
     ;Build page tables
@@ -236,29 +151,18 @@ build_temp_pagetable:
     stosw
     loop .build_pd
 
-.enter_long_mode:
-    ; Set PAE and PGE
-    mov eax,10100000b
-    mov cr4,eax
-
-    ; Point CR3 at PML4
-    mov edx, 0x0000a000
-    mov cr3,edx
-
-    ; Specify EFER MSR
-    mov ecx,0xC0000080
-
-    ; Enable Long Mode
-    rdmsr
-    or ah, (1<<(8-8)) | (1<<(11-8))
-    wrmsr
-
-    mov ebx,cr0       ; Activate long mode
-    or ebx,0x80000001 ; by enabling paging and protection simultaneously
-    mov cr0,ebx       ; skipping protected mode entirely
-
-     ; Load CS with 64 bit segment and flush the instruction cache
-    jmp gdt.code:startLongMode
+enter_second_stage:
+.copy:
+    mov esi, KERNEL_BASE + ELF64_HEADER_SIZE
+    mov edi, SECOND_STAGE_BASE + ELF64_HEADER_SIZE
+    mov cx, (0x1000 - ELF64_HEADER_SIZE) / 4
+.loop:
+    mov eax, [esi]
+    add esi, 4
+    stosd
+    loop .loop
+.enter:
+    jmp SECOND_STAGE_BASE + ELF64_HEADER_SIZE
 
     ;Global Descriptor Table
 gdt:
@@ -271,13 +175,17 @@ gdt:
 .pointer:
     dw $-gdt-1        ;16-bit Size (Limit)
     dq gdt            ;64-bit Base Address
-                      ;Changed from "dd gdt"
-                      ;Ref: Intel System Programming Manual V1 - 2.1.1.1
 
-[BITS 64]
-startLongMode:
-    jmp [KERNEL_BASE + ELF64_ENTRY_POINT]
-
+dap:
+    db 0x10 ; size
+    db 0x00 ; reserved
+.count:
+    dw 0x0001
+.offs:
+    dw 0x0500
+    dw 0x0000
+.start:
+    dq 0x0000000000000000
 
 ; fail if bootloader becomes to big
     times 446-($-$$) db 0x90        ;Fill boot sector
