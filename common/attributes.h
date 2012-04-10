@@ -46,7 +46,4 @@
 
 #define UNREACHABLE() (__builtin_unreachable ())
 
-// TODO
-#define PRINTF_FORMAT(X, Y)
-
 #endif

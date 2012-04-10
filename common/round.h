@@ -45,8 +45,6 @@ round_up_pow2 (uint64_t val, uint8_t exp)
 
 #define ARRAY_LEN(X) (sizeof (X) / sizeof ((X)[0]))
 
-
-
 #define _IN(KEY, ...)                                                         \
 ({                                                                            \
   __extension__ typedef typeof (KEY) _t;                                      \

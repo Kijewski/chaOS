@@ -30,6 +30,47 @@ boot_loader:
     jmp 0:.clear_cs
 .clear_cs:
 
+welcome:
+    puts "Prepare for chaOS "
+
+detect_amd64:
+.detect_cpuid:
+    pushfd
+    mov ecx, [esp]
+    btc long [esp], 21
+    popfd
+
+    pushfd
+    pop eax
+
+    push ecx
+    popfd
+
+    xor eax, ecx
+    jz .fail
+
+; http://www.sandpile.org/x86/cpuid.htm#level_8000_0000h
+.detect_cpuid_gt_80000000:
+    mov eax, 0x80000000          ; Set the A-register to 0x80000000.
+    mov esi, eax
+    inc esi
+    cpuid                        ; CPU identification.
+    cmp eax, esi                 ; Compare the A-register with 0x80000001.
+    jb .fail                     ; It is less, there is no long mode.
+
+; http://www.sandpile.org/x86/cpuid.htm#level_8000_0001h
+.detect_features:
+    mov eax, esi
+    cpuid
+    mov eax, (1<<15) | (1<<20) | (1<<29) ; CMOV | NXE | LM
+    and edx, eax
+    cmp eax, edx
+    je enabled_a20
+
+.fail:
+    puts {13,10,"Your CPU does not support long mode.",13,10}
+    int 0x18
+
 enabled_a20:
     ;Enable A20 via port 92h
     in al,92h
@@ -55,8 +96,6 @@ enter_unreal_mode:
 
 load_image:
     pop dx
-
-    puts "Prepare for chaOS "
 
     ; copy kernel image
     mov edi, KERNEL_BASE
@@ -97,7 +136,7 @@ load_image:
     jmp .copy
 
 .cont:
-    jecxz build_temp_pagetable
+    jecxz enter_second_stage
     jmp .read_sector
 
 .read_sector_again:
@@ -106,60 +145,9 @@ load_image:
     int 0x13
     jnc .read_sector
 
-fail:
+.fail:
     puts {13,10,"Disk failure while loading chaOS!",13,10}
     int 0x18
-
-build_temp_pagetable:
-    ;Build page tables
-    ;The page tables will look like this:
-    ;PML4:
-    ;dq 0x000000000000b00f = 00000000 00000000 00000000 00000000 00000000 00000000 10010000 00001111
-    ;times 511 dq 0x0000000000000000
-
-    ;PDP:
-    ;dq 0x000000000000c00f = 00000000 00000000 00000000 00000000 00000000 00000000 10100000 00001111
-    ;times 511 dq 0x0000000000000000
-
-    ;                              56       48       40       32       24       16        8        0
-    ;PD:                                                                     rrrrr rrrr---G S0ADWURP
-    ;dq 0x000000000000018f = 00000000 00000000 00000000 00000000 00000000 00000000 00000001 10001111
-    ;dq 0x000000000000018f = 00000000 00000000 00000000 00000000 00000000 00100000 00000001 10001111
-    ;dq 0x000000000000018f = 00000000 00000000 00000000 00000000 00000000 01000000 00000001 10001111
-    ;dq 0x000000000000018f = 00000000 00000000 00000000 00000000 00000000 01100000 00000001 10001111
-    ;...
-
-    ;This defines one 512*2MB pages at the start of memory, so we can access the first 1GB as if paging was disabled
-
-    ; build the necessary tables
-    mov di,0xa000
-    
-    ;PML4:
-    mov ax,0xb00f
-    stosw
-
-    xor ax,ax
-    mov cx,0x07ff
-    rep stosw
-
-    ;PDP:
-    mov ax,0xc00f
-    stosw
-
-    xor ax,ax
-    mov cx,0x07ff
-    rep stosw
-
-    mov ebx, 0b00000000000000000000000110001111
-    mov cx, 512
-.build_pd:
-    mov eax, ebx
-    stosd
-    add ebx, 1<<21
-    xor ax, ax
-    stosw
-    stosw
-    loop .build_pd
 
 enter_second_stage:
 .copy:
