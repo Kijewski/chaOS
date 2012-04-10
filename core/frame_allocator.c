@@ -7,6 +7,7 @@
 #include <common/round.h>
 #include <assert.h>
 #include <kernel.h>
+#include <devices/videoram.h>
 
 static struct list free_frames;
 static struct list free_entry_refs;
@@ -101,6 +102,9 @@ init_freemap (void)
   static uint8_t first_block[4096];
   use_block (&first_block[0]);
 
+  unsigned nth = 0;
+
+  videoram_printf (" ");
   for (const struct e820_entry *mem = e820_start (); mem; mem = e820_next (mem))
     {
       if (mem->type != E820_MEMORY)
@@ -112,8 +116,16 @@ init_freemap (void)
                                       12);
       end = (void *) round_down_pow2 (mem->base_addr + mem->length, 12);
       for (uint8_t *i = start; i < end; i += 4096)
-        return_frame (i);
+        {
+          if (++nth == 200*1024*1024 / 4096)
+            {
+              nth = 0;
+              videoram_printf (".");
+            }
+          return_frame (i);
+        }
     }
+  videoram_printf (" (%'zu MB) ", counter*4096/1024/1024);
 }
 
 bool

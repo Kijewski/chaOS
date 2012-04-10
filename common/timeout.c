@@ -28,6 +28,7 @@ timeout_init (void)
     second[1] = rtc_read_second ();
   while (second[0] == second[1]);
 
+  videoram_printf (" ");
   uint64_t count = 0;
   for (int h = 0; h < TIMEOUT_MEASURE_SECONDS; ++h)
     {

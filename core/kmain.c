@@ -204,7 +204,7 @@ _start (void)
   videoram_put_right (" ok ", COLOR_INFO);
 
   init_subsystem ("real-time clock", &rtc_init, NULL);
-  init_subsystem ("timeout handler ", &timeout_init, NULL);
+  init_subsystem ("timeout handler", &timeout_init, NULL);
   init_subsystem ("random number generator", &random_init, NULL);
   init_subsystem ("frame allocator", &frame_allocator_init, NULL);
 
@@ -215,8 +215,6 @@ _start (void)
   ENSURE (keypress_handler_set_keymap (KEYMAP_QWERTZ_DE_DE));
 
   // TODO: initialize more subsystems
-
-  videoram_printf ("Available frames: %zu\n", free_frames_count ());
 
   put_welcoming_message ();
 
