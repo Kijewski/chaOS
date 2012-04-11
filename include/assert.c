@@ -3,16 +3,16 @@
 #include <devices/videoram.h>
 #include <core/kmain.h>
 
-void
+void NO_RETURN
 assert_failure (const char *expr, const char *file, int line)
 {
-  videoram_puts ("\n Failed assertion \"", COLOR_ERROR);
-  videoram_puts (expr, COLOR_INFO);
-  videoram_puts ("\" in file \"", COLOR_ERROR);
-  videoram_puts (file, COLOR_INFO);
-  videoram_puts ("\" at line ", COLOR_ERROR);
-  videoram_put_int (line, COLOR_INFO);
-  videoram_puts (". \n", COLOR_ERROR);
+  videoram_printf ("\e%c\n Failed assertion \"\e%c%s\e%c\" in file "
+                   "\"\e%c%s\e%c\" at line \e%c%u\e%c. \n",
+                   COLOR_ERROR, COLOR_INFO, expr,
+                   COLOR_ERROR, COLOR_INFO, file,
+                   COLOR_ERROR, COLOR_INFO, line,
+                   COLOR_ERROR);
 
-  asm volatile ("int $0x3");
+  asm volatile ("int3");
+  UNREACHABLE ();
 }

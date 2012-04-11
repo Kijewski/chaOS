@@ -46,4 +46,6 @@
 
 #define UNREACHABLE() (__builtin_unreachable ())
 
+#define PRINTF(N) __attribute__ ((format (printf, (N), (N)+1)))
+
 #endif

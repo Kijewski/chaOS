@@ -173,10 +173,10 @@ mouse_handler (int num UNUSED, struct interrupt_frame *f UNUSED)
       return;
     }
 
-  videoram_printf ("Mouse: % 3u %+ 3d %+ 3d % 3u\n",
+  videoram_printf ("Mouse: %3u %+3d %+3d %3u\n",
                    packet.data[0],
-                   (int64_t) (int8_t) packet.data[1],
-                   (int64_t) (int8_t) packet.data[2],
+                   (signed) (int8_t) packet.data[1],
+                   (signed) (int8_t) packet.data[2],
                    packet.data[3]);
   // TODO: inform somebody about the mouse move
 }

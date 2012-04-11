@@ -2,6 +2,7 @@
 #define VIDEORAM_H__
 
 #include <stdint.h>
+#include <common/attributes.h>
 #include <common/itoa.h>
 #include <stdarg.h>
 
@@ -50,7 +51,7 @@ videoram_put_ln (void)
 
 void videoram_put_all_hex (uint64_t v, char attributes);
 
-void videoram_printf (const char *format, ...);
+void videoram_printf (const char *format, ...) PRINTF (1);
 void videoram_vprintf (const char *format, va_list args);
 
 unsigned videoram_pos_x (void);
