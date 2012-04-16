@@ -62,7 +62,7 @@ detect_amd64:
 .detect_features:
     mov eax, esi
     cpuid
-    mov eax, (1<<15) | (1<<20) | (1<<29) ; CMOV | NXE | LM
+    mov eax, (1<<20) | (1<<29) ; NXE | LM
     and edx, eax
     cmp eax, edx
     je enabled_a20
@@ -107,7 +107,9 @@ load_image:
 .read_sector:
     mov ebx, MAX_SECTORS_AT_ONCE
     cmp ebx, ecx
-    cmova ebx, ecx
+    jb .read_sector_not_too_much
+    mov ebx, ecx
+.read_sector_not_too_much
 
     mov [dap.count], bx
 
