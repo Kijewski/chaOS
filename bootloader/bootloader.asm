@@ -75,6 +75,7 @@ enabled_a20:
     ;Enable A20 via port 92h
     in al,92h
     or al,02h
+    and al,0feh
     out 92h,al
 
 enter_unreal_mode:

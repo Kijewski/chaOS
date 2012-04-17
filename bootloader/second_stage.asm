@@ -2,13 +2,17 @@
 
 [ORG SECOND_STAGE_BASE + ELF64_HEADER_SIZE]
 
-%macro putsln 1
+%macro puts 1
+    pusha
+    mov si, %1
     call _puts
-    db %1, 13, 10, 0
+    popa
 %endmacro
 
 [BITS 16]
-    putsln {13,10,"chaOS image loaded"}
+
+second_stage:
+    puts strings.image_loaded
 
 read_e820:
     xor ebx, ebx
@@ -24,8 +28,7 @@ read_e820:
     jne .fail
 
     mov word [di-2], cx
-    add di, cx
-    add di, 2
+    lea di, [edi+ecx+2]
 
     test ebx, ebx
     jnz .loop
@@ -33,7 +36,7 @@ read_e820:
     mov word [di-2], bx ; bx is zero
     jmp build_temp_pagetable
 .fail:
-    putsln "Yout BIOS does not support e820 or reported an error."
+    puts strings.bios_no_e820
     jmp fail
 
 build_temp_pagetable:
@@ -82,13 +85,12 @@ build_temp_pagetable:
     mov eax, ebx
     stosd
     add ebx, 1<<21
-    xor ax, ax
-    stosw
-    stosw
+    xor eax, eax
+    stosd
     loop .build_pd
 
 enter_long_mode:
-    putsln "Entering long mode ..." ; invisible
+    puts strings.entering_long_mode
 
     ; Set PAE and PGE
     mov eax,10100000b
@@ -116,13 +118,56 @@ enter_long_mode:
     jmp 8:startLongMode
 
 fail:
+    puts strings.chaos_prevented
     int 0x18
 
-%include 'puts.inc.asm'
+_puts:
+    mov bx, 0x0007
+    mov cx, 1
+
+.loop:
+    lodsb
+
+    test al, al
+    jz .end
+
+    cmp al, 27
+    je .escape
+
+    cmp al, 32
+    jb .non_printable
+
+.printable:
+    mov ah, 0x09
+    int 10h
+
+.non_printable:
+    mov ah, 0x0E
+    int 10h
+    jmp .loop
+
+.escape:
+    lodsb
+    mov bl, al
+    jmp .loop
+
+.end:
+    ret
+
 %include 'textmode.inc.asm'
 
 [BITS 64]
 startLongMode:
     jmp [KERNEL_BASE + ELF64_ENTRY_POINT]
 
-    times 0x1000 - ($-$$) - ELF64_HEADER_SIZE db 0x90
+strings:
+.image_loaded:
+    db 13, 10, 27, 8Ch, " chaOS ", 27, 7, " image loaded", 13, 10, 0
+.bios_no_e820:
+    db 13, 10, 27, 8Ch, "Your BIOS does not support e820 or reported an error.", 13, 10, 0
+.entering_long_mode:
+    db "Entering long mode ...", 13, 10, 0
+.chaos_prevented:
+    db 13, 10, 27, 8Ch, " chaOS ", 27, 7, " prevented :-(", 13, 10, 13, 10, 0
+
+times 0x1000 - ($-$$) - ELF64_HEADER_SIZE db 0x90
