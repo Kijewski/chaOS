@@ -5,7 +5,7 @@ include Makefile.vars
 LD := ld
 LDFLAGS := --nmagic --fatal-warnings -nostdlib -static --whole-archive
 
-FOLDERS := core devices include common
+FOLDERS := common core devices glue include
 ARCHIVES := $(FOLDERS:%=%/$(TARGET)/build.a)
 
 all:: $(TARGET)/disk.img

@@ -1,3 +1,5 @@
+#define _COMPILING_NEWLIB 1
+
 #include "glue.h"
 #include "attributes.h"
 #include "random.h"
@@ -7,14 +9,14 @@
 #pragma GCC diagnostic ignored "-Wstrict-prototypes"
 
 #define INT(NAME)                                                             \
-    uint64_t NAME ();                                                         \
+    uint64_t __SYSCALL_##NAME ();                                             \
     uint64_t                                                                  \
-    NAME ()                                                                   \
+    __SYSCALL_##NAME ()                                                       \
     {                                                                         \
       uint64_t result;                                                        \
       asm ("int %2"                                                           \
            : "=a"(result)                                                     \
-           : "a"(SYSCALL_##NAME), "i"(INT_SYSCALL)                            \
+           : "a"(SYS_##NAME), "i"(INT_SYSCALL)                                \
            : "memory");                                                       \
       return result;                                                          \
     }
@@ -49,6 +51,6 @@ bool
 syscall_test (void)
 {
   uint64_t value = random_get ();
-  uint64_t result = echo (value);
+  uint64_t result = __SYSCALL_echo (value);
   return result == value;
 }

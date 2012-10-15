@@ -6,11 +6,13 @@ CVS := cvs
 CVSFLAGS := -z 7
 
 export CC := gcc
-export CFLAGS = -m64 -g3 -ggdb -mcmodel=small -fno-pic -mno-red-zone -fno-stack-protector \
-                -fstrict-aliasing -fsigned-char -fno-common \
-                -ffreestanding -nostdlib -nostdinc -fno-builtin -nostartfiles -nodefaultlibs \
-                -D_I386MACH_ALLOW_HW_INTERRUPTS=1 \
-                -I$(ROOT)/include -I$(ROOT)
+export CFLAGS = -m64 -g3 -ggdb -mcmodel=large -msse2 -fno-pic -mno-red-zone -fno-stack-protector \
+	            -fstrict-aliasing -fsigned-char -fno-common \
+	            -ffreestanding -nostdlib -nostdinc -fno-builtin -nostartfiles -nodefaultlibs \
+	            -D_I386MACH_ALLOW_HW_INTERRUPTS=1 \
+	            -I$(ROOT)/include -I$(ROOT)
+
+ICONV_ENCODINGS := us_ascii,iso_8859_15,win_1252,utf_8,utf_16,ucs_2,ucs_4
 
 all: $(TARGET)/lib/libc.a
 
@@ -22,13 +24,22 @@ src/newlib/configure:
 	$(CVS) $(CVSFLAGS) -d :pserver:anoncvs@sources.redhat.com:/cvs/src co newlib
 
 src/newlib/config.status: src/newlib/configure
-	cd src/newlib && ./configure --prefix=$(TARGET)                             \
-	                             --enable-static                                \
-	                             --disable-shared                               \
-	                             --disable-newlib-supplied-syscalls             \
-	                             --disable-newlib-io-float                      \
-	                             --enable-newlib-io-c99-formats                 \
-	                             --enable-newlib-io-pos-args
+	cd src/newlib && ./configure --prefix=$(TARGET) \
+	                             --enable-newlib-io-pos-args \
+	                             --enable-newlib-io-c99-formats \
+	                             --enable-newlib-register-fini \
+	                             --enable-newlib-io-long-long \
+	                             --enable-newlib-io-long-double \
+	                             --enable-newlib-mb \
+	                             --enable-newlib-iconv-encodings=$(ICONV_ENCODINGS) \
+	                             --enable-multilib \
+	                             --enable-malloc-debugging \
+	                             --enable-newlib-multithread \
+	                             --enable-newlib-iconv \
+	                             --enable-static \
+	                             --disable-shared \
+	                             --enable-newlib-supplied-syscalls \
+	                             --disable-newlib-hw-fp
 
 clean:: src/newlib/configure
 	rm -rf $(TARGET)

@@ -181,7 +181,7 @@ syscall_handle (unsigned num, struct interrupt_frame *f)
   switch (num)
     {
 #define HANDLE(NAME)                                                          \
-        case SYSCALL_##NAME:                                                  \
+        case SYS_##NAME:                                                      \
           return syscall_##NAME (f);
     HANDLE (echo)
     HANDLE (open)
