@@ -26,7 +26,7 @@ $(C_DEPS): $(TARGET)/%.d: %.c
 
 $(S_DEPS): $(TARGET)/%.d: %.asm
 	@mkdir -p $(TARGET)
-	$(NASM) $(NASMFLAGS) -M -MF $@ -MT $(@:.d=.o) $<
+	$(NASM) $(NASMFLAGS) -M -MT $(@:.d=.o) $< > $@
 
 $(C_BIN): $(TARGET)/%.o: %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
