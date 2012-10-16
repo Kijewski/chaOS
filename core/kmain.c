@@ -24,6 +24,7 @@
 #include <devices/mouse.h>
 #include <devices/videoram.h>
 #include <devices/rtc.h>
+#include <devices/pit.h>
 
 void NO_RETURN
 khalt (void)
@@ -149,6 +150,19 @@ nx_bit_present (void)
   return true; // TODO
 }
 
+static void
+pic_handler_fun (int num, struct interrupt_frame *f)
+{
+  static int count = 0;
+  (void) num;
+  (void) f;
+  if (++count >= 33)
+    {
+      videoram_printf (".");
+      count = 0;
+    }
+}
+
 void
 _start (void)
 {
@@ -159,7 +173,9 @@ _start (void)
     asm volatile ("pause" ::: "memory");
   //*/
 
-  // clear BSS:
+  // clear Exception Handler Frame and BSS:
+  memset (&_section_ehframe_start[0], 0,
+          &_section_ehframe_end[0] - &_section_ehframe_start[0]);
   memset (&_section_bss_start[0], 0,
           &_section_bss_end[0] - &_section_bss_start[0]);
 
@@ -188,13 +204,12 @@ _start (void)
     }
 
   init_subsystem ("PIC", &pic_init, NULL);
-  pic_mask (~PIC_MASK_PIT); // TODO: setup PIT
+  pit_set_handler (pic_handler_fun);
+  pic_mask (~PIC_MASK_PIT);
 
   videoram_puts ("Setting CPU standards", COLOR_NORMAL);
   cr0_set_reset (CR0_WP|CR0_NE, CR0_MP|CR0_EM|CR0_NE|CR0_AM|CR0_CD|CR0_NW);
-  /* bochs:
   msr_set_reset (MSR_EFER, EFER_NXE, 0);
-  */
   videoram_put_right (" ok ", COLOR_INFO);
 
   init_subsystem ("paging", &paging_init, NULL);
@@ -207,6 +222,9 @@ _start (void)
   init_subsystem ("timeout handler", &timeout_init, NULL);
   init_subsystem ("random number generator", &random_init, NULL);
   init_subsystem ("frame allocator", &frame_allocator_init, NULL);
+
+  init_subsystem ("Interrupt timer (33Hz)", &pit_init_33hz, NULL);
+  pic_mask (~0);
 
   init_subsystem ("PS/2 keyboard", &keyboard_init, NULL);
   init_subsystem ("PS/2 mouse", &mouse_init, NULL);
