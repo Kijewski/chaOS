@@ -119,6 +119,8 @@ paging_remap (void *page)
 bool
 paging_init (void)
 {
+  return false; // TODO: use VIRT_BASE
+
   static uint64_t pdp_0[512] ALIGNED (0x1000);
   static uint64_t pd_0[512] ALIGNED (0x1000);
   static uint64_t pt_0[(MAX_KERNEL_SIZE_MB+1) / 2][512] ALIGNED (0x1000);
@@ -153,7 +155,7 @@ paging_init (void)
     mark_pt (VR_BASE + i, PT_P|PT_RW|PT_PWT|PT_NX);
 
   for (uintptr_t p = 0x4000; p < 0x8000; p += 0x1000) // stack and e820 data
-    mark_pt ((void *) p, PT_P|PT_RW|PT_PWT|PT_NX);
+    mark_pt ((char *) p + VIRT_BASE, PT_P|PT_RW|PT_PWT|PT_NX);
 
   asm volatile ("mov %0, %%cr3" :: "a"(&plm4[0]) : "memory");
   return true;

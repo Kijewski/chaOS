@@ -71,6 +71,8 @@ build_temp_pagetable:
     mov cx,0x07ff
     rep stosw
 
+    mov word [0xa000 + 0x0ff8], 0xb00f ; crude hack! Replace page table!
+
     ;PDP:
     mov ax,0xc00f
     stosw
@@ -78,6 +80,8 @@ build_temp_pagetable:
     xor ax,ax
     mov cx,0x07ff
     rep stosw
+
+    mov word [0xb000 + 0x0ff0], 0xc00f
 
     mov ebx, 0b00000000000000000000000110001111
     mov cx, 512
@@ -158,7 +162,24 @@ _puts:
 
 [BITS 64]
 startLongMode:
-    jmp [KERNEL_BASE + ELF64_ENTRY_POINT]
+    mov rax, VIRT_BASE + gdt.pointer
+    lgdt [rax]
+    add rsp, VIRT_BASE
+
+    mov rax, [VIRT_BASE + KERNEL_BASE + ELF64_ENTRY_POINT]
+    call rax
+
+align 16
+gdt:
+.null:
+    DQ 0x0000000000000000
+.code:
+    DQ 0x00A09A0000000000
+.data:
+    DQ 0x00A0920000000000
+.pointer:
+    dw $-gdt-1
+    dq gdt + VIRT_BASE
 
 strings:
 .image_loaded:
@@ -169,5 +190,3 @@ strings:
     db "Entering long mode ...", 13, 10, 0
 .chaos_prevented:
     db 13, 10, 27, 8Ch, " chaOS ", 27, 7, " prevented :-(", 13, 10, 13, 10, 0
-
-times 0x1000 - ($-$$) - ELF64_HEADER_SIZE db 0x90

@@ -5,8 +5,9 @@
 #include <common/attributes.h>
 #include <common/itoa.h>
 #include <stdarg.h>
+#include <kernel.h>
 
-#define VR_BASE ((char *) 0xb8000)
+#define VR_BASE ((char *) 0xb8000 + VIRT_BASE)
 #define VR_COLS (90)
 #define VR_ROWS (60)
 

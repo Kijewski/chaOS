@@ -1,13 +1,19 @@
 OUTPUT_FORMAT("elf64-x86-64")
 ENTRY(_start)
 
+VIRT_BASE = 0xFFFFFFFF80000000;
+KERNEL_BASE = 1024*1024;
+
 SECTIONS
 {
-  . = 1024*1024 + SIZEOF_HEADERS;
+  . = VIRT_BASE + KERNEL_BASE + SIZEOF_HEADERS;
 
   .second_stage :
   {
+    _section_second_stage_bootloader_start = .;
     bootloader/build/second_stage.elf
+    . = ALIGN(0x1000);
+    _section_second_stage_bootloader_end = .;
   }
 
   .text :
@@ -320,10 +326,10 @@ SECTIONS
     _section_bss_end = .;
   }
 
-  _kernel_memory_end = .;
-
   /DISCARD/ :
   {
     *(.comment)
   }
+
+  _kernel_memory_end = .;
 }

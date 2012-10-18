@@ -24,7 +24,8 @@ intr_handler_x:
   movzx edi, bl
   mov rsi, rax
 
-  call intr_handler
+  mov rax, qword intr_handler
+  call rax
 
   push qword [0x80+rax]
   popf
@@ -54,7 +55,7 @@ intr_handler_x:
     global intr_handler_%1
     intr_handler_%1:
       mov [abs qword .data], rax
-      mov rax, .data
+      mov rax, qword .data
       mov [0x08+rax], rbx
       mov bl, %1
       jmp intr_handler_x
