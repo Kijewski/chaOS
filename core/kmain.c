@@ -109,9 +109,16 @@ put_welcoming_message (void)
 static void
 put_cpu_info (void)
 {
+  struct cpuid_basic_info cpu_info;
+  cpuid_basic_info (&cpu_info);
+
+  struct cpuid_processor_brand_string cpu_brand;
+  cpuid_processor_brand_string (&cpu_brand);
+
   videoram_printf ("CPU: %.12s (%.72s)\n",
-                   cpuid_basic_info ().vendor_string,
-                   cpuid_processor_brand_string ().string);
+                   cpu_info.vendor_string,
+                   cpu_brand.string);
+
   uint64_t cpu_feats = cpuid_features ();
 # define FEAT_EDX(NAME) \
     if (cpu_feats & CPUID_FEAT_EDX_##NAME) \

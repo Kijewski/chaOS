@@ -10,46 +10,10 @@ struct cpuid_basic_info
   char vendor_string[12];
 } PACKED;
 
-static inline struct cpuid_basic_info
-cpuid_basic_info (void)
-{
-  struct cpuid_basic_info result;
-  typedef char c[4];
-  asm ("xor %%rax, %%rax;"
-       "cpuid" : "=a"(result.max_cpuid),
-                 "=b"(*(c *) &result.vendor_string[0*4]),
-                 "=d"(*(c *) &result.vendor_string[1*4]),
-                 "=c"(*(c *) &result.vendor_string[2*4]));
-  return result;
-}
-
 struct cpuid_processor_brand_string
 {
   char string[3*4*4];
 } PACKED;
-
-static inline struct cpuid_processor_brand_string
-cpuid_processor_brand_string (void)
-{
-  struct cpuid_processor_brand_string result;
-  typedef char c[4];
-  asm ("cpuid" : "=a"(*(c *) &result.string[0*4]),
-                 "=b"(*(c *) &result.string[1*4]),
-                 "=c"(*(c *) &result.string[2*4]),
-                 "=d"(*(c *) &result.string[3*4])
-               : "a"(0x80000002));
-  asm ("cpuid" : "=a"(*(c *) &result.string[4*4]),
-                 "=b"(*(c *) &result.string[5*4]),
-                 "=c"(*(c *) &result.string[6*4]),
-                 "=d"(*(c *) &result.string[7*4])
-               : "a"(0x80000003));
-  asm ("cpuid" : "=a"(*(c *) &result.string[8*4]),
-                 "=b"(*(c *) &result.string[9*4]),
-                 "=c"(*(c *) &result.string[10*4]),
-                 "=d"(*(c *) &result.string[11*4])
-               : "a"(0x80000004));
-  return result;
-}
 
 enum
 {
@@ -111,12 +75,8 @@ enum
   CPUID_FEAT_EDX_PBE          = 1ull << (31 + 32),
 };
 
-static inline uint64_t
-cpuid_features (void)
-{
-  uint64_t edx, ecx;
-  asm ("cpuid" : "=d"(edx), "=c"(ecx) : "a"(1));
-  return (edx << 32) + ecx;
-}
+void cpuid_basic_info (struct cpuid_basic_info *);
+void cpuid_processor_brand_string (struct cpuid_processor_brand_string *);
+uint64_t cpuid_features (void);
 
 #endif
