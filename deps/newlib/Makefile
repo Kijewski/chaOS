@@ -6,11 +6,12 @@ CVS := cvs
 CVSFLAGS := -z 7
 
 export CC := gcc
-export CFLAGS = -m64 -g3 -ggdb -mcmodel=large -msse2 -fno-pic -mno-red-zone -fno-stack-protector \
-	            -fstrict-aliasing -fsigned-char -fno-common \
-	            -ffreestanding -nostdlib -nostdinc -fno-builtin -nostartfiles -nodefaultlibs \
-	            -D_I386MACH_ALLOW_HW_INTERRUPTS=1 \
-	            -I$(ROOT)/include -I$(ROOT)
+export CFLAGS = \
+		-m64 -g3 -ggdb -mcmodel=large -msse2 -fno-pic -mno-tls-direct-seg-refs -mno-red-zone -fno-stack-protector \
+		-fstrict-aliasing -fsigned-char -fno-common \
+		-ffreestanding -nostdlib -nostdinc -fno-builtin -nostartfiles -nodefaultlibs \
+		-D_I386MACH_ALLOW_HW_INTERRUPTS=1 \
+		-I$(ROOT)/include -I$(ROOT)
 
 ICONV_ENCODINGS := us_ascii,iso_8859_15,win_1252,utf_8,utf_16,ucs_2,ucs_4
 
