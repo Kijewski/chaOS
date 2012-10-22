@@ -180,9 +180,7 @@ _start (void)
     asm volatile ("pause" ::: "memory");
   //*/
 
-  // clear Exception Handler Frame and BSS:
-  memset (&_section_ehframe_start[0], 0,
-          &_section_ehframe_end[0] - &_section_ehframe_start[0]);
+  // clear BSS:
   memset (&_section_bss_start[0], 0,
           &_section_bss_end[0] - &_section_bss_start[0]);
 
