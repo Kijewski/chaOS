@@ -3,7 +3,7 @@
 include Makefile.vars
 
 LD := ld
-LDFLAGS := --nmagic --fatal-warnings -nostdlib -static --whole-archive
+LDFLAGS := --nmagic --fatal-warnings -flto -O2 -nostdlib -static --whole-archive
 
 FOLDERS := common core devices glue include
 ARCHIVES := $(FOLDERS:%=%/$(TARGET)/build.a)

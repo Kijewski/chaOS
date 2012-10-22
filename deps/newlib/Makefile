@@ -7,8 +7,8 @@ CVSFLAGS := -z 7
 
 export CC := gcc
 export CFLAGS = \
-		-m64 -g3 -ggdb -mcmodel=large -msse2 -fno-pic -mno-tls-direct-seg-refs -mno-red-zone -fno-stack-protector \
-		-fstrict-aliasing -fsigned-char -fno-common \
+		-m64 -g3 -ggdb -O2 -mcmodel=large -msse2 -fno-pic -mno-tls-direct-seg-refs -mno-red-zone -fno-stack-protector \
+		-fstrict-aliasing -fsigned-char -fno-common -flto \
 		-ffreestanding -nostdlib -nostdinc -fno-builtin -nostartfiles -nodefaultlibs \
 		-D_I386MACH_ALLOW_HW_INTERRUPTS=1 \
 		-I$(ROOT)/include -I$(ROOT)
