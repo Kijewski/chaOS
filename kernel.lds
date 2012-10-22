@@ -312,6 +312,8 @@ SECTIONS
     _section_bss_start = .;
     *(.bss)
     *(.bss.*)
+    *(COMMON)
+    *(COMMON.*)
     . = ALIGN(0x1000);
     _section_bss_end = .;
   }
