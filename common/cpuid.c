@@ -13,15 +13,15 @@ cpuid (uint32_t num, void *a, void *b, void *c, void *d)
        "xchg %%rbx, %%rdi"
        : "=a"(*(_c *) a),
          "=D"(*(_c *) b),
-         "=d"(*(_c *) c),
-         "=c"(*(_c *) d)
+         "=c"(*(_c *) c),
+         "=d"(*(_c *) d)
        : "a"(num));
 #else
   asm ("cpuid;"
        : "=a"(*(_c *) a),
          "=b"(*(_c *) b),
-         "=d"(*(_c *) c),
-         "=c"(*(_c *) d)
+         "=c"(*(_c *) c),
+         "=d"(*(_c *) d)
        : "a"(num));
 #endif
 }

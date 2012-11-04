@@ -37,17 +37,18 @@ $(TARGET)/kernel.bin: kernel.lds $(ARCHIVES) $(DEPS_ACHIVES) bootloader/build/se
 	@mkdir -p $(TARGET)
 	$(CC) $(WFLAGS) $(MATHFLAGS) $(CROSS_COMPILING_FLAGS) $(CFLAGS) $(LINKER_FLAGS) \
 	      -Wl,-Map,$@.map -o $@ $(ARCHIVES) $(DEPS_ACHIVES:%=$(ROOT)/%)
-	objcopy --only-keep-debug $@ $@.dbg
-	strip -sx $@
 
-$(TARGET)/disk.img: $(TARGET)/kernel.bin bootloader/$(TARGET)/bootloader.bin
+$(TARGET)/kernel.strip.bin: $(TARGET)/kernel.bin
+	objcopy --strip-all $< $@
+
+$(TARGET)/disk.img: $(TARGET)/kernel.strip.bin bootloader/$(TARGET)/bootloader.bin
 	@rm -f $@
 	bximage -q -hd -mode=flat -size=4 $@
 	parted -s $@ -- mklabel msdos
 	parted -s -a minimal $@ -- mkpart primary ext2 \
-			1s  $(shell dc -e "$(shell stat -c%s $(TARGET)/kernel.bin) 4095+4096/8*p")s
+			1s  $(shell dc -e "$(shell stat -c%s $(TARGET)/kernel.strip.bin) 4095+4096/8*p")s
 	parted -s -a minimal $@ -- mkpart primary fat16 \
-			$(shell dc -e "$(shell stat -c%s $(TARGET)/kernel.bin) 4095+4096/8*1+p")s 100%
+			$(shell dc -e "$(shell stat -c%s $(TARGET)/kernel.strip.bin) 4095+4096/8*1+p")s 100%
 	parted -s $@ -- set 1 boot on
 	dd conv=notrunc if=bootloader/$(TARGET)/bootloader.bin of=$@ bs=446 count=1
-	dd conv=notrunc if=$(TARGET)/kernel.bin of=$@ bs=512 seek=1
+	dd conv=notrunc if=$(TARGET)/kernel.strip.bin of=$@ bs=512 seek=1

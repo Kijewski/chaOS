@@ -4,6 +4,7 @@
 #include <common/attributes.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <kernel.h>
 
 enum
 {
@@ -31,7 +32,7 @@ struct e820_ref
 static inline const struct e820_entry *
 e820_start (void)
 {
-  const struct e820_ref *result = (void *) 0x4500;
+  const struct e820_ref *result = (void *) (VIRT_BASE + 0x4500);
   return result->size != 0 ? &result->entry : NULL;
 }
 
