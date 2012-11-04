@@ -2,8 +2,7 @@
 
 include Makefile.vars
 
-LD := ld
-LDFLAGS := --nmagic --fatal-warnings -flto -O2 -nostdlib -static --whole-archive
+LINKER_FLAGS := -Wl,--nmagic,--fatal-warnings,-static,--whole-archive,-T,kernel.lds,-O3
 
 FOLDERS := common core devices glue include
 ARCHIVES := $(FOLDERS:%=%/$(TARGET)/build.a)
@@ -36,7 +35,8 @@ bootloader/build/second_stage.elf bootloader/$(TARGET)/bootloader.bin: bootloade
 
 $(TARGET)/kernel.bin: kernel.lds $(ARCHIVES) $(DEPS_ACHIVES) bootloader/build/second_stage.elf
 	@mkdir -p $(TARGET)
-	$(LD) $(LDFLAGS) -Map $@.map -T kernel.lds -o $@ $(ARCHIVES) $(DEPS_ACHIVES:%=$(ROOT)/%)
+	$(CC) $(WFLAGS) $(MATHFLAGS) $(CROSS_COMPILING_FLAGS) $(CFLAGS) $(LINKER_FLAGS) \
+	      -Wl,-Map,$@.map -o $@ $(ARCHIVES) $(DEPS_ACHIVES:%=$(ROOT)/%)
 	objcopy --only-keep-debug $@ $@.dbg
 	strip -sx $@
 

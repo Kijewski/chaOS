@@ -119,7 +119,7 @@ paging_remap (void *page)
 bool
 paging_init (void)
 {
-  return false; // TODO: use VIRT_BASE
+  return true; // TODO: use VIRT_BASE
 
   static uint64_t pdp_0[512] ALIGNED (0x1000);
   static uint64_t pd_0[512] ALIGNED (0x1000);

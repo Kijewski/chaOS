@@ -33,7 +33,7 @@ read_e820:
     test ebx, ebx
     jnz .loop
 .end:
-    mov word [di-2], bx ; bx is zero
+    mov word [di-2], 0
     jmp build_temp_pagetable
 .fail:
     puts strings.bios_no_e820
