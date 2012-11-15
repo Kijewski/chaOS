@@ -32,12 +32,41 @@ struct idtr
 
 static intr_handler_fun *interrupt_funs[256];
 
+static const char *exception_name[20] = {
+  "Divide by zero",
+  "Debug",
+  "Non-maskable Interrupt",
+  "Breakpoint",
+  "Overflow",
+
+  "Bound range",
+  "Invalid Opcode",
+  "Device not available",
+  "Double Fault",
+  "Coprocessor Segment Overrun",
+
+  "Invalid TSS",
+  "Segment Not Present",
+  "Stack-Segment Fault",
+  "General Protection Fault",
+  "Page Fault",
+
+  "Reserved (#15)",
+  "x87 Floating-Point Exception",
+  "Alignment Check",
+  "Machine Check",
+  "SIMD Floating-Point Exception",
+};
+
 static void
 intr_debug_frame (int num, struct interrupt_frame *f)
 {
-  videoram_printf ("\n\e%c "
-                   "              Got interrupt 0x%02hhX               \n"
-                   " RAX: %016" PRIxPTR "   "
+  videoram_printf ("\n\n\e%c "
+                   "              Got interrupt 0x%02hhX               \n",
+                   COLOR_ERROR, num);
+  if (num >= 0 && num < 20)
+    videoram_printf ("\e%c  %44s  \n", COLOR_ERROR, exception_name[num]);
+  videoram_printf ("\e%c RAX: %016" PRIxPTR "   "
                    " RBX: %016" PRIxPTR " \n"
                    " RCX: %016" PRIxPTR "   "
                    " RDX: %016" PRIxPTR " \n"
@@ -60,7 +89,7 @@ intr_debug_frame (int num, struct interrupt_frame *f)
                    " CR4: %016" PRIxPTR "   "
                    "EFER: %016" PRIxPTR " \n"
                    "             FLAGS: %016" PRIxPTR "            \n\n",
-                   COLOR_ERROR, num,
+                   COLOR_ERROR,
                    f->rax, f->rbx, f->rcx, f->rdx, f->rsi, f->rdi, f->rbp,
                    f->rsp, f->r8, f->r9, f->r10, f->r11, f->r12, f->r13, f->r14,
                    f->r15, cr2_read (), *(uintptr_t *)f->rsp, cr0_read (),
